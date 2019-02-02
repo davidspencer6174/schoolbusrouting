@@ -5,7 +5,7 @@ VERBOSE = True
 
 #Identifies elementary, middle, and high school students
 GRADES_TYPE_MAP = dict()
-for i in range(1, 6):
+for i in range(0, 6):
     GRADES_TYPE_MAP[i] = 'E'
 for i in range(6, 9):
     GRADES_TYPE_MAP[i] = 'M'

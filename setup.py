@@ -78,8 +78,7 @@ def setup_students(phonebooks, all_geocodes, geocoded_stops,
             if fields[1].strip() == "":  #no school given
                 continue
             #For now, I won't consider special ed.
-            #Will be necessary to add later.
-            if fields[5].strip() not in ["M", "X"]:
+            if fields[5].strip() not in ["M", "X", "P"]:
                 continue
             stop = californiafy(fields[bus_col + 6])
             school = fields[1].strip()  #Cost center id
@@ -93,6 +92,8 @@ def setup_students(phonebooks, all_geocodes, geocoded_stops,
                 grade = -1
             if int(grade) in constants.GRADES_TYPE_MAP:
                 age_type = constants.GRADES_TYPE_MAP[int(grade)]
+            if age_type == 'Other':
+                print(grade)
             if school_ind not in ind_school_dict:
                 belltime = 8*60*60  #default to 8AM start
                 #None of the 19xxxxx schools have start times.
