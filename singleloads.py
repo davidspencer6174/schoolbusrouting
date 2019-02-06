@@ -45,13 +45,13 @@ def route_school(student_set, cap_counts, contr_counts, school):
             #used all district buses and no contract bus is large enough
             #for another student - terminate route
             if (len(cap_counts) == 0 and
-                len(current_students) + 1 > contr_counts[-1][0]):
+                not current_route.can_add(contr_counts[-1][0])):
                 break
             #there are still district buses but
             #no district bus of large enough capacity exists to
             #take more students - terminate route
             if (len(cap_counts) > 0 and
-                len(current_students) + 1 > cap_counts[-1][0]):
+                not current_route.can_add(cap_counts[-1][0])):
                 break
             #all students are routed - terminate route
             if len(school_students) == 0:
@@ -76,11 +76,11 @@ def route_school(student_set, cap_counts, contr_counts, school):
         for bus_ind in range(len(cap_counts)):
             bus = cap_counts[bus_ind]
             #found the smallest suitable bus
-            if current_route.occupants <= bus[0]:
+            if current_route.is_acceptable(bus[0]):
                 #mark the bus as taken
                 bus[1] -= 1
                 #Update the route to know the bus capacity
-                current_route.bus_capacity = bus[0]
+                current_route.set_capacity(bus[0])
                 #if all buses of this capacity are now taken, remove
                 #this capacity
                 if bus[1] == 0:
@@ -90,8 +90,8 @@ def route_school(student_set, cap_counts, contr_counts, school):
         if len(cap_counts) == 0:
             for bus_ind in range(len(contr_counts)):
                 bus = contr_counts[bus_ind]
-                if current_route.occupants <= bus[0]:
+                if current_route.is_acceptable(bus[0]):
                     bus[1] += 1
-                    current_route.bus_capacity = bus[0]
+                    current_route.set_capacity(bus[0])
                     break
     return route_set

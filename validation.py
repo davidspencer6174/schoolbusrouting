@@ -4,7 +4,7 @@ from locations import Student
 #Verifies the routes without relying on the fields of the
 #routes, i.e. computes travel time and occupants from
 #scratch.
-def full_verification(routes, max_time, print_result = False):
+def full_verification(routes, print_result = False):
     valid = True
     students = set()
     for route in routes:
@@ -23,7 +23,7 @@ def full_verification(routes, max_time, print_result = False):
                 if locations[i].type != locations[0].type:
                     valid = False
                     print("Student ages on a bus differ")
-        if time > max_time and route.occupants > 1:
+        if time > constants.MAX_TIME and route.occupants > 1:
             valid = False
             print("Max time violated")
         for loc_ind in range(len(locations)):

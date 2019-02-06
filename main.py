@@ -22,7 +22,10 @@ def main():
     cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
     #So far, we are using 0 of each contract size.
     #This will get incremented when the schools get routed.
-    contr_counts = [[8, 0], [12, 0], [25, 0], [39, 0], [65, 0]]
+    #contr_counts = [[8, 0], [12, 0], [25, 0], [39, 0], [65, 0]]
+    #This option only allows using the larger buses -
+    #I think this is preferred by LAUSD
+    contr_counts = [[39, 0], [65, 0]]
     if constants.VERBOSE:
         print(len(students))
         print(len(schools_students_map))
@@ -48,7 +51,6 @@ def main():
         for route in route_school(student_set, cap_counts, contr_counts,
                                   school_to_route):
             all_routes.append(route)
-        #These diagnostics got messed up - figure out what's up
         if len(student_set) > 0:
             if constants.VERBOSE:
                 print("Routed school of size " + str(len(student_set)))
@@ -60,8 +62,9 @@ def main():
             tot += len(student_set)
             if constants.VERBOSE:
                 print(tot)
-        
-    full_verification(all_routes, constants.MAX_TIME, print_result = True)
+     
+    
+    full_verification(all_routes, print_result = True)
     
     print("Contract buses used: " + str(contr_counts))
     print("Leftover original buses: " + str(cap_counts))
@@ -81,15 +84,15 @@ def main():
                 print(types)
     
     random.shuffle(all_routes)    
-    #all_routes = sorted(all_routes, key = lambda x:x.occupants)
+    all_routes = sorted(all_routes, key = lambda x:x.occupants)
     print("Buses saved: " + str(mixed_loads(all_routes)))
         
-    full_verification(all_routes, constants.MAX_TIME, print_result = True)
+    full_verification(all_routes, print_result = True)
     return all_routes
     
 routes_returned = None
 for i in range(0,2):
     routes_returned = main()
-    saving = open(("output//2700smax"+str(i)+".obj"), "wb")
+    saving = open(("output//modified_caps"+str(i)+".obj"), "wb")
     pickle.dump(routes_returned, saving)
     saving.close()

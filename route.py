@@ -15,6 +15,7 @@ class Route:
         #This is denoted by a -1.
         #Otherwise, this variable should be modified to reflect
         #the actual capacity.
+        self.unmodified_bus_capacity = -1
         self.bus_capacity = -1
         
     #This is a backup used during the mixed-load post improvement
@@ -195,7 +196,7 @@ class Route:
     #Simple for now
     def feasibility_check(self):
         #Too long
-        if self.length > constants.MAX_TIME:
+        if self.length > constants.MAX_TIME and self.occupants > 1:
             return False
         #Too many students
         if self.bus_capacity > -1 and self.occupants > self.bus_capacity:
@@ -216,3 +217,34 @@ class Route:
             if latest_possible < earliest_possible:
                 return False
         return True
+    
+    #Given a capacity, checks the age of the student and
+    #stores the corresponding capacity
+    def set_capacity(self, cap):
+        self.unmodified_bus_capacity = cap
+        if self.locations[0].type == 'E':
+            self.bus_capacity =  constants.CAPACITY_MODIFIED_MAP[cap][0]
+        elif self.locations[0].type == 'M':
+            self.bus_capacity =  constants.CAPACITY_MODIFIED_MAP[cap][1]
+        else:
+            self.bus_capacity =  constants.CAPACITY_MODIFIED_MAP[cap][2]
+    
+    #Accepts a bus array of length 3
+    #The first number is the allowable number of elementary students
+    #to assign, then  middle, then high
+    #Returns whether it is valid to assign the bus to the route
+    def is_acceptable(self, cap):
+        if self.locations[0].type == 'E':
+            return constants.CAPACITY_MODIFIED_MAP[cap][0] >= self.occupants
+        elif self.locations[0].type == 'M':
+            return constants.CAPACITY_MODIFIED_MAP[cap][1] >= self.occupants
+        else:
+            return constants.CAPACITY_MODIFIED_MAP[cap][2] >= self.occupants
+    
+    #Check whether it is feasible to add more students to the route
+    #given the bus capacity
+    def can_add(self, cap, num_students = 1):
+        self.occupants += num_students
+        out = self.is_acceptable(cap)
+        self.occupants -= num_students
+        return out
