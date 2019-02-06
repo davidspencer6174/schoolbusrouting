@@ -39,6 +39,11 @@ CAPACITY_MODIFIED_MAP[8] = [8, 5, 5]
 #Assumed multiplier due to discrepancies betweeen OSRM estimated
 #travel time and Google Maps estimated travel time
 TT_MULT = 1.5
+
+#If a student lives too far away from school, multiply the
+#allowable route time by some slack to allow for still
+#picking up other students.
+SLACK = 1.1
  
 #Load travel time matrix and multiply by TT_MULT
 TRAVEL_TIMES = np.load("data//travel_time_matrix.npy")*TT_MULT

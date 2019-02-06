@@ -11,6 +11,7 @@ class Route:
         self.occupants = 0
         self.backup_locs = []
         self.backup_occs = 0
+        self.max_time = constants.MAX_TIME
         #If no bus is assigned, the default capacity is infinite.
         #This is denoted by a -1.
         #Otherwise, this variable should be modified to reflect
@@ -146,7 +147,7 @@ class Route:
                                                   self.locations[i].tt_ind]
             self.length -= constants.TRAVEL_TIMES[self.locations[i-1].tt_ind,
                                                   self.locations[i].tt_ind]
-            if self.length > constants.MAX_TIME:
+            if self.length > self.max_time:
                 self.temp_restore()
                 continue
             self.locations = self.locations[:i] + [school] + self.locations[i:]
@@ -196,7 +197,7 @@ class Route:
     #Simple for now
     def feasibility_check(self):
         #Too long
-        if self.length > constants.MAX_TIME and self.occupants > 1:
+        if self.length > self.max_time and self.occupants > 1:
             return False
         #Too many students
         if self.bus_capacity > -1 and self.occupants > self.bus_capacity:

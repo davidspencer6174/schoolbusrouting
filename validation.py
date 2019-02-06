@@ -16,14 +16,18 @@ def full_verification(routes, print_result = False):
             return False
         time = 0
         locations = route.locations
+        max_time = constants.MAX_TIME
         for i in range(len(locations) - 1):
             time += constants.TRAVEL_TIMES[locations[i].tt_ind,
                                            locations[i+1].tt_ind]
             if isinstance(locations[i], Student):
+                school_dist = constants.TRAVEL_TIMES[locations[i].tt_ind,
+                                                     locations[i].school.tt_ind]
+                max_time = max(max_time, school_dist*constants.SLACK)
                 if locations[i].type != locations[0].type:
                     valid = False
                     print("Student ages on a bus differ")
-        if time > constants.MAX_TIME and route.occupants > 1:
+        if time > max_time and route.occupants > 1:
             valid = False
             print("Max time violated")
         for loc_ind in range(len(locations)):

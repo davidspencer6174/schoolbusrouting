@@ -10,12 +10,19 @@ def single_route(route_students, school):
     route = Route()
     #initialize route with just school
     route.add_location(school)
+    #track max allowed time. there is a default value,
+    #but if a student lives really far away, add
+    #some slack.
+    max_time = constants.MAX_TIME
     while len(route_students) > 0:
         to_add = closest_pair(route_students, [route.locations[0]])[0]
+        max_time = max(max_time, constants.TRAVEL_TIMES[to_add.tt_ind,
+                                                        school.tt_ind]*constants.SLACK)
         #add student to beginning of route
         route.add_location(to_add, pos = 0)
         route_students.remove(to_add)
     route.two_opt()  #perform two opt optimization procedure
+    route.max_time = max_time
     return route
 
 
@@ -39,6 +46,7 @@ def route_school(student_set, cap_counts, contr_counts, school):
         #Now all students will need to have the same age type
         school_students.remove(init_student)
         current_route = single_route(list(current_students), school)
+        #keep track of max time allowed for this route
         
         #Now we continually attempt to add students
         while True:
@@ -65,7 +73,7 @@ def route_school(student_set, cap_counts, contr_counts, school):
             new_route = single_route(list(current_students), school)
             #if the computed route is too long to add this student,
             #route is finished - don't use the new route
-            if new_route.get_route_length() > constants.MAX_TIME:
+            if new_route.get_route_length() > new_route.max_time:
                 current_students.remove(student_to_add)
                 break
             #route is valid, so update current_route

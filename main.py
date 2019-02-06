@@ -91,8 +91,8 @@ def main():
     return all_routes
     
 routes_returned = None
-for i in range(0,2):
+for i in range(0,10):
     routes_returned = main()
-    saving = open(("output//modified_caps"+str(i)+".obj"), "wb")
+    saving = open(("output//slack_for_faraway"+str(i)+".obj"), "wb")
     pickle.dump(routes_returned, saving)
     saving.close()
