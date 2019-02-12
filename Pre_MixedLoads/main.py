@@ -32,12 +32,14 @@ class Student:
         
 class Route:
     #For now, encapsulated as a list of student/stop index pairs in order
-    def __init__(self, tt_ind):
+    def __init__(self, route_id):
         self.students = []
+        self.route_id = list()
         self.length = 0
         self.occupants = 0
         self.tt_ind = tt_ind
-        self.clusters_visited = [] 
+        self.clusters_visited = set()
+        self.schools_to_vist = set()
         
     #insert a student pickup at a certain position in the route.
     #default position is the end
@@ -58,13 +60,49 @@ class Route:
         return self.length + travel_times[self.students[-1].tt_ind,
                                           self.tt_ind]
         
-    def update_visited_clusters(self, cluster_num):
-        self.clusers_visited.append(cluster_num)
+    def update_clusters_visited(self, cluster_num):
+        self.clusers_visited.add(cluster_num)
+
+    def add_schools_to_visit(self, school_id):
+        self.schools_to_drop.add(school_id)
+
+    def check_if_visited(self, cluster):
+        if cluster in clusters_visited: 
+            return True
+        else: 
+            return False 
 
 #Used to get the data into a full address format        
 def californiafy(address):
     return address[:-6] + " California," + address[-6:]
 
+#bus_capacities is an input csv file where the first
+#column is bus ID and the second is capacity.
+def setup_buses(bus_capacities):
+    cap_counts_dict = dict()  #map from capacities to # of buses of that capacity
+    caps = open(bus_capacities, 'r')
+    for bus in caps.readlines():
+        fields = bus.split(";")
+        cap = int(fields[1])
+        if cap not in cap_counts_dict:
+            cap_counts_dict[cap] = 0
+        cap_counts_dict[cap] += 1
+    caps.close()
+    #now turn into a list sorted by capacity
+    cap_counts_list = list(cap_counts_dict.items())
+    cap_counts_list = sorted(cap_counts_list, key = lambda x:x[0])
+    for i in range(len(cap_counts_list)):
+        cap_counts_list[i] = list(cap_counts_list[i])
+    return cap_counts_list
+
+#phonebooks: list of filenames for phonebooks
+#phonebooks are assumed to be in the format that was provided to
+#me in early November 2018
+#all_geocodes: filename for list of all geocodes. gives map from geocode to ind
+#geocoded_stops: file name for map from stop to geocode
+#geocoded_schools: file name for map from school to geocode
+#returns a list of all students, a dict from schools to sets of
+#students, and a dict from schools to indices in the travel time matrix.
 def setup_students(phonebooks, all_geocodes, geocoded_stops, geocoded_schools):
     stops = open(geocoded_stops, 'r')
     stops_codes_map = dict()
@@ -132,13 +170,19 @@ def setup_students(phonebooks, all_geocodes, geocoded_stops, geocoded_schools):
         pb_part.close()
         
     return students, schools_students_map, schools_inds_map
-    
+
+# Inputs: 
+#       clusterFile = csv with schools and their cluster
+#       all_geocodesFile, phonebookFile, school_indes_map = all from original csvs
+# Outputs: 
+#       cluster_school_map = maps from cluster to schools
+#       cluster_stops_map = maps from cluster to stops (tt_ind)
+#       stops_students_map = maps from stops to students(tt_ind)
 def setup_cluster(clusterFile, all_geocodesFile, phonebookFile, schools_inds_map):
     clusters = np.load(clusterFile)
     phonebook = pd.read_csv(phonebookFile, dtype={'stop_Lat': float, 'stop_Long': float}, low_memory=False).drop(['Unnamed: 0'],axis=1)
     phonebook.stop_Lat = round(phonebook.stop_Lat, 6)
     phonebook.stop_Long = round(phonebook.stop_Long, 6)
-
     geocodes = pd.read_csv(all_geocodesFile).drop(['Unnamed: 0'],axis=1)
     
     cluster_school_map = dict()
@@ -180,8 +224,22 @@ def setup_cluster(clusterFile, all_geocodesFile, phonebookFile, schools_inds_map
             stops_students_map[stop] = studentlist
     return cluster_school_map, cluster_stops_map, stops_students_map
 
-# Start with current cluster and 
-def closest_cluster(current_cluster, cluster_stops_map):
+# Find closest stop in a particular cluster that is closest to current position
+# Could be used for inter/intra-cluster, depending on what cluster is:
+# For intra-cluster: set new cluster as "cluster" input; For inter-cluster: cluster as "cluster" input 
+# EXTENSION: Use density and number of students remaning in the cluster to 
+#            get the "closest-stop" metric. Now this is purely based on distance 
+def closest_stop(curr_pos, cluster):
+    distances = dict()
+    for stops in cluster_stops_map[cluster]:
+        distances[stops] = travel_times[curr_pos][stops]
+    closest_stop = min(distances.items(), key=lambda x: x[1]) 
+    return closest_stop[0]
+
+# Find the cluster that is closest to the current cluster
+# EXTENSION: Find better way to do this, currently randomly picks a stop in new cluster 
+#            and uses that as the distance to measure "closeness"
+def closest_cluster(current_cluster):
     distances = dict()
     cc_random = random.choice(cluster_school_map[current_cluster]).tt_ind
     for temp_cluster in cluster_stops_map:
@@ -190,36 +248,57 @@ def closest_cluster(current_cluster, cluster_stops_map):
     closest_cluster = min(distances.items(), key=lambda x: x[1]) 
     return closest_cluster[0]
 
-# Find closest stop in a particular cluster, in comparison to current position
-def closest_stop(curr_pos, cluster):
-    distances = dict()
-    for stops in cluster_stops_map[cluster]:
-        distances[stops] = travel_times[curr_pos][stops]
-    closest_stop = min(distances.items(), key=lambda x: x[1]) 
-    return closest_stop[0]
-
-# Routing within a cluster when we reach a particular cluster
-def route_within_cluster(curr_loc, cluster, route):
-
-    next_stop = closest_stop(curr_loc, cluster)
-    
-    
+# If a route has picked up a student, then remove that student from the dictionary
+def remove_student_from_stop(student, stop):
+    stops_students_map 
     pass 
 
+# Should return True/False
+def check_bus_capacities(curr_route):
 
-def route_cluster(curr_loc, cluster, cluster_school_map, stops_students_map, schools_inds_map):
+    return 
+
+# Get the route to bus should take to drop the students off at school
+def return_routes(route)
+    return route 
+
+# Routing within a cluster when we reach a particular cluster
+def routes_within_cluster(curr_loc, cluster, route):
+
+    while True: 
+        next_stop = closest_stop(curr_loc, cluster)
+    
+    pass
+
+# Route for each cluster
+def route_cluster(cluster):
+    
+    # Choose a random school to set as starting location
+    curr_loc = random.choice(cluster_school_map[cluster]).tt_ind
+    cluster_routes = list()
     
     while True:
-        next_cluster = closest_cluster(cluster, cluster_school_map)
-        routes_within_cluster = route_within_cluster(curr_loc, next_cluster, Route(curr_loc))
+        
+        # Each cluster would have a list of routes
+        newroute = Route(curr_loc)
+        
+        # Choose new cluster and first stop in that new cluster 
+        curr_cluster = closest_cluster(cluster)
+        curr_loc = closest_stop(curr_loc, curr_cluster)
+
+        route_within_cluster = route_within_cluster(curr_loc, curr_cluster, newroute)
         
         
-    return next_cluster 
-    
+        # Break conditions
+        # If the routes or the time is exceeding
+
+        cluster_routes.append(route)
+        
+    return cluster_routes 
     
 
 # MAIN 
-prefix2 = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/data/csvs/"
+prefix2 = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Data/csvs/"
 students, schools_students_map, schools_inds_map = setup_students([prefix2+'phonebook_parta.csv',
                                                                    prefix2+'phonebook_partb.csv'],
                                                                    prefix2+'all_geocodes.csv',
@@ -231,18 +310,23 @@ cluster_school_map, cluster_stops_map, stops_students_map = setup_cluster(prefix
                                                                           prefix3+'w_geocodes.csv', 
                                                                           prefix3+'w_phonebook_split_elem.csv', 
                                                                           schools_inds_map)
+cap_counts = setup_buses(prefix2+'dist_bus_capacities.csv')
 
+# Output inital information:
 print("Number of School Clusters: " +str(len(cluster_school_map)))
 print("Number of Stop Clusters: " +str(len(cluster_stops_map)))
 print("Number of Students: " + str(sum(len(v[1]) for v in stops_students_map.items())))
+print(cap_counts)
+tot_cap = 0
+for bus in cap_counts:
+    tot_cap += bus[0]*bus[1]
+print("Total capacity: " + str(tot_cap))
 
+# Each cluster would have a list of routes
+results = list()
 for cluster in cluster_school_map:
-    random_start = random.choice(cluster_school_map[cluster]).tt_ind
-    result = route_cluster(random_start, cluster, cluster_school_map, stops_students_map, schools_inds_map, max_time)
+    results.append(route_cluster(cluster))
 
-
-
-    
 
 
         
