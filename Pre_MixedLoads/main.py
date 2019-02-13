@@ -5,6 +5,7 @@ import csv
 from collections import Counter
 from math import ceil, floor
 import random
+from igraph import *
 
 verbose = 1
 stop_point = 10
@@ -13,8 +14,8 @@ max_time = 3600
 prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
 travel_times = np.load(prefix + "w_travel_times.npy")
 
+
 class School:
-    
     #tt_ind denotes the index of the school in the travel time matrix
     def __init__(self, tt_ind):
         self.tt_ind = tt_ind
@@ -34,12 +35,13 @@ class Route:
     #For now, encapsulated as a list of student/stop index pairs in order
     def __init__(self, route_id):
         self.students = []
-        self.route_id = list()
+        self.route_id = []
         self.length = 0
         self.occupants = 0
-        self.tt_ind = tt_ind
+        self.tt_ind = 0
         self.clusters_visited = set()
         self.schools_to_vist = set()
+        self.dropoff_path = []
         
     #insert a student pickup at a certain position in the route.
     #default position is the end
@@ -52,26 +54,50 @@ class Route:
             self.length += travel_times[self.students[pos].tt_ind,
                                         self.students[pos + 1].tt_ind]
         self.occupants += 1
-        
+    
     def get_schoolless_route_length(self):
         return self.length
         
     def get_route_length(self):
         return self.length + travel_times[self.students[-1].tt_ind,
                                           self.tt_ind]
-        
+                
     def update_clusters_visited(self, cluster_num):
-        self.clusers_visited.add(cluster_num)
+        self.clusters_visited.add(cluster_num)
 
-    def add_schools_to_visit(self, school_id):
-        self.schools_to_drop.add(school_id)
+    # Use igraph to find shortest path to dropoff students 
+    def get_shortest_path_dropoff(self):
+        
+        schools_to_visit = [self.tt_ind]
+        schools_to_visit.extend(list(self.schools_to_visit))
 
-    def check_if_visited(self, cluster):
-        if cluster in clusters_visited: 
+        dropoff_mat = [[0 for x in range(len(schools_to_visit))] for y in range(len(schools_to_visit))]
+                
+        for i in range(0, len(dropoff_mat)):
+            for j in range(0, len(dropoff_mat[i])):
+                dropoff_mat[i][j] = travel_times[schools_to_visit[i]][schools_to_visit[j]]                 
+
+        index = self.tt_ind
+        path = [self.tt_ind]   
+        dropoff_time = 0 
+        
+        for i in range(1, len(schools_to_visit)):
+            temp = np.array(dropoff_mat[index])
+            dist_to_add = np.min(temp[np.nonzero(temp)])
+            dropoff_time += dist_to_add 
+            index = list(temp).index(dist_to_add)
+            path.append(index)
+        self.dropoff_path = path 
+        return dropoff_time
+        
+    def check_constraints(self):
+        temp = max(cap_counts, key=lambda x:x[0])
+        if (len(self.students) >= temp[0] and temp[1] >= 1) and (self.length + self.get_shortest_path_dropoff() < max_time):
             return True
-        else: 
-            return False 
-
+        else:
+            return False
+        
+        
 #Used to get the data into a full address format        
 def californiafy(address):
     return address[:-6] + " California," + address[-6:]
@@ -253,49 +279,32 @@ def remove_student_from_stop(student, stop):
     stops_students_map 
     pass 
 
-# Should return True/False
-def check_bus_capacities(curr_route):
-
-    return 
-
-# Get the route to bus should take to drop the students off at school
-def return_routes(route)
-    return route 
-
-# Routing within a cluster when we reach a particular cluster
-def routes_within_cluster(curr_loc, cluster, route):
-
-    while True: 
-        next_stop = closest_stop(curr_loc, cluster)
-    
+# Create the actual
+def start_routing(curr_loc, curr_cluster, newroute):
     pass
 
 # Route for each cluster
 def route_cluster(cluster):
+    pass
+    # # Choose a random school to set as starting location
+    # curr_loc = random.choice(cluster_school_map[cluster]).tt_ind
+    # cluster_routes = list()
     
-    # Choose a random school to set as starting location
-    curr_loc = random.choice(cluster_school_map[cluster]).tt_ind
-    cluster_routes = list()
-    
-    while True:
+    # while True:
+    #     # Each stop cluster would have a list of routes
+    #     newroute = Route(curr_loc)
         
-        # Each cluster would have a list of routes
-        newroute = Route(curr_loc)
+    #     # Pick a new cluster and pick the first stop in that new cluster 
+    #     curr_cluster = closest_cluster(cluster)
+    #     curr_loc = closest_stop(curr_loc, curr_cluster
         
-        # Choose new cluster and first stop in that new cluster 
-        curr_cluster = closest_cluster(cluster)
-        curr_loc = closest_stop(curr_loc, curr_cluster)
+    #     # Begin routing 
+    #     # newroute = start_routing(curr_loc, curr_cluster, newroute)
+    #     # cluster_routes.append(newroute)
 
-        route_within_cluster = route_within_cluster(curr_loc, curr_cluster, newroute)
-        
-        
-        # Break conditions
-        # If the routes or the time is exceeding
+    # # return cluster_routes 
+    # return True
 
-        cluster_routes.append(route)
-        
-    return cluster_routes 
-    
 
 # MAIN 
 prefix2 = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Data/csvs/"
@@ -316,16 +325,23 @@ cap_counts = setup_buses(prefix2+'dist_bus_capacities.csv')
 print("Number of School Clusters: " +str(len(cluster_school_map)))
 print("Number of Stop Clusters: " +str(len(cluster_stops_map)))
 print("Number of Students: " + str(sum(len(v[1]) for v in stops_students_map.items())))
+
 print(cap_counts)
 tot_cap = 0
 for bus in cap_counts:
     tot_cap += bus[0]*bus[1]
 print("Total capacity: " + str(tot_cap))
 
+test = Route(1)
+test.tt_ind = 10786
+test.schools_to_visit = [10786, 9371, 10336, 10341]
+time = test.get_shortest_path_dropoff()
+print('willy')
+
 # Each cluster would have a list of routes
-results = list()
-for cluster in cluster_school_map:
-    results.append(route_cluster(cluster))
+# results = list()
+# for cluster in cluster_school_map:
+#     results.append(route_cluster(cluster))
 
 
 
