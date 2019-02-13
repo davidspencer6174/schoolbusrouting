@@ -27,11 +27,9 @@ def single_route(route_students, school):
 
 
 #student_set is the set of students attending the school
-#cap_counts is a list of [bus capacity, count] pairs sorted by capacity
-#contr_counts is a list of contract buses consumed
 #school is the School object
     
-def route_school(student_set, cap_counts, contr_counts, school):
+def route_school(student_set, school):
     
     school_students = list(student_set)
     route_set = set()
@@ -50,17 +48,6 @@ def route_school(student_set, cap_counts, contr_counts, school):
         
         #Now we continually attempt to add students
         while True:
-            #used all district buses and no contract bus is large enough
-            #for another student - terminate route
-            if (len(cap_counts) == 0 and
-                not current_route.can_add(contr_counts[-1][0])):
-                break
-            #there are still district buses but
-            #no district bus of large enough capacity exists to
-            #take more students - terminate route
-            if (len(cap_counts) > 0 and
-                not current_route.can_add(cap_counts[-1][0])):
-                break
             #all students are routed - terminate route
             if len(school_students) == 0:
                 break
@@ -80,26 +67,4 @@ def route_school(student_set, cap_counts, contr_counts, school):
             current_route = new_route
             school_students.remove(student_to_add)
         route_set.add(current_route)
-        #Look for the district bus that can accommodate the route
-        for bus_ind in range(len(cap_counts)):
-            bus = cap_counts[bus_ind]
-            #found the smallest suitable bus
-            if current_route.is_acceptable(bus[0]):
-                #mark the bus as taken
-                bus[1] -= 1
-                #Update the route to know the bus capacity
-                current_route.set_capacity(bus[0])
-                #if all buses of this capacity are now taken, remove
-                #this capacity
-                if bus[1] == 0:
-                    cap_counts.remove(bus)
-                break
-        #If all district buses have been used, use a contract bus.
-        if len(cap_counts) == 0:
-            for bus_ind in range(len(contr_counts)):
-                bus = contr_counts[bus_ind]
-                if current_route.is_acceptable(bus[0]):
-                    bus[1] += 1
-                    current_route.set_capacity(bus[0])
-                    break
     return route_set

@@ -7,7 +7,7 @@ from locations import Student
 def mixed_loads(route_list):
     #Iterate over all routes and check whether they
     #can be removed.
-    buses_saved = []
+    num_routes_saved = 0
     print("Old number of routes: " + str(len(route_list)))
     i = 0
     while i < len(route_list):
@@ -40,12 +40,12 @@ def mixed_loads(route_list):
         else:
             if constants.VERBOSE:
                 print("Successfully deleted a route")
-            #Track capacities of saved buses
-            buses_saved.append(route_to_delete.bus_capacity)
+            #Track number of saved buses
+            num_routes_saved += 1
             del route_list[i]
             i -= 1
         i += 1
         #if i > 200:  #for the purposes of obtaining quicker profiling results
         #    break
     print("New number of routes: " + str(len(route_list)))
-    return buses_saved
+    return num_routes_saved

@@ -12,6 +12,13 @@ for i in range(6, 9):
 for i in range(9, 13):
     GRADES_TYPE_MAP[i] = 'H'
     
+#Maps grade types to indices in the range of the
+#grade type map
+TYPE_IND_MAP = dict()
+TYPE_IND_MAP['E'] = 0
+TYPE_IND_MAP['M'] = 1
+TYPE_IND_MAP['H'] = 2
+    
 #For a stated capacity, make it easy to access the
 #capacities for each age - elementary, middle, high
 CAPACITY_MODIFIED_MAP = dict()
@@ -35,6 +42,10 @@ CAPACITY_MODIFIED_MAP[16] = [16, 11, 11]
 CAPACITY_MODIFIED_MAP[25] = [25, 16, 16]
 CAPACITY_MODIFIED_MAP[12] = [12, 8, 8]
 CAPACITY_MODIFIED_MAP[8] = [8, 5, 5]
+
+#If we don't want to worry about capacity, use a fake bus
+#of capacity 10000
+CAPACITY_MODIFIED_MAP[10000] = [10000, 10000, 10000]
     
 #Assumed multiplier due to discrepancies betweeen OSRM estimated
 #travel time and Google Maps estimated travel time

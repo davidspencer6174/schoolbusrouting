@@ -199,7 +199,7 @@ class Route:
         #Too long
         if self.length > self.max_time and self.occupants > 1:
             return False
-        #Too many students
+        #Too many students and there is a bus assigned
         if self.bus_capacity > -1 and self.occupants > self.bus_capacity:
             return False
         #Now test mixed load bell time feasibility

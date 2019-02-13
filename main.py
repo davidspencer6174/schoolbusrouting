@@ -6,6 +6,7 @@ import random
 from setup import setup_buses, setup_students
 from singleloads import route_school
 from validation import full_verification
+from busassignment import assign_buses
 
 def main():
     #prefix = "C://Users//David//Documents//UCLA//SchoolBusResearch//data//csvs//"
@@ -30,12 +31,6 @@ def main():
         print(len(students))
         print(len(schools_students_map))
         print(cap_counts)
-    tot_cap = 0
-    for bus in cap_counts:
-        tot_cap += bus[0]*bus[1]
-            
-    if constants.VERBOSE:
-        print("Total capacity: " + str(tot_cap))
 
     tot = 0
     all_routes = list()
@@ -48,31 +43,17 @@ def main():
         for student in student_set:  #get the school from a student
             school_to_route = student.school
             break
-        for route in route_school(student_set, cap_counts, contr_counts,
-                                  school_to_route):
+        for route in route_school(student_set, school_to_route):
             all_routes.append(route)
         if len(student_set) > 0:
             if constants.VERBOSE:
                 print("Routed school of size " + str(len(student_set)))
-            cur_tot_cap = 0
-            for bus in cap_counts:
-                cur_tot_cap += bus[0]*bus[1]
-            if constants.VERBOSE:
-                print("Remaining capacity: " + str(cur_tot_cap))
             tot += len(student_set)
             if constants.VERBOSE:
                 print(tot)
      
     
     full_verification(all_routes, print_result = True)
-    
-    print("Contract buses used: " + str(contr_counts))
-    print("Leftover original buses: " + str(cap_counts))
-
-    tot = 0
-    for bus in contr_counts:
-        tot += bus[0]*bus[1]
-    print("Total contract capacity used: " + str(tot))
     
     for route in all_routes:
         types = set()
@@ -88,11 +69,14 @@ def main():
     print("Buses saved: " + str(mixed_loads(all_routes)))
         
     full_verification(all_routes, print_result = True)
+    
+    used = assign_buses(all_routes, cap_counts)
+    print("Number of buses used: " + str(used))
     return all_routes
     
 routes_returned = None
-for i in range(0,10):
+for i in range(2,10):
     routes_returned = main()
-    saving = open(("output//slack_for_faraway"+str(i)+".obj"), "wb")
+    saving = open(("output//capacity_last"+str(i)+".obj"), "wb")
     pickle.dump(routes_returned, saving)
     saving.close()
