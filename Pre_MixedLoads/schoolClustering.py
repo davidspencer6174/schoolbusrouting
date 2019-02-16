@@ -171,7 +171,8 @@ depot, stops, zipdata, schools, phonebook = setup_data(prefix+'depot_geocodes.cs
                                                        prefix+'stop_geocodes_fixed.csv', prefix+'zipData.csv', 
                                                        prefix+'school_geocodes_fixed.csv', prefix+'totalPhoneBook.csv')
 
-clustered_by_levels = clusterBasedOnSplit(phonebook, schools, stops)
+phonebook = phonebook.loc[phonebook['Level'] == "Elem"]
+
 
 
 
