@@ -1,10 +1,8 @@
-from math import sin, cos, sqrt, atan2, radians
-import pandas as pd, numpy as np
-import pickle 
-import csv
-from collections import Counter
-from math import ceil, floor
-import random
+import pandas as pd
+import numpy as np
+import pickle
+from random import randint
+
 
 verbose = 1
 stop_point = 10
@@ -21,14 +19,14 @@ class School:
 class Student:
     #tt_ind denotes the index of the student's stop in the
     #travel time matrix
-    #school_id is the index of the cost center (attendance location)
+    #school_id is the index of the cost center (attendance Co)
     #in the travel time matrix
     #for now, ridership probability is not used
     def __init__(self, tt_ind, school_ind):
         self.tt_ind = tt_ind
         self.school_ind = school_ind
         self.bus_assigned = False
-        
+
 class Route:
     #For now, encapsulated as a list of student/stop index pairs in order
     def __init__(self):
@@ -36,9 +34,7 @@ class Route:
         self.students = []
         self.length = 0
         self.occupants = 0
-        self.clusters_visited = set()
-        self.dropoff_schools = set()
-        self.dropoff_path = []
+        self.path = [] 
         
     #insert a student pickup at a certain position in the route.
     #default position is the end
@@ -52,53 +48,14 @@ class Route:
     def get_route_length(self):
         return self.length + travel_times[self.students[-1].tt_ind,
                                           self.tt_ind]
-                
         
-    def update_info(self, stop_loc, cluster_num): 
-        self.clusters_visited.add(cluster_num)
-        self.tt_ind = stop_loc
-
-    # Check if the new school will be able to meet 
-    # TODO: Make sure this works properly. Simply tests show it worked
-    
-    def get_shortest_path_dropoff(self, new_school):
-        schools_dropoff = [self.tt_ind, new_school]
-        schools_dropoff.extend(list(self.schools_dropoff))
-
-        dropoff_mat = [[0 for x in range(len(schools_dropoff))] for y in range(len(schools_dropoff))]
-                
-        for i in range(0, len(dropoff_mat)):
-            for j in range(0, len(dropoff_mat[i])):
-                dropoff_mat[i][j] = travel_times[schools_dropoff[i]][schools_dropoff[j]]                 
-
-        index = self.tt_ind
-        path = [self.tt_ind]   
-        dropoff_time = 0 
+    def add_route(self, newroutes):
+        self.path.extend(newroutes)
         
-        for i in range(1, len(schools_dropoff)):
-            temp = np.array(dropoff_mat[index])
-            dist_to_add = np.min(temp[np.nonzero(temp)])
-            dropoff_time += dist_to_add 
-            index = list(temp).index(dist_to_add)
-            path.append(index)
-        self.dropoff_path = path 
+    def update_time(self, time):
+        self.length += time
         
-        return dropoff_time
-    
-    # Check if constraints are met and we can add new school
-    def check_constraints(self, new_school):
-        if (self.length + self.get_shortest_path_dropoff(new_school)) <= max_time:
-            self.dropoff_schools.add(new_school)
-            return True
-        else:
-            return False
-        
-#Used to get the data into a full address format        
-def californiafy(address):
-    return address[:-6] + " California," + address[-6:]
 
-#bus_capacities is an input csv file where the first
-#column is bus ID and the second is capacity.
 def setup_buses(bus_capacities):
     cap_counts_dict = dict()  #map from capacities to # of buses of that capacity
     caps = open(bus_capacities, 'r')
@@ -116,243 +73,118 @@ def setup_buses(bus_capacities):
         cap_counts_list[i] = list(cap_counts_list[i])
     return cap_counts_list
 
-#phonebooks: list of filenames for phonebooks
-#phonebooks are assumed to be in the format that was provided to
-#me in early November 2018
-#all_geocodes: filename for list of all geocodes. gives map from geocode to ind
-#geocoded_stops: file name for map from stop to geocode
-#geocoded_schools: file name for map from school to geocode
-#returns a list of all students, a dict from schools to sets of
-#students, and a dict from schools to indices in the travel time matrix.
-def setup_students(phonebooks, all_geocodes, geocoded_stops, geocoded_schools):
-    stops = open(geocoded_stops, 'r')
-    stops_codes_map = dict()
-    for address in stops.readlines():
-        fields = address.split(";")
-        if len(fields) < 3:
-            continue
-        stops_codes_map[fields[0]] = (fields[1].strip() + ";"
-                                      + fields[2].strip())
-    stops.close()
-    
-    schools = open(geocoded_schools, 'r')
-    schools_codes_map = dict()
-    schools_students_map = dict()  #maps schools to sets of students
-    schools.readline()  #get rid of header
-    for cost_center in schools.readlines():
-         fields = cost_center.split(";")
-         if len(fields) < 8:
-             continue
-         schools_codes_map[fields[1]] = (fields[6].strip() + ";"
-                                         + fields[7].strip())
-         schools_students_map[fields[1]] = set()
-    schools.close()
-    
-    geocodes = open(all_geocodes, 'r')
-    codes_inds_map = dict()
-    ind = 0
-    for code in geocodes.readlines():
-        codes_inds_map[code.strip()] = ind
-        ind += 1
-    geocodes.close()
-    
-    schools_inds_map = dict()
-    for school in schools_codes_map:
-        schools_inds_map[school] = codes_inds_map[schools_codes_map[school]]
-    
-    students = []
-    bus_col = 12
-    for pb_part_filename in phonebooks:
-        pb_part = open(pb_part_filename, 'r')
-        pb_part.readline()  #header
-        for student_record in pb_part.readlines():
-            fields = student_record.split(";")
-            if len(fields) <= bus_col + 6:
-                continue
-            if fields[bus_col + 6].strip() == ", ,":  #some buggy rows
-                continue
-            if fields[bus_col - 1].strip() == "9500":  #walker
-                continue
-            if fields[bus_col + 2].strip() not in ["1", "01"]:  #not first trip
-                continue
-            if fields[1].strip() == "":  #no school given
-                continue
-            #For now, I won't consider special ed.
-            #Will be necessary to add later.
-            #if fields[5].strip() not in ["M", "X"]:
-            #    continue
-            stop = californiafy(fields[bus_col + 6])
-            school = fields[1].strip()
-            stop_ind = codes_inds_map[stops_codes_map[stop]]
-            school_ind = codes_inds_map[schools_codes_map[school]]
-            this_student = Student(stop_ind, school_ind)
-            students.append(this_student)
-            schools_students_map[school].add(this_student)
-        pb_part.close()
-        
-    return students, schools_students_map, schools_inds_map
 
-# Inputs: 
-#       clusterFile = csv with schools and their cluster
-#       all_geocodesFile, phonebookFile, school_indes_map = all from original csvs
-# Outputs: 
-#       cluster_school_map = maps from cluster to schools
-#       cluster_stops_map = maps from cluster to stops (tt_ind)
-#       stops_students_map = maps from stops to students(tt_ind)
-def setup_cluster(clusterFile, all_geocodesFile, phonebookFile, schools_inds_map):
-    clusters = np.load(clusterFile)
-    phonebook = pd.read_csv(phonebookFile, dtype={'stop_Lat': float, 'stop_Long': float}, low_memory=False).drop(['Unnamed: 0'],axis=1)
-    phonebook.stop_Lat = round(phonebook.stop_Lat, 6)
-    phonebook.stop_Long = round(phonebook.stop_Long, 6)
+#cluster_schools_file = prefix+'clustered_schools_file.csv'
+#SC_stops_file = prefix+'clusteredschools_students_map'
+#all_geocodesFile = prefix+'w_geocodes.csv'
+#schools_inds_mapFile = prefix+'schools_inds_map'
+
+def setup_cluster(cluster_schools_file, SC_stops_file, all_geocodesFile, schools_inds_mapFile):
+    
     geocodes = pd.read_csv(all_geocodesFile).drop(['Unnamed: 0'],axis=1)
+    cluster_schools_df = pd.read_csv(cluster_schools_file).drop(['Unnamed: 0'],axis=1)
+
+    with open(SC_stops_file,'rb') as handle:
+        schoolcluster_students_df = pickle.load(handle)
     
+    with open(schools_inds_mapFile ,'rb') as handle:
+        schools_inds_map = pickle.load(handle)
+
     cluster_school_map = dict()
-    cluster_stops_map = dict()
-    stops_students_map = dict()
-    
-    clusters = clusters.iloc[0]
-    schools = pd.DataFrame(sorted(clusters["School_Clustered"], key = lambda x:x[2]))
-    stops = pd.DataFrame(sorted(clusters["Stops_Clustered"], key = lambda x:x[2]))
-    
-    for i in list(schools[2].drop_duplicates()):
-        subset = schools[(schools[2] == i)]
+    for i in list(cluster_schools_df['label'].drop_duplicates()):
+        subset = cluster_schools_df.loc[cluster_schools_df['label'] == i].copy()  
         schoollist = []
+
         for index, row in subset.iterrows():
-            lat, long = row[0], row[1]
+            lat, long = row['Lat'], row['Long']
             index = np.where((geocodes["Lat"] == lat) & (geocodes["Long"] == long))[0][0]
             schoollist.append(School(index))
-        cluster_school_map[i] = (schoollist)
-            
-    for j in list(stops[2].drop_duplicates()):
-        subset = stops[(stops[2] == j)]
-        stoplist = []
-        for index, row in subset.iterrows():
-            lat, long = row[0], row[1]
-            index = np.where((geocodes["Lat"] == lat) & (geocodes["Long"] == long))[0][0]
-            stoplist.append(index)
-        cluster_stops_map[j] = (stoplist)
+        cluster_school_map[i] = schoollist
         
-    for key, value in cluster_stops_map.items():
-        for stop in value:
-            studentlist = [] 
-            Lat, Long = round(geocodes.iloc[stop]["Lat"],6), round(geocodes.iloc[stop]["Long"],6)
-            subset = phonebook[(phonebook.stop_Lat == Lat) & (phonebook.stop_Long == Long)]    
+    schoolcluster_students_map = dict()
+    for key, value in schoolcluster_students_df.items():
+        list_of_clusters = []
+        for val in list(value['label'].drop_duplicates()):
+            subset = value.loc[value['label'] == val].copy()  
+            student_list = []
+            for index, row in subset.iterrows():
+                lat, long = row["Lat"], row["Long"]
+                stop_ind = np.where((geocodes["Lat"] == lat) & (geocodes["Long"] == long))[0][0]
+                school_ind = schools_inds_map[str(row["Cost_Center"])]-2
+                this_student = Student(stop_ind, school_ind)
+                student_list.append(this_student)
+            list_of_clusters.append(student_list)
+        schoolcluster_students_map[key] = list_of_clusters
+    return cluster_school_map, schoolcluster_students_map
+
+def printStats(cluster_school_map, schoolcluster_students_map, cap_counts):
+    numStudents = 0 
+    
+    for key, value in schoolcluster_students_map.items():
+        for j in range(0, len(value)):
+            numStudents = numStudents + len(value[j])
+             
+    print("Number of Students: " + str(numStudents))
+    print("Number of School Clusters: " +str(len(cluster_school_map)))
+    
+    print(cap_counts)
+    tot_cap = 0
+    for bus in cap_counts:
+        tot_cap += bus[0]*bus[1]
+    print("Total capacity: " + str(tot_cap))
+
+def getSchoolRoute(schools):
+    school_route = [] 
+    dropoff_time=0 
+
+    dropoff_mat = [[0 for x in range(len(schools))] for y in range(len(schools))]
+    for i in range(0, len(dropoff_mat)):
+        for j in range(0, len(dropoff_mat[i])):
+            dropoff_mat[i][j] = travel_times[schools[i].tt_ind][schools[j].tt_ind]     
             
-            for index, row in subset.iterrows(): 
-                stop_ind = stop
-                school_ind = schools_inds_map[str(row["Cost_Center"])]
-                studentlist.append(Student(stop_ind, school_ind))
-            stops_students_map[stop] = studentlist
-    return cluster_school_map, cluster_stops_map, stops_students_map
+    visited = set()
+    school_route.append(0)
+    index = randint(0, len(dropoff_mat))
+    
+    while len(school_route) < 10:
+        visited.add(index)
+        temp = np.array(dropoff_mat[index])
+        for i in range(0, len(temp)):
+            if i in visited:
+                temp[i] = 0
+        dist_to_add = np.min(temp[np.nonzero(temp)])
+        dropoff_time += dist_to_add 
+        index = list(temp).index(dist_to_add)
+        school_route.append(index)
+    return school_route, dropoff_time
+    
 
-# Find closest stop in a particular cluster that is closest to current position
-# Could be used for inter/intra-cluster, depending on what cluster is:
-# For intra-cluster: set new cluster as "cluster" input; For inter-cluster: cluster as "cluster" input 
-# EXTENSION: Use density and number of students remaning in the cluster to 
-#            get the "closest-stop" metric. Now this is purely based on distance 
-def closest_stop(curr_pos, cluster):
-    distances = dict()
-    for stops in cluster_stops_map[cluster]:
-        distances[stops] = travel_times[curr_pos][stops]
-    closest_stop = min(distances.items(), key=lambda x: x[1]) 
-    return closest_stop[0]
-
-# Find the cluster that is closest to the current cluster
-# EXTENSION: Find better way to do this, currently randomly picks a stop in new cluster 
-#            and uses that as the distance to measure "closeness"
-def closest_cluster(current_cluster):
-    distances = dict()
-    cc_random = random.choice(cluster_school_map[current_cluster]).tt_ind
-    for temp_cluster in cluster_stops_map:
-        tc_random = random.choice(cluster_stops_map[temp_cluster])
-        distances[temp_cluster] = travel_times[cc_random][tc_random]
-    closest_cluster = min(distances.items(), key=lambda x: x[1]) 
-    return closest_cluster[0]
-
-# Update the maps: When a student is picked up, remove him from the map 
-# If a stop has no more students, then remove the stop 
-def update_maps():
+def studentRoutes():
     pass
+
     
-# Create the actual route and performing the routing 
-def start_routing(curr_loc, curr_cluster, newroute):
+
+def startRouting(cluster_school_map, schoolcluster_students_map):
     
-    newroute.update_info(curr_loc, curr_cluster)
-    temp = stops_students_map[curr_loc]
-    
-    for student in temp:
-        newroute.add_student(student)
-        newroute.check_constraints(student.school_ind)
+    for key, schools in cluster_school_map.items():
+        this_route = Route()
+        school_route, dropoff_time = getSchoolRoute(schools)
+        this_route.add_route(school_route)
+        this_route.update_time(dropoff_time)
         
-        
-        
-        print(students)
-    
-    # Everytime students are picked up, then update the map
-    
-    pass 
-    
-    
+        for newKey, newVal in schoolcluster_students_map.items():
+            
 
 
 
-# Route for each cluster
-def route_cluster(cluster):
-    
-    # Choose a random school to set as starting location
-    curr_loc = random.choice(cluster_school_map[cluster]).tt_ind
-    cluster_routes = list()
-    
-    while True:
-        # Each stop cluster would have a list of routes
-        newroute = Route()
-        
-        # Pick a new cluster and pick the first stop in that new cluster 
-        curr_cluster = closest_cluster(cluster)
-        curr_loc = closest_stop(curr_loc, curr_cluster)
-        
-        # Begin routing 
-        newroute = start_routing(curr_loc, curr_cluster, newroute)
-        cluster_routes.append(newroute)
-        
-        # If all students that go to schools in this cluster have been picked up 
-        # then stop
+# Main()
+prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/'
+cluster_school_map, schoolcluster_students_map = setup_cluster(prefix+'clustered_schools_file.csv', 
+                                                               prefix+'clusteredschools_students_map',
+                                                               prefix+'w_geocodes.csv',
+                                                               prefix+'schools_inds_map')
+cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
+printStats(cluster_school_map, schoolcluster_students_map, cap_counts)
 
-    return cluster_routes 
-
-# MAIN 
-prefix2 = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Data/csvs/"
-students, schools_students_map, schools_inds_map = setup_students([prefix2+'phonebook_parta.csv',
-                                                                   prefix2+'phonebook_partb.csv'],
-                                                                   prefix2+'all_geocodes.csv',
-                                                                   prefix2+'stop_geocodes_fixed.csv',
-                                                                   prefix2+'school_geocodes_fixed.csv')
-
-prefix3 = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/'
-cluster_school_map, cluster_stops_map, stops_students_map = setup_cluster(prefix3+'clustered_by_levels.p', 
-                                                                          prefix3+'w_geocodes.csv', 
-                                                                          prefix3+'w_phonebook_split_elem.csv', 
-                                                                          schools_inds_map)
-cap_counts = setup_buses(prefix2+'dist_bus_capacities.csv')
-
-# Output inital information:
-print("Number of School Clusters: " +str(len(cluster_school_map)))
-print("Number of Stop Clusters: " +str(len(cluster_stops_map)))
-print("Number of Students: " + str(sum(len(v[1]) for v in stops_students_map.items())))
-
-print(cap_counts)
-tot_cap = 0
-for bus in cap_counts:
-    tot_cap += bus[0]*bus[1]
-print("Total capacity: " + str(tot_cap))
-
- Each cluster would have a list of routes
- results = list()
- for cluster in cluster_school_map:
-     results.append(route_cluster(cluster))
-
-
-
-        
-
+routes_returned = startRouting(cluster_school_map, schoolcluster_students_map)
 

@@ -1,7 +1,6 @@
 import pandas as pd, numpy as np
 from sklearn.cluster import DBSCAN
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
+afrom sklearn.metrics import silhouette_score
 from geopy.distance import great_circle
 from shapely.geometry import MultiPoint
 import csv 
