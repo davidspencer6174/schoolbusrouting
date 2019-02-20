@@ -3,7 +3,6 @@ import numpy as np
 import pickle
 from random import randint
 
-
 verbose = 1
 stop_point = 10
 max_time = 3600
@@ -42,19 +41,14 @@ class Route:
         self.students.append(student)
         self.occupants += 1
     
-    def get_schoolless_route_length(self):
-        return self.length
-        
     def get_route_length(self):
-        return self.length + travel_times[self.students[-1].tt_ind,
-                                          self.tt_ind]
+        return self.length
         
     def add_route(self, newroutes):
         self.path.extend(newroutes)
         
     def update_time(self, time):
         self.length += time
-        
 
 def setup_buses(bus_capacities):
     cap_counts_dict = dict()  #map from capacities to # of buses of that capacity
@@ -110,7 +104,7 @@ def setup_cluster(cluster_schools_file, SC_stops_file, all_geocodesFile, schools
             for index, row in subset.iterrows():
                 lat, long = row["Lat"], row["Long"]
                 stop_ind = np.where((geocodes["Lat"] == lat) & (geocodes["Long"] == long))[0][0]
-                school_ind = schools_inds_map[str(row["Cost_Center"])]-2
+                school_ind = schools_inds_map[str(row["Cost_Center"])]
                 this_student = Student(stop_ind, school_ind)
                 student_list.append(this_student)
             list_of_clusters.append(student_list)
@@ -136,9 +130,11 @@ def printStats(cluster_school_map, schoolcluster_students_map, cap_counts):
 def getSchoolRoute(schools):
     school_route = [] 
     dropoff_time=0 
-
+    school_index = [] 
     dropoff_mat = [[0 for x in range(len(schools))] for y in range(len(schools))]
+    
     for i in range(0, len(dropoff_mat)):
+        school_index.append(schools[i].tt_ind)
         for j in range(0, len(dropoff_mat[i])):
             dropoff_mat[i][j] = travel_times[schools[i].tt_ind][schools[j].tt_ind]     
             
@@ -146,7 +142,7 @@ def getSchoolRoute(schools):
     school_route.append(0)
     index = randint(0, len(dropoff_mat))
     
-    while len(school_route) < 10:
+    while len(school_route) < len(dropoff_mat):
         visited.add(index)
         temp = np.array(dropoff_mat[index])
         for i in range(0, len(temp)):
@@ -156,13 +152,50 @@ def getSchoolRoute(schools):
         dropoff_time += dist_to_add 
         index = list(temp).index(dist_to_add)
         school_route.append(index)
-    return school_route, dropoff_time
     
-
-def studentRoutes():
-    pass
-
+    new_route = [] 
+    for i in school_route:
+        new_route.append(school_index[i])
+    return new_route, dropoff_time
     
+def getStudentRoute(route, students):
+    student_ind = list()
+    student_ind.append(route.path[-1])
+    
+    for stud in students:
+        student_ind.append(stud.tt_ind)
+    student_ind = list(dict.fromkeys(student_ind))
+
+    dropoff_mat = [[0 for x in range(len(student_ind))] for y in range(len(student_ind))]
+    
+    for i in range(0, len(dropoff_mat)):
+        for j in range(0, len(dropoff_mat[i])):
+            dropoff_mat[i][j] = travel_times[student_ind[i]][student_ind[j]]     
+    
+    student_route = [] 
+    time_required = []
+
+    visited = set()
+    time_required.append(0)
+    student_route.append(0)
+    index = 0
+    
+    while len(student_route) < len(dropoff_mat):
+        visited.add(index)
+        temp = np.array(dropoff_mat[index])
+        for i in range(0, len(temp)):
+            if i in visited:
+                temp[i] = 0
+        dist_to_add = np.min(temp[np.nonzero(temp)])
+        time_required.append(dist_to_add)
+        index = list(temp).index(dist_to_add)
+        student_route.append(index)
+    
+    new_route = list()
+    for i in student_route:
+        new_route.append(student_ind[i])
+    return new_route, time_required   
+        
 
 def startRouting(cluster_school_map, schoolcluster_students_map):
     
@@ -172,10 +205,17 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
         this_route.add_route(school_route)
         this_route.update_time(dropoff_time)
         
-        for newKey, newVal in schoolcluster_students_map.items():
+        for students in schoolcluster_students_map[key]:
+            students.sort(key=lambda x: x.tt_ind, reverse=True)
+            stud_route, times_required = getStudentRoute(this_route, students)
+
+            while True:           
+                if this_route.get_route_length
             
 
-
+def display(students):
+    for i in students:
+        print(i.tt_ind)
 
 # Main()
 prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/'
@@ -183,6 +223,7 @@ cluster_school_map, schoolcluster_students_map = setup_cluster(prefix+'clustered
                                                                prefix+'clusteredschools_students_map',
                                                                prefix+'w_geocodes.csv',
                                                                prefix+'schools_inds_map')
+
 cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
 printStats(cluster_school_map, schoolcluster_students_map, cap_counts)
 

@@ -143,8 +143,6 @@ outputDataframe(subset)
 # Write to file
 elemschools.to_csv('clustered_schools_file', sep='\t', encoding='utf-8')
 
-
-
 # Write dictionary
 with open('schools_inds_map' ,'wb') as handle:
     pickle.dump(schools_inds_map, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -163,14 +161,14 @@ with open('SC_stops_file' ,'rb') as handle:
 
 
 
+# TESTING 
+labels = []
 
+for i in range(0, len(temp)):
+    labels.append(i)
 
-
-
-
-
-
-
+temp['label'] = labels
+outputDataframe(temp)
 
 
 
