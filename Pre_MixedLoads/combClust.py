@@ -136,12 +136,28 @@ elemschool_clusters = breakLargeClusters(elemschool_clusters, 2, 3)
 elemschools = pd.merge(elemschools, elemschool_clusters, on=['Lat', 'Long'], how='inner').drop_duplicates()
 elemschools = elemschools.sort_values(by=['label'])
 
-schoolcluster_students_map = partitionStudents(elemschools, phonebook)
+schoolcluster_students_map_df = partitionStudents(elemschools, phonebook)
 
 
 # Testing
 subset = elemschools.loc[elemschools['label'] == 0].copy()  
 outputDataframe(subset)
+
+test = schoolcluster_students_map_df[0]
+stops_subset = test.loc[test['label'] == 0]
+
+stops_subset = stops_subset[['Lat','Long','label','AM_Stop_Address']].drop_duplicates().dropna()
+
+temp = list()
+
+for index, row in stops_subset.iterrows():
+    stop = (californiafy(row['AM_Stop_Address']))
+    temp.append(codes_inds_map[stops_codes_map[stop]]+1)
+
+stops_subset['Index'] = temp
+
+
+
 
 # Write to file
 elemschools.to_csv('elem_clustered_schools_file', sep='\t', encoding='utf-8')
@@ -169,7 +185,7 @@ for i in range(0, len(temp)):
     labels.append(i)
 
 temp['label'] = labels
-outputDataframe(temp)
+outputDataframe(stops_subset)
 
 
 

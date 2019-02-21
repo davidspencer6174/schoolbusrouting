@@ -10,7 +10,7 @@ stop_point = 10
 max_time = 3600
 
 prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
-travel_times = np.load(prefix + "w_travel_times.npy")
+travel_times = np.load(prefix + "travel_times.npy")
 
 class School:
     #tt_ind denotes the index of the school in the travel time matrix
@@ -37,15 +37,21 @@ class Route:
         self.occupants = 0
         self.path = [] 
         
+    def __eq__(self, other):
+        return self.tt_ind == other.tt_ind and self.tt_ind == other.tt_ind
+
+    def __lt__(self, other):
+        return self.tt_ind < other.tt_ind
+        
+    def get_route_length(self):
+        return self.length
+
     #insert a student pickup at a certain position in the route.
     #default position is the end
     def add_student(self, student):
         self.students.append(student)
         self.occupants += 1
-    
-    def get_route_length(self):
-        return self.length
-        
+            
     def add_route(self, newroutes):
         self.path.extend(newroutes)
         
@@ -69,21 +75,20 @@ def setup_buses(bus_capacities):
         cap_counts_list[i] = list(cap_counts_list[i])
     return cap_counts_list
 
-
 def californiafy(address):
     return address[:-6] + " California," + address[-6:]
 
 #prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/'
 #cluster_schools_file = prefix+'elem_clustered_schools_file.csv'
 #SC_stops_file = prefix+'clusteredschools_students_map'
-#all_geocodesFile = prefix+'w_geocodes.csv'
 #schools_codes_mapFile = prefix+'schools_codes_map'
 #stops_codes_mapFile = prefix+'stops_codes_map'
 #codes_inds_mapFile = prefix+'codes_inds_map'
 #schools_inds_mapFile = prefix+'schools_inds_map'
-def setup_cluster(cluster_schools_file, SC_stops_file, all_geocodesFile, schools_codes_mapFile, stops_codes_mapFile, codes_inds_mapFile, schools_inds_mapFile):
     
-    geocodes = pd.read_csv(all_geocodesFile).drop(['Unnamed: 0'],axis=1)
+# Setup clusters: input all required files 
+def setup_cluster(cluster_schools_file, SC_stops_file, schools_codes_mapFile, stops_codes_mapFile, codes_inds_mapFile, schools_inds_mapFile):
+    
     cluster_schools_df = pd.read_csv(cluster_schools_file).drop(['Unnamed: 0'],axis=1)
 
     with open(SC_stops_file,'rb') as handle:
@@ -125,6 +130,7 @@ def setup_cluster(cluster_schools_file, SC_stops_file, all_geocodesFile, schools
         schoolcluster_students_map[key] = list_of_clusters
     return cluster_school_map, schoolcluster_students_map
 
+# Print statistics 
 def printStats(cluster_school_map, schoolcluster_students_map, cap_counts):
     numStudents = 0 
     numSchools = 0 
@@ -148,21 +154,23 @@ def printStats(cluster_school_map, schoolcluster_students_map, cap_counts):
     print("Bus Info: ")
     print(cap_counts)
 
-    
+# Precompute route based on shortest path
+# items: Input schools or students
+# index = 0 
+# item_indexes: if schools, start with empty list. If students, start with array with closest school
 def getPossibleRoute(items, index, item_indexes):
     new_indexes = list()
     route = list()
     time_taken = list()
     visited = list()
         
-    for it in items:
-        new_indexes.append(it.tt_ind)
-
+    [new_indexes.append(it.tt_ind) for it in items]
     new_indexes = list(dict.fromkeys(new_indexes))
     item_indexes.extend(new_indexes)
     route.append(index)
     
     dropoff_mat = [[0 for x in range(len(item_indexes))] for y in range(len(item_indexes))]
+    
     for i in range(0, len(dropoff_mat)):
         for j in range(0, len(dropoff_mat[i])):
             dropoff_mat[i][j] = travel_times[item_indexes[i]][item_indexes[j]]  
@@ -182,16 +190,17 @@ def getPossibleRoute(items, index, item_indexes):
         time_taken.append(time_to_add)
         route.append(index)
 
-    result = [] 
-    for i in route:
-        result.append(item_indexes[i])
+    result = list()
+    [result.append(item_indexes[i]) for i in route]
+
     return result, time_taken
         
+# Perform routing 
 def startRouting(cluster_school_map, schoolcluster_students_map):
     
     routes = dict()
-    
     for key, schools in cluster_school_map.items():
+        break
         school_route, dropoff_time = getPossibleRoute(schools, 0, [])        
         this_route = Route()
         this_route.add_route(school_route)
@@ -199,31 +208,32 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
         route_list = list()
         
         for students in schoolcluster_students_map[key]:
+            break
             students.sort(key=lambda x: x.tt_ind, reverse=True)
             stud_route, times_required = getPossibleRoute(students, 0, [this_route.path[-1]])
-            index = 0
+            stud_route.pop(0)
+            times_required.pop(0)
+            sorted_students = sorted(students, key=lambda x: stud_route.index(x.tt_ind))
             
-            while True:           
-                if this_route.get_route_length() + times_required[index] > max_time:
-                    break
-                else:
-                    
+            new_route = this_route
+            student_index = 0
+            
+            
+
+
+                
             routes[key] = route_list
             
     return routes
-                    
-            
+             
 def display(students):
     for i in students:
         print(i.tt_ind)
-        
-
-
+               
 # Main()
 prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/'
 cluster_school_map, schoolcluster_students_map = setup_cluster(prefix+'elem_clustered_schools_file.csv', 
                                                                prefix+'clusteredschools_students_map',
-                                                               prefix+'w_geocodes.csv',
                                                                prefix+'schools_codes_map',
                                                                prefix+'stops_codes_map',
                                                                prefix+'codes_inds_map',
@@ -231,6 +241,5 @@ cluster_school_map, schoolcluster_students_map = setup_cluster(prefix+'elem_clus
 
 cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
 printStats(cluster_school_map, schoolcluster_students_map, cap_counts)
-
 routes_returned = startRouting(cluster_school_map, schoolcluster_students_map)
 
