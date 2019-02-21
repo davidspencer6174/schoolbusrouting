@@ -11,6 +11,8 @@ def full_verification(routes, print_result = False):
         #Note: some routes which exceed max length just pick up
         #one student and drop them off at school. These shouldn't
         #be considered invalid.
+        route.recompute_length()
+        route.recompute_occs()
         if not route.feasibility_check() and route.occupants > 1:
             print("Ordinary check failed")
             return False

@@ -70,13 +70,18 @@ def main():
         
     full_verification(all_routes, print_result = True)
     
-    used = assign_buses(all_routes, cap_counts)
+    out = assign_buses(all_routes, cap_counts)
+    used = out[0]
     print("Number of buses used: " + str(used))
-    return all_routes
+    print("Leftover buses: " + str(cap_counts))
+    
+    #print("Buses saved next time around: " + str(mixed_loads(out[1])))
+    full_verification(out[1], print_result = True)
+    return out[1]
     
 routes_returned = None
-for i in range(2,10):
+for i in range(10):
     routes_returned = main()
-    saving = open(("output//capacity_last"+str(i)+".obj"), "wb")
+    saving = open(("output//routes_separated"+str(i)+".obj"), "wb")
     pickle.dump(routes_returned, saving)
     saving.close()

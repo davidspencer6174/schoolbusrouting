@@ -51,6 +51,14 @@ class Route:
     #The default position is the end.
     #Does not do any checks.
     def add_location(self, location, pos = -1):
+        if pos == -1:
+            self.locations.append(location)
+            if len(self.locations) > 1:
+                self.length += constants.TRAVEL_TIMES[self.locations[-2].tt_ind,
+                                                      self.locations[-1].tt_ind]
+            if isinstance(location, Student):
+                self.occupants += 1
+            return
         #Add the location
         self.locations = self.locations[:pos] + [location] + self.locations[pos:]
         #Maintain the travel time field
@@ -192,15 +200,33 @@ class Route:
                                                   self.locations[i+1].tt_ind]
         return self.length
     
+    def recompute_occs(self):
+        self.occupants = 0
+        for loc in self.locations:
+            if isinstance(loc, Student):
+                self.occupants += 1
+        return self.occupants
+    
+    def recompute_maxtime(self):
+        for loc in self.locations:
+            if isinstance(loc, Student):
+                self.max_time = max(self.max_time, constants.SLACK*
+                                    constants.TRAVEL_TIMES[loc.tt_ind,
+                                                           loc.school.tt_ind])
+    
     #Determines whether the route is feasible with
     #respect to constraints.
     #Simple for now
-    def feasibility_check(self):
+    def feasibility_check(self, verbose = False):
         #Too long
-        if self.length > self.max_time and self.occupants > 1:
+        if self.length > self.max_time:
+            if verbose:
+                print("Too long")
             return False
         #Too many students and there is a bus assigned
         if self.bus_capacity > -1 and self.occupants > self.bus_capacity:
+            if verbose:
+                print("Too full")
             return False
         #Now test mixed load bell time feasibility
         earliest_possible = 0
@@ -213,9 +239,12 @@ class Route:
             if isinstance(self.locations[i], School):
                 earliest_possible = max(earliest_possible,
                                         self.locations[i].start_time-constants.EARLIEST)
-                latest_possible = min(latest_possible,
-                                      self.locations[i].start_time-constants.LATEST)
+                if i < len(self.locations) - 1:
+                    latest_possible = min(latest_possible,
+                                          self.locations[i].start_time-constants.LATEST)
             if latest_possible < earliest_possible:
+                if verbose:
+                    print("Bell times contradict")
                 return False
         return True
     
@@ -223,9 +252,14 @@ class Route:
     #stores the corresponding capacity
     def set_capacity(self, cap):
         self.unmodified_bus_capacity = cap
-        if self.locations[0].type == 'E':
+        first_stud = None
+        for loc in self.locations:
+            if isinstance(loc, Student):
+                first_stud = loc
+                break
+        if first_stud.type == 'E':
             self.bus_capacity =  constants.CAPACITY_MODIFIED_MAP[cap][0]
-        elif self.locations[0].type == 'M':
+        elif first_stud.type == 'M':
             self.bus_capacity =  constants.CAPACITY_MODIFIED_MAP[cap][1]
         else:
             self.bus_capacity =  constants.CAPACITY_MODIFIED_MAP[cap][2]
