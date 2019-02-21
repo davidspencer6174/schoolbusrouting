@@ -71,6 +71,13 @@ def californiafy(address):
 #geocoded_schools: file name for map from school to geocode
 #returns a list of all students, a dict from schools to sets of
 #students, and a dict from schools to indices in the travel time matrix.
+    
+
+phonebooks = [prefix+'phonebook_parta.csv', prefix+'phonebook_partb.csv']
+all_geocodes = prefix+'all_geocodes.csv'
+geocoded_stops = prefix+'stop_geocodes_fixed.csv'
+geocoded_schools=prefix+'school_geocodes_fixed.csv'
+
 def setup_students(phonebooks, all_geocodes, geocoded_stops, geocoded_schools):
     
     stops = open(geocoded_stops, 'r')
@@ -138,7 +145,7 @@ def setup_students(phonebooks, all_geocodes, geocoded_stops, geocoded_schools):
             schools_students_map[school].add(this_student)
         pb_part.close()
         
-    return students, schools_students_map, schools_inds_map
+    return students, schools_students_map, schools_inds_map, stops_codes_map
 
 #bus_capacities is an input csv file where the first
 #column is bus ID and the second is capacity.
@@ -246,6 +253,8 @@ output = setup_students([prefix+'phonebook_parta.csv',
 students = output[0]
 schools_students_map = output[1]
 schools_inds_map = output[2]
+stops_codes_map = output[3]
+
 cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
 print(len(students))
 print(len(schools_students_map))
@@ -269,3 +278,8 @@ for school in schools_students_map:
         print("Remaining capacity: " + str(cur_tot_cap))
         tot += len(student_set)
         print(tot)
+        
+        
+        
+with open('schools_inds_map' ,'wb') as handle:
+    pickle.dump(schools_inds_map, handle, protocol=pickle.HIGHEST_PROTOCOL)

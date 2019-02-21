@@ -6,6 +6,7 @@ from collections import Counter
 import pickle
 
 verbose = 0
+break_num = 6
 
 def setup_data(depotfile, stops, zipdata, schools, phonebook):
     depot = pd.read_csv(depotfile, low_memory=False)
@@ -84,13 +85,13 @@ def outputDataframe(clustered):
     file.close()
 
 # Break relateively large clusters and use Kmeans to break
-def breakLargeClusters(data):
+def breakLargeClusters(data, break_num, limit):
     counts = Counter(data['label'])
-    result = pd.DataFrame(np.random.randint(low=0, high=1, size=(1, 3)), columns=['Lat','Long','label'])
+    result = pd.DataFrame(np.random.randint(low=0, high=1, size=(1, 3)), columns=['Lat','Long','label'])    
     for row in counts.items():
         temp = data.loc[data['label'] == row[0]].copy()  
-        if row[1] > 5: 
-            broken = obtainClust_KMEANS(temp, 4)
+        if row[1] > limit: 
+            broken = obtainClust_KMEANS(temp, break_num)
             broken['label'] = broken['label'] + max(result['label'])
             result = result.append(broken)
         else:
@@ -112,7 +113,7 @@ def partitionStudents(schools, phonebook):
         students = phonebook[phonebook['Cost_Center'].isin(schools_in_cluster)].copy()
         students.loc[:,'School_Group'] = row[0]
         
-        student_labels = obtainClust_KMEANS(students, 4)
+        student_labels = obtainClust_KMEANS(students, break_num)
         students = pd.merge(students, student_labels, on=['Lat', 'Long'], how='inner').drop_duplicates()
         students = students.sort_values(by=['label'])
         
@@ -129,7 +130,9 @@ elemschools = phonebook["Cost_Center"].drop_duplicates()
 elemschools = schools.loc[schools['Cost_Center'].isin(elemschools)]
 
 total = obtainClust_DBSCAN(elemschools, 1.9, 1)
-elemschool_clusters = breakLargeClusters(total)
+elemschool_clusters = breakLargeClusters(total, 4, 5)
+elemschool_clusters = breakLargeClusters(elemschool_clusters, 2, 3)
+
 elemschools = pd.merge(elemschools, elemschool_clusters, on=['Lat', 'Long'], how='inner').drop_duplicates()
 elemschools = elemschools.sort_values(by=['label'])
 
@@ -141,16 +144,14 @@ subset = elemschools.loc[elemschools['label'] == 0].copy()
 outputDataframe(subset)
 
 # Write to file
-elemschools.to_csv('clustered_schools_file', sep='\t', encoding='utf-8')
+elemschools.to_csv('elem_clustered_schools_file', sep='\t', encoding='utf-8')
 
 # Write dictionary
-with open('schools_inds_map' ,'wb') as handle:
-    pickle.dump(schools_inds_map, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
+with open('codes_inds_map' ,'wb') as handle:
+    pickle.dump(codes_inds_map, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 with open('clusteredschools_students_map' ,'wb') as handle:
     pickle.dump(schoolcluster_students_map, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
 
 # Read dictionary
 with open('SC_stops_file' ,'rb') as handle:
