@@ -149,21 +149,23 @@ def printStats(cluster_school_map, schoolcluster_students_map, cap_counts):
     print(cap_counts)
 
     
-def getPossibleRoute(items, index):
-
-    item_indexes = list()
+def getPossibleRoute(items, index, item_indexes):
+    new_indexes = list()
     route = list()
     time_taken = list()
     visited = list()
-    
-    item_indexes.append(index)
+        
+    for it in items:
+        new_indexes.append(it.tt_ind)
+
+    new_indexes = list(dict.fromkeys(new_indexes))
+    item_indexes.extend(new_indexes)
     route.append(index)
     
-    dropoff_mat = [[0 for x in range(len(items))] for y in range(len(items))]
+    dropoff_mat = [[0 for x in range(len(item_indexes))] for y in range(len(item_indexes))]
     for i in range(0, len(dropoff_mat)):
-        item_indexes.append(items[i].tt_ind)
         for j in range(0, len(dropoff_mat[i])):
-            dropoff_mat[i][j] = travel_times[items[i].tt_ind][items[j].tt_ind]  
+            dropoff_mat[i][j] = travel_times[item_indexes[i]][item_indexes[j]]  
     
     while len(route) < len(dropoff_mat):
         visited.append(index)
@@ -183,7 +185,6 @@ def getPossibleRoute(items, index):
     result = [] 
     for i in route:
         result.append(item_indexes[i])
-        
     return result, time_taken
         
 def startRouting(cluster_school_map, schoolcluster_students_map):
@@ -191,7 +192,7 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
     routes = dict()
     
     for key, schools in cluster_school_map.items():
-        school_route, dropoff_time = getPossibleRoute(schools, 0)        
+        school_route, dropoff_time = getPossibleRoute(schools, 0, [])        
         this_route = Route()
         this_route.add_route(school_route)
         this_route.update_time(sum(dropoff_time))
@@ -199,7 +200,7 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
         
         for students in schoolcluster_students_map[key]:
             students.sort(key=lambda x: x.tt_ind, reverse=True)
-            stud_route, times_required = getPossibleRoute(students, this_route.path[-1])
+            stud_route, times_required = getPossibleRoute(students, 0, [this_route.path[-1]])
             index = 0
             
             while True:           
