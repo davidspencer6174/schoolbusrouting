@@ -1,21 +1,42 @@
 import pandas as pd 
 
-def outputRoutes(route, geocodes):
-    output = geocodes.iloc[route,:]    
-    file = open("temp1" + ".txt", "w") 
-    for index, row in output.iterrows():
-        file.write(str(str(row["Lat"]) + ", " + str(row["Long"]) + "\n"))
-    file.close()
-    return output
+
+
 
 
 
 prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/'
 all_geocodesFile = prefix+'all_geocodes.csv'
-
 geocodes = pd.read_csv(all_geocodesFile)
-output_routes = outputRoutes(route_list[1], geocodes)
 
-route_list = [[10776, 10494, 10868, 10501, 800, 5106, 2712, 9027, 8439, 5651, 6322, 6614],
- [10776, 10494, 10868, 10501, 1904, 2500, 3171, 3618, 3191, 5421, 4713],
- [10776, 10494, 10868, 10501, 8918, 3255, 8762, 3774, 3873]]
+
+
+def outputRoutes(cluster_school_map, routes_returned, filename):
+    file = open(str(filename) + ".txt", "w")     
+    for index in routes_returned:
+        file.write("Schools in this cluster: \n") 
+        
+        for clus_school in cluster_school_map[index]:            
+            file.write(str(clus_school.school_name) + "\n")
+            
+        for points in routes_returned[index]:
+            output = geocodes.iloc[points,: ]
+            
+            link = "https://www.google.com/maps/dir"
+            
+            for ind, row in output.iterrows():
+                link += ("/" + str(row['Lat']) + "," + str(row['Long']))
+            
+            file.write("Google Maps Link: \n")
+            file.write(link)
+            file.write("\n")
+            file.write("\n")
+        file.write("---------------------- \n")
+    file.close()
+            
+outputRoutes(cluster_school_map_elem, routes_returned_elem, "elem_school_routes")
+
+
+
+outputRoutes(cluster_school_map_middle, routes_returned_middle, "middle_school_routes")
+outputRoutes(cluster_school_map_high, routes_returned_high, "high_school_routes")

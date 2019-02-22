@@ -1,9 +1,6 @@
 import pandas as pd
 import numpy as np
-import numpy.ma as ma
 import pickle
-from random import randint
-from collections import Counter
 
 verbose = 1
 stop_point = 10
@@ -14,8 +11,10 @@ travel_times = np.load(prefix + "travel_times.npy")
 
 class School:
     #tt_ind denotes the index of the school in the travel time matrix
-    def __init__(self, tt_ind):
+    def __init__(self, tt_ind, cost_center, school_name):
         self.tt_ind = tt_ind
+        self.cost_center = cost_center
+        self.school_name = school_name
 
 class Student:
     #tt_ind denotes the index of the student's stop in the
@@ -87,9 +86,9 @@ def californiafy(address):
 #schools_inds_mapFile = prefix+'schools_inds_map'
     
 # Setup clusters: input all required files 
-def setup_cluster(cluster_schools_file, SC_stops_file, schools_codes_mapFile, stops_codes_mapFile, codes_inds_mapFile, schools_inds_mapFile):
+def setup_cluster(cluster_schools_file, SC_stops_file, schools_codes_mapFile, stops_codes_mapFile, codes_inds_mapFile):
     
-    cluster_schools_df = pd.read_csv(cluster_schools_file).drop(['Unnamed: 0'],axis=1)
+    cluster_schools_df = pd.read_csv(cluster_schools_file)
 
     with open(SC_stops_file,'rb') as handle:
         schoolcluster_students_df = pickle.load(handle)
@@ -99,8 +98,6 @@ def setup_cluster(cluster_schools_file, SC_stops_file, schools_codes_mapFile, st
         stops_codes_map = pickle.load(handle)
     with open(codes_inds_mapFile ,'rb') as handle:
         codes_inds_map = pickle.load(handle)
-    with open(schools_inds_mapFile ,'rb') as handle:
-        schools_inds_map = pickle.load(handle)
 
     cluster_school_map = dict()
     for i in list(cluster_schools_df['label'].drop_duplicates()):
@@ -109,7 +106,7 @@ def setup_cluster(cluster_schools_file, SC_stops_file, schools_codes_mapFile, st
         for index, row in subset.iterrows():
             cost_center = str(int(row['Cost_Center']))
             school_ind = codes_inds_map[schools_codes_map[cost_center]]
-            schoollist.append(School(school_ind))
+            schoollist.append(School(school_ind, cost_center, row['School_Name']))
         cluster_school_map[i] = schoollist
 
     schoolcluster_students_map = dict()
@@ -235,26 +232,78 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
             times_required.extend([0])
 #            sorted_students = sorted(students, key=lambda x: stud_route.index(x.tt_ind))
             stud_cluster_route = breakRoutes(this_route.get_route_length(), school_route, stud_route, times_required)
-            route_list.extend(stud_cluster_route)
+            route_list.append(stud_cluster_route)
             times_required_list.append(times_required)
         
         routes[key] = route_list
     return routes
-             
-def display(students):
-    for i in students:
-        print(i.tt_ind)
-               
+
+def outputRoutes(cluster_school_map, routes_returned, filename, title):
+    file = open(str(filename) + ".txt", "w")     
+    
+    file.write("######################## \n")
+    file.write(title)
+    file.write("######################## \n")
+
+    for index in routes_returned:
+        file.write("Schools in this cluster: \n") 
+        
+        for clus_school in cluster_school_map[index]:            
+            file.write(str(clus_school.school_name) + "\n")
+            
+        for points in routes_returned[index]:
+            output = geocodes.iloc[points,: ]
+            
+            link = "https://www.google.com/maps/dir"
+            
+            for ind, row in output.iterrows():
+                link += ("/" + str(row['Lat']) + "," + str(row['Long']))
+            
+            file.write("\n")
+            file.write("Google Maps Link: \n")
+            file.write(link)
+            file.write("\n")
+        file.write("---------------------- \n")
+    file.close()
+
 # Main()
+all_geocodesFile = prefix+'all_geocodes.csv'
+geocodes = pd.read_csv(all_geocodesFile)
+
 prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/'
-cluster_school_map, schoolcluster_students_map = setup_cluster(prefix+'elem_clustered_schools_file.csv', 
-                                                               prefix+'clusteredschools_students_map',
+cluster_school_map_elem, schoolcluster_students_map_elem = setup_cluster(prefix+'elem_clustered_schools_file.csv', 
+                                                               prefix+'elem_clusteredschools_students_map',
                                                                prefix+'schools_codes_map',
                                                                prefix+'stops_codes_map',
-                                                               prefix+'codes_inds_map',
-                                                               prefix+'schools_inds_map')
+                                                               prefix+'codes_inds_map')
+
 
 cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
-printStats(cluster_school_map, schoolcluster_students_map, cap_counts)
-routes_returned = startRouting(cluster_school_map, schoolcluster_students_map)
+printStats(cluster_school_map_elem, schoolcluster_students_map_elem, cap_counts)
+routes_returned_elem = startRouting(cluster_school_map_elem, schoolcluster_students_map_elem)
+
+outputRoutes(cluster_school_map_elem, routes_returned_elem, "elem_school_routes", "ELEM SCHOOL ROUTES \n")
+
+##############################################################################################################
+cluster_school_map_middle, schoolcluster_students_map_middle = setup_cluster(prefix+'middle_clustered_schools_file.csv', 
+                                                                             prefix+'middle_clusteredschools_students_map',
+                                                                             prefix+'schools_codes_map',
+                                                                             prefix+'stops_codes_map',
+                                                                             prefix+'codes_inds_map')
+
+routes_returned_middle = startRouting(cluster_school_map_middle, schoolcluster_students_map_middle)
+outputRoutes(cluster_school_map_middle, routes_returned_middle, "middle_school_routes", "MIDDLE SCHOOL ROUTES \n")
+
+##############################################################################################################
+cluster_school_map_high, schoolcluster_students_map_high = setup_cluster(prefix+'high_clustered_schools_file.csv', 
+                                                                             prefix+'high_clusteredschools_students_map',
+                                                                             prefix+'schools_codes_map',
+                                                                             prefix+'stops_codes_map',
+                                                                             prefix+'codes_inds_map')
+
+routes_returned_high = startRouting(cluster_school_map_high, schoolcluster_students_map_high)
+outputRoutes(cluster_school_map_high, routes_returned_high, "high_school_routes", "HIGH SCHOOL ROUTES \n")
+
+
+
 

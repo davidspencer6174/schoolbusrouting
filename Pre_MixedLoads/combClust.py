@@ -13,12 +13,11 @@ def setup_data(depotfile, stops, zipdata, schools, phonebook):
     stops = pd.read_csv(stops, low_memory=False)
     zipdata = pd.read_csv(zipdata, low_memory=False)
     
-    schools = pd.read_csv(schools, dtype={'Location_Code': int, 'Cost_Center': int, 'Lat': float, 'Long': float}, low_memory=False)
-    cols = range(2,6)
-    schools.drop(schools.columns[cols],axis=1,inplace=True)
+    schools = pd.read_csv(schools, dtype={'Location_Code': int, 'School_Name': str, 'Cost_Center': int, 'Lat': float, 'Long': float}, low_memory=False)
+    schools = schools[['Location_Code', 'School_Name', 'Cost_Center', 'Lat', 'Long']]
     
-    phonebook = pd.read_csv(phonebook, dtype={"RecordID": str, 'Cost_Center': str, "AM_Route": str, 'Lat': float, 'Long': float}, low_memory=False)
-    phonebook = phonebook[['RecordID', 'Cost_Center', 'Cost_Center_Name','Grade','AM_Stop_Address', 'AM_Route']]
+    phonebook = pd.read_csv(phonebook, dtype={"RecordID": str, 'Prog': str, 'Cost_Center': str, "AM_Route": str, 'Lat': float, 'Long': float}, low_memory=False)
+    phonebook = phonebook[['RecordID', 'Prog', 'Cost_Center', 'Cost_Center_Name','Grade','AM_Stop_Address', 'AM_Route']]
     phonebook = phonebook[phonebook['AM_Route'] != str(9500)]
     phonebook = phonebook.dropna()
     phonebook = phonebook[phonebook['AM_Stop_Address'] != str(", , ")]
@@ -76,7 +75,7 @@ def obtainClust_KMEANS(loc, base_number):
 
 def outputDataframe(clustered):
     clustered = clustered.sort_values(by='label')
-    file = open("temp" + ".txt", "w") 
+    file = open("elem_schools_geo" + ".txt", "w") 
     file.write("category,latitude,longitude\n") 
     
     for index, row in clustered.iterrows():
@@ -120,6 +119,11 @@ def partitionStudents(schools, phonebook):
         schoolcluster_students_map[row[0]] = students
     return schoolcluster_students_map
         
+##############################################################################################################################
+# MAIN
+##############################################################################################################################
+
+
 prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
 depot, stops, zipdata, schools, phonebook = setup_data(prefix+'depot_geocodes.csv', 
                                                        prefix+'stop_geocodes_fixed.csv', 
@@ -127,19 +131,45 @@ depot, stops, zipdata, schools, phonebook = setup_data(prefix+'depot_geocodes.cs
                                                        prefix+'school_geocodes_fixed.csv', 
                                                        prefix+'totalPhoneBook.csv')
 
-phonebook = phonebook.loc[phonebook['Level'] == "Elem"]
-elemschools = phonebook["Cost_Center"].drop_duplicates()
-elemschools = schools.loc[schools['Cost_Center'].isin(elemschools)]
+prog_types = ['P', 'X', 'M']
+phonebook = phonebook.loc[phonebook['Level'] == "High"]
+phonebook = phonebook[phonebook.Prog.isin(prog_types)]
 
-total = obtainClust_DBSCAN(elemschools, 1.9, 1)
-elemschool_clusters = breakLargeClusters(total, 4, 5)
-elemschool_clusters = breakLargeClusters(elemschool_clusters, 2, 3)
 
-elemschools = pd.merge(elemschools, elemschool_clusters, on=['Lat', 'Long'], how='inner').drop_duplicates()
-elemschools = elemschools.sort_values(by=['label'])
+taft_types = [str(1888001), str(1888007)]
+taft = phonebook[phonebook.Cost_Center.isin(taft_types)]
 
-schoolcluster_students_map_df = partitionStudents(elemschools, phonebook)
 
+
+
+new_schools = phonebook["Cost_Center"].drop_duplicates()
+new_schools = schools.loc[schools['Cost_Center'].isin(new_schools)]
+
+total = obtainClust_DBSCAN(new_schools, 2, 1)
+print(Counter(total['label']))
+print("Num of clusters: " + str(len(Counter(total['label']))))
+
+#elemschool_clusters = breakLargeClusters(total, 4, 5)
+
+
+school_clustered = total
+new_schools = pd.merge(new_schools, school_clustered, on=['Lat', 'Long'], how='inner').drop_duplicates()
+new_schools = new_schools.sort_values(by=['label'])
+
+schoolcluster_students_map_df = partitionStudents(new_schools, phonebook)
+
+##############################################################################################################################
+# OUTPUT 
+##############################################################################################################################
+# Write to file
+new_schools.to_csv('high_clustered_schools_file.csv', sep=';', encoding='utf-8')
+
+# Dictionary read/write
+with open('high_clusteredschools_students_map' ,'wb') as handle:
+    pickle.dump(schoolcluster_students_map_df, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('SC_stops_file' ,'rb') as handle:
+    schoolcluster_students_map_df = pickle.load(handle)
 
 ##############################################################################################################################
 # MISC
@@ -149,43 +179,9 @@ outputDataframe(subset)
 
 test = schoolcluster_students_map_df[0]
 stops_subset = test.loc[test['label'] == 0]
-
 stops_subset = stops_subset[['Lat','Long','label','AM_Stop_Address']].drop_duplicates().dropna()
 
 temp = list()
-
-for index, row in stops_subset.iterrows():
-    stop = (californiafy(row['AM_Stop_Address']))
-    temp.append(codes_inds_map[stops_codes_map[stop]]+1)
-
-stops_subset['Index'] = temp
-
-# Write to file
-elemschools.to_csv('elem_clustered_schools_file', sep='\t', encoding='utf-8')
-
-# Write dictionary
-with open('codes_inds_map' ,'wb') as handle:
-    pickle.dump(codes_inds_map, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-with open('clusteredschools_students_map' ,'wb') as handle:
-    pickle.dump(schoolcluster_students_map, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-# Read dictionary
-with open('SC_stops_file' ,'rb') as handle:
-    schoolcluster_students_map = pickle.load(handle)
-
-# TESTING 
-labels = []
-
-for i in range(0, len(temp)):
-    labels.append(i)
-
-temp['label'] = labels
-outputDataframe(stops_subset)
-
-
-
-
 
 
 
