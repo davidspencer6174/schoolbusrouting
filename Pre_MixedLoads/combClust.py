@@ -140,7 +140,10 @@ elemschools = elemschools.sort_values(by=['label'])
 
 schoolcluster_students_map_df = partitionStudents(elemschools, phonebook)
 
-# Testing
+
+##############################################################################################################################
+# MISC
+##############################################################################################################################
 subset = elemschools.loc[elemschools['label'] == 0].copy()  
 outputDataframe(subset)
 

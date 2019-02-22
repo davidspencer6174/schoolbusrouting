@@ -192,46 +192,53 @@ def getPossibleRoute(items, index, item_indexes):
 
     result = list()
     [result.append(item_indexes[i]) for i in route]
-
     return result, time_taken
-        
-
-def breakRoutes(time, stud_route, times_required):
+                
+# Break routes to fit max_time constraints
+def breakRoutes(dropoff_time, school_route, stud_route, times_required):
+    current_time = dropoff_time
+    time_index = 0 
     route_list = list()
-    
+    partial_route = list()
     for stop in stud_route:
-        if time + times_required < max_time:
+        partial_route.extend([stop])
+        if current_time + times_required[time_index] >= max_time:
+            route_list.append(partial_route)
+            partial_route = list()
+            current_time = dropoff_time
+        else:
+            current_time += times_required[time_index]
+        time_index += 1 
+    route_list.append(partial_route)
+    
+    final_list = list()
+    for route in route_list:
+        final_list.extend(school_route + route)
+    return final_list
 
 # Perform routing 
 def startRouting(cluster_school_map, schoolcluster_students_map):
-    
     routes = dict()
     for key, schools in cluster_school_map.items():
-        break
         school_route, dropoff_time = getPossibleRoute(schools, 0, [])        
         this_route = Route()
         this_route.add_route(school_route)
         this_route.update_time(sum(dropoff_time))
         route_list = list()
+        times_required_list = list()
         
         for students in schoolcluster_students_map[key]:
-            break
             students.sort(key=lambda x: x.tt_ind, reverse=True)
             stud_route, times_required = getPossibleRoute(students, 0, [this_route.path[-1]])
             stud_route.pop(0)
             times_required.pop(0)
             times_required.extend([0])
-            sorted_students = sorted(students, key=lambda x: stud_route.index(x.tt_ind))
-            
-            new_route = this_route
-            student_index = 0
-            
-            
-
-
-                
-            routes[key] = route_list
-            
+#            sorted_students = sorted(students, key=lambda x: stud_route.index(x.tt_ind))
+            stud_cluster_route = breakRoutes(this_route.get_route_length(), school_route, stud_route, times_required)
+            route_list.extend(stud_cluster_route)
+            times_required_list.append(times_required)
+        
+        routes[key] = route_list
     return routes
              
 def display(students):
