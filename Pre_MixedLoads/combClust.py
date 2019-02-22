@@ -122,8 +122,10 @@ def partitionStudents(schools, phonebook):
         
 prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
 depot, stops, zipdata, schools, phonebook = setup_data(prefix+'depot_geocodes.csv', 
-                                                       prefix+'stop_geocodes_fixed.csv', prefix+'zipData.csv', 
-                                                       prefix+'school_geocodes_fixed.csv', prefix+'totalPhoneBook.csv')
+                                                       prefix+'stop_geocodes_fixed.csv', 
+                                                       prefix+'zipData.csv', 
+                                                       prefix+'school_geocodes_fixed.csv', 
+                                                       prefix+'totalPhoneBook.csv')
 
 phonebook = phonebook.loc[phonebook['Level'] == "Elem"]
 elemschools = phonebook["Cost_Center"].drop_duplicates()
@@ -137,7 +139,6 @@ elemschools = pd.merge(elemschools, elemschool_clusters, on=['Lat', 'Long'], how
 elemschools = elemschools.sort_values(by=['label'])
 
 schoolcluster_students_map_df = partitionStudents(elemschools, phonebook)
-
 
 # Testing
 subset = elemschools.loc[elemschools['label'] == 0].copy()  
@@ -156,9 +157,6 @@ for index, row in stops_subset.iterrows():
 
 stops_subset['Index'] = temp
 
-
-
-
 # Write to file
 elemschools.to_csv('elem_clustered_schools_file', sep='\t', encoding='utf-8')
 
@@ -172,11 +170,6 @@ with open('clusteredschools_students_map' ,'wb') as handle:
 # Read dictionary
 with open('SC_stops_file' ,'rb') as handle:
     schoolcluster_students_map = pickle.load(handle)
-
-
-
-
-
 
 # TESTING 
 labels = []

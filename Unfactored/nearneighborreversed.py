@@ -63,21 +63,6 @@ class Route:
 def californiafy(address):
     return address[:-6] + " California," + address[-6:]
 
-#phonebooks: list of filenames for phonebooks
-#phonebooks are assumed to be in the format that was provided to
-#me in early November 2018
-#all_geocodes: filename for list of all geocodes. gives map from geocode to ind
-#geocoded_stops: file name for map from stop to geocode
-#geocoded_schools: file name for map from school to geocode
-#returns a list of all students, a dict from schools to sets of
-#students, and a dict from schools to indices in the travel time matrix.
-    
-
-phonebooks = [prefix+'phonebook_parta.csv', prefix+'phonebook_partb.csv']
-all_geocodes = prefix+'all_geocodes.csv'
-geocoded_stops = prefix+'stop_geocodes_fixed.csv'
-geocoded_schools=prefix+'school_geocodes_fixed.csv'
-
 def setup_students(phonebooks, all_geocodes, geocoded_stops, geocoded_schools):
     
     stops = open(geocoded_stops, 'r')

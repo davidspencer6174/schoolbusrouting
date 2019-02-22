@@ -195,6 +195,13 @@ def getPossibleRoute(items, index, item_indexes):
 
     return result, time_taken
         
+
+def breakRoutes(time, stud_route, times_required):
+    route_list = list()
+    
+    for stop in stud_route:
+        if time + times_required < max_time:
+
 # Perform routing 
 def startRouting(cluster_school_map, schoolcluster_students_map):
     
@@ -213,6 +220,7 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
             stud_route, times_required = getPossibleRoute(students, 0, [this_route.path[-1]])
             stud_route.pop(0)
             times_required.pop(0)
+            times_required.extend([0])
             sorted_students = sorted(students, key=lambda x: stud_route.index(x.tt_ind))
             
             new_route = this_route
