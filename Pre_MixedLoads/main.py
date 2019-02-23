@@ -4,7 +4,7 @@ import pickle
 
 verbose = 1
 stop_point = 10
-max_time = 3600
+max_time = 1800
 
 prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
 travel_times = np.load(prefix + "travel_times.npy")
@@ -191,31 +191,40 @@ def getPossibleRoute(items, index, item_indexes):
     [result.append(item_indexes[i]) for i in route]
     return result, time_taken
                 
-# Break routes to fit max_time constraints
 def breakRoutes(dropoff_time, school_route, stud_route, times_required):
-    current_time = dropoff_time
-    time_index = 0 
     route_list = list()
-    partial_route = list()
-    for stop in stud_route:
-        partial_route.extend([stop])
-        if current_time + times_required[time_index] >= max_time:
-            route_list.append(partial_route)
-            partial_route = list()
-            current_time = dropoff_time
-        else:
-            current_time += times_required[time_index]
-        time_index += 1 
-    route_list.append(partial_route)
+    time_list = list()
+    temp_route = list()
+    temp_times = list()
+    
+    for index, time in enumerate(times_required):
+        temp_times.append(time)
+        temp_route.append(stud_route[index])
+        
+        if dropoff_time + sum(temp_times) > max_time:
+            if len(temp_times) == 1:
+                route_list.append([stud_route[index]])
+                time_list.append(temp_times)
+                temp_times = list()
+                temp_route = list()
+            else:
+                time_list.append(temp_times[:-1])
+                route_list.append(temp_route[:-1])
+                del temp_times[:-1]
+                del temp_route[:-1]
+
+    time_list.append(temp_times)
+    route_list.append(temp_route)
     
     final_list = list()
     for route in route_list:
-        final_list.extend(school_route + route)
+        final_list.append(school_route + route)
     return final_list
 
 # Perform routing 
 def startRouting(cluster_school_map, schoolcluster_students_map):
     routes = dict()
+    
     for key, schools in cluster_school_map.items():
         school_route, dropoff_time = getPossibleRoute(schools, 0, [])        
         this_route = Route()
@@ -228,13 +237,11 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
             students.sort(key=lambda x: x.tt_ind, reverse=True)
             stud_route, times_required = getPossibleRoute(students, 0, [this_route.path[-1]])
             stud_route.pop(0)
-            times_required.pop(0)
-            times_required.extend([0])
 #            sorted_students = sorted(students, key=lambda x: stud_route.index(x.tt_ind))
             stud_cluster_route = breakRoutes(this_route.get_route_length(), school_route, stud_route, times_required)
             route_list.append(stud_cluster_route)
             times_required_list.append(times_required)
-        
+            
         routes[key] = route_list
     return routes
 
@@ -246,6 +253,7 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
     file.write("######################## \n")
 
     for index in routes_returned:
+        file.write(str(index))
         file.write("Schools in this cluster: \n") 
         
         for clus_school in cluster_school_map[index]:            
@@ -262,8 +270,7 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
             file.write("\n")
             file.write("Google Maps Link: \n")
             file.write(link)
-            file.write("\n")
-        file.write("---------------------- \n")
+        file.write("\n---------------------- \n")
     file.close()
 
 # Main()
@@ -276,7 +283,6 @@ cluster_school_map_elem, schoolcluster_students_map_elem = setup_cluster(prefix+
                                                                prefix+'schools_codes_map',
                                                                prefix+'stops_codes_map',
                                                                prefix+'codes_inds_map')
-
 
 cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
 printStats(cluster_school_map_elem, schoolcluster_students_map_elem, cap_counts)
@@ -303,7 +309,3 @@ cluster_school_map_high, schoolcluster_students_map_high = setup_cluster(prefix+
 
 routes_returned_high = startRouting(cluster_school_map_high, schoolcluster_students_map_high)
 outputRoutes(cluster_school_map_high, routes_returned_high, "high_school_routes", "HIGH SCHOOL ROUTES \n")
-
-
-
-

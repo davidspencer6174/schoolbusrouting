@@ -122,8 +122,6 @@ def partitionStudents(schools, phonebook):
 ##############################################################################################################################
 # MAIN
 ##############################################################################################################################
-
-
 prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
 depot, stops, zipdata, schools, phonebook = setup_data(prefix+'depot_geocodes.csv', 
                                                        prefix+'stop_geocodes_fixed.csv', 
@@ -135,22 +133,17 @@ prog_types = ['P', 'X', 'M']
 phonebook = phonebook.loc[phonebook['Level'] == "High"]
 phonebook = phonebook[phonebook.Prog.isin(prog_types)]
 
-
-taft_types = [str(1888001), str(1888007)]
-taft = phonebook[phonebook.Cost_Center.isin(taft_types)]
-
-
-
+#taft_types = [str(1888001), str(1888007)]
+#taft = phonebook[phonebook.Cost_Center.isin(taft_types)]
 
 new_schools = phonebook["Cost_Center"].drop_duplicates()
 new_schools = schools.loc[schools['Cost_Center'].isin(new_schools)]
 
-total = obtainClust_DBSCAN(new_schools, 2, 1)
+total = obtainClust_DBSCAN(new_schools, 3, 1)
 print(Counter(total['label']))
 print("Num of clusters: " + str(len(Counter(total['label']))))
 
 #elemschool_clusters = breakLargeClusters(total, 4, 5)
-
 
 school_clustered = total
 new_schools = pd.merge(new_schools, school_clustered, on=['Lat', 'Long'], how='inner').drop_duplicates()

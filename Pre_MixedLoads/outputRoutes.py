@@ -1,15 +1,8 @@
 import pandas as pd 
 
-
-
-
-
-
 prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/'
 all_geocodesFile = prefix+'all_geocodes.csv'
 geocodes = pd.read_csv(all_geocodesFile)
-
-
 
 def outputRoutes(cluster_school_map, routes_returned, filename):
     file = open(str(filename) + ".txt", "w")     
