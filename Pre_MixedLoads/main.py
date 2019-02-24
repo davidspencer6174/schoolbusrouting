@@ -88,7 +88,7 @@ def californiafy(address):
 # Setup clusters: input all required files 
 def setup_cluster(cluster_schools_file, SC_stops_file, schools_codes_mapFile, stops_codes_mapFile, codes_inds_mapFile):
     
-    cluster_schools_df = pd.read_csv(cluster_schools_file)
+    cluster_schools_df = pd.read_csv(cluster_schools_file, sep=";")
 
     with open(SC_stops_file,'rb') as handle:
         schoolcluster_students_df = pickle.load(handle)
@@ -191,39 +191,43 @@ def getPossibleRoute(items, index, item_indexes):
     [result.append(item_indexes[i]) for i in route]
     return result, time_taken
                 
-def breakRoutes(dropoff_time, school_route, stud_route, times_required):
-    route_list = list()
+def breakRoutes(dropoff_time, school_route, stud_route):
     time_list = list()
-    temp_route = list()
     temp_times = list()
+    base = school_route[-1]
     
-    for index, time in enumerate(times_required):
-        temp_times.append(time)
-        temp_route.append(stud_route[index])
-        
+    for index, stop in enumerate(stud_route):
+        temp_times.append(travel_times[base][stop])
+
         if dropoff_time + sum(temp_times) > max_time:
+            base = school_route[-1]
             if len(temp_times) == 1:
-                route_list.append([stud_route[index]])
                 time_list.append(temp_times)
                 temp_times = list()
-                temp_route = list()
+                
             else:
                 time_list.append(temp_times[:-1])
-                route_list.append(temp_route[:-1])
-                del temp_times[:-1]
-                del temp_route[:-1]
-
-    time_list.append(temp_times)
-    route_list.append(temp_route)
+                temp_times = list([travel_times[base][stop]])
+        base = stop
+        
+    if temp_times:
+        time_list.append(temp_times)
     
-    final_list = list()
-    for route in route_list:
-        final_list.append(school_route + route)
-    return final_list
+    result_list = list()
+    ind = 0 
+    for group in time_list:
+        group_list = list()
+        for stop in group:
+            group_list.append(stud_route[ind])
+            ind += 1
+        result_list.append(school_route + group_list)
+
+    return result_list, time_list
 
 # Perform routing 
 def startRouting(cluster_school_map, schoolcluster_students_map):
     routes = dict()
+    route_times = dict()
     
     for key, schools in cluster_school_map.items():
         school_route, dropoff_time = getPossibleRoute(schools, 0, [])        
@@ -231,19 +235,20 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
         this_route.add_route(school_route)
         this_route.update_time(sum(dropoff_time))
         route_list = list()
-        times_required_list = list()
+        route_time_list = list()
         
         for students in schoolcluster_students_map[key]:
             students.sort(key=lambda x: x.tt_ind, reverse=True)
-            stud_route, times_required = getPossibleRoute(students, 0, [this_route.path[-1]])
+            stud_route = getPossibleRoute(students, 0, [this_route.path[-1]])[0]
             stud_route.pop(0)
 #            sorted_students = sorted(students, key=lambda x: stud_route.index(x.tt_ind))
-            stud_cluster_route = breakRoutes(this_route.get_route_length(), school_route, stud_route, times_required)
+            stud_cluster_route, route_time = breakRoutes(this_route.get_route_length(), school_route, stud_route)
             route_list.append(stud_cluster_route)
-            times_required_list.append(times_required)
-            
+            route_time_list.append(route_time)
+        
         routes[key] = route_list
-    return routes
+        route_times[key] = route_time_list
+    return routes, route_times
 
 def outputRoutes(cluster_school_map, routes_returned, filename, title):
     file = open(str(filename) + ".txt", "w")     
@@ -286,7 +291,7 @@ cluster_school_map_elem, schoolcluster_students_map_elem = setup_cluster(prefix+
 
 cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
 printStats(cluster_school_map_elem, schoolcluster_students_map_elem, cap_counts)
-routes_returned_elem = startRouting(cluster_school_map_elem, schoolcluster_students_map_elem)
+routes_returned_elem, route_times_elem = startRouting(cluster_school_map_elem, schoolcluster_students_map_elem)
 
 outputRoutes(cluster_school_map_elem, routes_returned_elem, "elem_school_routes", "ELEM SCHOOL ROUTES \n")
 
