@@ -243,11 +243,10 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
             stud_route.pop(0)
 #            sorted_students = sorted(students, key=lambda x: stud_route.index(x.tt_ind))
             stud_cluster_route, route_time = breakRoutes(this_route.get_route_length(), school_route, stud_route)
-            route_list.append(stud_cluster_route)
-            route_time_list.append(route_time)
         
-        routes[key] = route_list
-        route_times[key] = route_time_list
+        routes[key] = stud_cluster_route
+        route_times[key] = route_time
+        
     return routes, route_times
 
 def outputRoutes(cluster_school_map, routes_returned, filename, title):
