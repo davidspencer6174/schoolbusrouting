@@ -8,14 +8,28 @@ import pickle
 verbose = 0
 break_num = 6
 
-def setup_data(depotfile, stops, zipdata, schools, phonebook):
-    depot = pd.read_csv(depotfile, low_memory=False)
+
+def setup_data(stops, zipdata, schools, phonebook, bell_times, schools_codes_mapFile, codes_inds_mapFile):
+    
+    with open(schools_codes_mapFile,'rb') as handle:
+        schools_codes_map = pickle.load(handle)
+    with open(codes_inds_mapFile ,'rb') as handle:
+        codes_inds_map = pickle.load(handle)
+
     stops = pd.read_csv(stops, low_memory=False)
     zipdata = pd.read_csv(zipdata, low_memory=False)
     
+    bell_times = pd.read_csv(bell_times, low_memory=False, encoding='windows-1252')
     schools = pd.read_csv(schools, dtype={'Location_Code': int, 'School_Name': str, 'Cost_Center': int, 'Lat': float, 'Long': float}, low_memory=False)
     schools = schools[['Location_Code', 'School_Name', 'Cost_Center', 'Lat', 'Long']]
+    schools = pd.merge(schools, bell_times[['r1_start','Cost_Center']], on ='Cost_Center', how='left')
     
+    school_index_list = list()
+    for ind, row in schools.iterrows():
+        school_index_list.append(codes_inds_map[schools_codes_map[str(row['Cost_Center'])]])
+    schools['tt_ind'] = school_index_list
+    schools = editBellTimes(schools)
+
     phonebook = pd.read_csv(phonebook, dtype={"RecordID": str, 'Prog': str, 'Cost_Center': str, "AM_Route": str, 'Lat': float, 'Long': float}, low_memory=False)
     phonebook = phonebook[['RecordID', 'Prog', 'Cost_Center', 'Cost_Center_Name','Grade','AM_Stop_Address', 'AM_Route']]
     phonebook = phonebook[phonebook['AM_Route'] != str(9500)]
@@ -29,14 +43,30 @@ def setup_data(depotfile, stops, zipdata, schools, phonebook):
     
     phonebook["Level"] = None
     mask = (phonebook['Grade'] < 6)
-    phonebook['Level'] = phonebook['Level'].mask(mask, "Elem")
+    phonebook['Level'] = phonebook['Level'].mask(mask, "elem")
     mask = (phonebook['Grade'] >= 6) & (phonebook['Grade'] < 9)
-    phonebook['Level'] = phonebook['Level'].mask(mask, "Middle")
+    phonebook['Level'] = phonebook['Level'].mask(mask, "middle")
     mask = (phonebook['Grade'] >= 9) & (phonebook['Grade'] <=13)
-    phonebook['Level'] = phonebook['Level'].mask(mask, "High")
+    phonebook['Level'] = phonebook['Level'].mask(mask, "high")
 
     phonebook = phonebook.rename(index=str, columns={"Lat": "Lat", "Long": "Long"})
-    return depot, stops, zipdata, schools, phonebook
+    return stops, zipdata, schools, phonebook 
+
+# Edit belltimes from ___AM to only seconds
+def editBellTimes(schools):
+    
+    newTime = list()
+    for idx, row in schools.iterrows():        
+        if isinstance(row["r1_start"], str):
+            hours, mins = row["r1_start"].split(":", 1)
+            hours = int(hours)*3600
+            mins = int(mins[:2])*60
+            newTime.append(hours+mins)
+        else:
+            newTime.append(np.nan)
+    schools['r1_start'] = newTime
+    
+    return schools
 
 def reformatClustersDBSCAN(clusters):
     df = pd.DataFrame()
@@ -73,7 +103,7 @@ def obtainClust_KMEANS(loc, base_number):
     loc['label'] = kmeans.labels_
     return loc
 
-def outputDataframe(clustered):
+def outputGeolocationsWithLabels(clustered):
     clustered = clustered.sort_values(by='label')
     file = open("elem_schools_geo" + ".txt", "w") 
     file.write("category,latitude,longitude\n") 
@@ -118,57 +148,56 @@ def partitionStudents(schools, phonebook):
         
         schoolcluster_students_map[row[0]] = students
     return schoolcluster_students_map
-        
+
+# Write dictionaries to disc
+# new_schools: dataframe of clustered schools
+# schoolcluster_students_map_df: 
+def outputDictionary(schools_students_attend, schoolcluster_students_map_df, student_level):
+    schools_students_attend.to_csv(str(student_level) + '_clustered_schools_file.csv', sep=';', encoding='utf-8')
+    
+    with open(str(student_level) + '_clusteredschools_students_map' ,'wb') as handle:
+        pickle.dump(schoolcluster_students_map_df, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
 ##############################################################################################################################
 # MAIN
 ##############################################################################################################################
 prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
-depot, stops, zipdata, schools, phonebook = setup_data(prefix+'depot_geocodes.csv', 
-                                                       prefix+'stop_geocodes_fixed.csv', 
-                                                       prefix+'zipData.csv', 
-                                                       prefix+'school_geocodes_fixed.csv', 
-                                                       prefix+'totalPhoneBook.csv')
+stops, zipdata, schools, phonebook = setup_data(prefix+'stop_geocodes_fixed.csv', 
+                                                prefix+'zipData.csv', 
+                                                prefix+'school_geocodes_fixed.csv', 
+                                                prefix+'totalPhoneBook.csv',
+                                                prefix+'bell_times.csv',
+                                                prefix+'/mixed_load_data/schools_codes_map',
+                                                prefix+'/mixed_load_data/codes_inds_map')
 
+School_Level = "middle"
 prog_types = ['P', 'X', 'M']
-phonebook = phonebook.loc[phonebook['Level'] == "High"]
+phonebook = phonebook.loc[phonebook['Level'] == School_Level]
 phonebook = phonebook[phonebook.Prog.isin(prog_types)]
-
-#taft_types = [str(1888001), str(1888007)]
-#taft = phonebook[phonebook.Cost_Center.isin(taft_types)]
-
-new_schools = phonebook["Cost_Center"].drop_duplicates()
-new_schools = schools.loc[schools['Cost_Center'].isin(new_schools)]
-
-total = obtainClust_DBSCAN(new_schools, 3, 1)
-print(Counter(total['label']))
-print("Num of clusters: " + str(len(Counter(total['label']))))
+schools_students_attend = phonebook["Cost_Center"].drop_duplicates()
+schools_students_attend = schools.loc[schools['Cost_Center'].isin(schools_students_attend)]
+clustered_schools = obtainClust_DBSCAN(schools_students_attend, 2, 1)
 
 #elemschool_clusters = breakLargeClusters(total, 4, 5)
 
-school_clustered = total
-new_schools = pd.merge(new_schools, school_clustered, on=['Lat', 'Long'], how='inner').drop_duplicates()
-new_schools = new_schools.sort_values(by=['label'])
+schools_students_attend = pd.merge(schools_students_attend, clustered_schools, on=['Lat', 'Long'], how='inner').drop_duplicates()
+schools_students_attend = schools_students_attend.sort_values(['label', 'r1_start'], ascending=[True, False])
 
-schoolcluster_students_map_df = partitionStudents(new_schools, phonebook)
+schoolcluster_students_map_df = partitionStudents(schools_students_attend, phonebook)
 
-##############################################################################################################################
-# OUTPUT 
-##############################################################################################################################
-# Write to file
-new_schools.to_csv('high_clustered_schools_file.csv', sep=';', encoding='utf-8')
+print(Counter(clustered_schools['label']))
+print("Num of clusters: " + str(len(Counter(clustered_schools['label']))))
 
-# Dictionary read/write
-with open('high_clusteredschools_students_map' ,'wb') as handle:
-    pickle.dump(schoolcluster_students_map_df, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-with open('SC_stops_file' ,'rb') as handle:
-    schoolcluster_students_map_df = pickle.load(handle)
+outputDictionary(schools_students_attend, schoolcluster_students_map_df, School_Level)
 
 ##############################################################################################################################
 # MISC
 ##############################################################################################################################
-subset = elemschools.loc[elemschools['label'] == 0].copy()  
-outputDataframe(subset)
+subset = schools_students_attend.loc[schools_students_attend['label'] == 0].copy() 
+test_1 = schoolcluster_students_map_df[0].loc[schoolcluster_students_map_df[0]['label'] ==0].copy()
+ 
+outputGeolocationsWithLabels(subset)
 
 test = schoolcluster_students_map_df[0]
 stops_subset = test.loc[test['label'] == 0]
