@@ -21,15 +21,13 @@ class Student:
     def __init__(self, tt_ind, school_ind):
         self.tt_ind = tt_ind
         self.school_ind = school_ind
-        self.bus_assigned = False
 
 class Route:
     #For now, encapsulated as a list of student/stop index pairs in order
-    def __init__(self, route, route_times):
-        self.tt_ind = 0
+    def __init__(self, path, path_info):
         self.students = []
-        self.route = route
-        self.route_times = route_times
+        self.path = path
+        self.path_info = path_info
         self.bus_size = None
         
     def __eq__(self, other):
@@ -39,13 +37,16 @@ class Route:
         return self.tt_ind < other.tt_ind
         
     def get_route_length(self):
-        return sum(self.route_times)
+        return sum([i for i, j in self.path_info])
 
     #insert a student pickup at a certain position in the route.
     #default position is the end
     def add_student(self, student):
         self.students.append(student)
         self.occupants += 1
+    
+    def updateBus(self, bus_cap):
+        self.bus_size = bus_cap
             
 def setup_buses(bus_capacities):
     cap_counts_dict = dict()  #map from capacities to # of buses of that capacity
@@ -234,7 +235,7 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
         for students in schoolcluster_students_map[key]:
             stud_route = getPossibleRoute(students, 0, [school_route[-1]])[0]
             stud_route.pop(0)
-            stud_cluster_route, stop_info = makeRoutes(sum(dropoff_time), school_route, stud_route, students)
+            stud_cluster_route, stop_info = makeRoutes(dropoff_time, school_route, stud_route, students)
             
         routes[key] = stud_cluster_route
         stop_info_map[key] = stop_info
@@ -277,6 +278,9 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
         file.write("\n---------------------- \n")
         
     file.close()
+
+def start(school_type):
+    
 
 ##############################################################################################################
 # Main()
