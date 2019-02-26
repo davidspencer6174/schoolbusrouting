@@ -21,10 +21,17 @@ stud_route = [443, 517, 535, 6782, 589, 4259, 5738]
 max_time = 1000
 current_time = 300
 
+school_route = [10361, 9587] 
+stud_route = [7860, 5284, 1986, 8324, 3853, 3578, 8125, 525, 168, 1428, 4471]
+max_time = 1800 
+current_time = [232.8]
+students = schoolcluster_students_map_elem[3]
 
-def makeRoutes(dropoff_times, school_route, stud_route, students):
+# Make route objects with route information in them
+# Divide routes based on constraints 
+def makeRoutes(school_route_time, school_route, stud_route, students):
     
-    time = sum(dropoff_times)
+    time = sum(school_route_time)
     path_info_list = list()
     path_info = list()
     base = school_route[-1]
@@ -68,18 +75,19 @@ def makeRoutes(dropoff_times, school_route, stud_route, students):
     # Add information about the routes between schools 
     # Prepend travel times from school -> school into the stop_info
     for info in path_info_list:
-        for school_time in dropoff_times:
+        for school_time in school_route_time:
             info.insert(0, (school_time, 0))
 
     # Make the route objects and put them into a list 
-    # TODO: add students inside route, assign bus
     route_list = list()
     for idx, route in enumerate(result_list):
-        current_route = Route(route, stop_info_list[idx])
+        current_route = Route(route, path_info_list[idx])
         
-        while True:
-            pass
-        
+        for stop in current_route.path:
+            for idx, stud in enumerate(students):
+                if stud.tt_ind == stop:
+                    current_route.add_student(stud)
+                    del students[idx]        
         
         for bus_ind in range(len(cap_counts)):
             bus = cap_counts[bus_ind]
@@ -96,11 +104,14 @@ def makeRoutes(dropoff_times, school_route, stud_route, students):
         
         route_list.append(current_route)
         
-    return result_list, path_info_list
+    return route_list
 
 
 
-result_list, path_info_list = makeRoutes(current_time, school_route, stud_route, students)
+
+
+
+route_list = makeRoutes(current_time, school_route, stud_route, students)
 
 result_list, stop_info_list = originalBreakRoute(current_time, school_route, stud_route)
 
