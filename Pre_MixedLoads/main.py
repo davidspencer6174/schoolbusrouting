@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import pickle
+from collections import Counter
 
 verbose = 1
 stop_point = 10
@@ -17,11 +18,6 @@ class School:
         self.school_name = school_name
 
 class Student:
-    #tt_ind denotes the index of the student's stop in the
-    #travel time matrix
-    #school_id is the index of the cost center (attendance Co)
-    #in the travel time matrix
-    #for now, ridership probability is not used
     def __init__(self, tt_ind, school_ind):
         self.tt_ind = tt_ind
         self.school_ind = school_ind
@@ -29,12 +25,12 @@ class Student:
 
 class Route:
     #For now, encapsulated as a list of student/stop index pairs in order
-    def __init__(self):
+    def __init__(self, route, route_times):
         self.tt_ind = 0
         self.students = []
-        self.length = 0
-        self.occupants = 0
-        self.path = [] 
+        self.route = route
+        self.route_times = route_times
+        self.bus_size = None
         
     def __eq__(self, other):
         return self.tt_ind == other.tt_ind and self.tt_ind == other.tt_ind
@@ -43,7 +39,7 @@ class Route:
         return self.tt_ind < other.tt_ind
         
     def get_route_length(self):
-        return self.length
+        return sum(self.route_times)
 
     #insert a student pickup at a certain position in the route.
     #default position is the end
@@ -51,12 +47,6 @@ class Route:
         self.students.append(student)
         self.occupants += 1
             
-    def add_route(self, newroutes):
-        self.path.extend(newroutes)
-        
-    def update_time(self, time):
-        self.length += time
-
 def setup_buses(bus_capacities):
     cap_counts_dict = dict()  #map from capacities to # of buses of that capacity
     caps = open(bus_capacities, 'r')
@@ -78,7 +68,6 @@ def setup_buses(bus_capacities):
 def californiafy(address):
     return address[:-6] + " California," + address[-6:]
 
-    
 # Setup clusters: input all required files 
 def setup_cluster(cluster_schools_file, SC_stops_file, schools_codes_mapFile, stops_codes_mapFile, codes_inds_mapFile):
     
@@ -121,7 +110,7 @@ def setup_cluster(cluster_schools_file, SC_stops_file, schools_codes_mapFile, st
         schoolcluster_students_map[key] = list_of_clusters
     return cluster_school_map, schoolcluster_students_map
 
-# Print statistics of a cluster
+# Print statistics of a school cluster
 def printStats(cluster_school_map, schoolcluster_students_map, cap_counts):
     numStudents = 0 
     numSchools = 0 
@@ -148,8 +137,10 @@ def printStats(cluster_school_map, schoolcluster_students_map, cap_counts):
 # Precompute route based on shortest path
 # items: Input schools or students
 # index = 0 
-# item_indexes: if schools, start with empty list. If students, start with array with closest school
+# item_indexes: if routing sch., start with empty list. 
+#               if ruting stud., start with array with closest school
 def getPossibleRoute(items, index, item_indexes):
+    
     new_indexes = list()
     route = list()
     time_taken = list()
@@ -186,44 +177,47 @@ def getPossibleRoute(items, index, item_indexes):
     
     return result, time_taken
 
-# dropoff_time: times it take to travel through all the school_routes
-# school_route: route we have to go through to dropoff students
-# stud_route: route we have to travel to pick up students
-def breakRoutes(dropoff_time, school_route, stud_route):
+def makeRoutes(dropoff_time, school_route, stud_route, students):
     
-    time_list = list()
-    temp_times = list()
+    stop_info_list = list()
+    stop_info = list()
     base = school_route[-1]
     
+    students.sort(key=lambda x: x.tt_ind, reverse=False)
+    stop_counts =[student.tt_ind for student in students]
+    stop_counts = dict(Counter(stop_counts))
+    
     for index, stop in enumerate(stud_route):
-        temp_times.append(travel_times[base][stop])
-
-        if dropoff_time + sum(temp_times) > max_time:
+        stop_info.append((travel_times[base][stop], stop_counts[stop]))
+        
+        
+        # ADD OR STATEMENT TO SEE IF SUM OF STOP_INFO[1] IS MORE THAN THE BUS CAPACITIES
+        if (dropoff_time + sum([i for i, j in stop_info]) > max_time):
             base = school_route[-1]
-            if len(temp_times) == 1:
-                time_list.append(temp_times)
-                temp_times = list()
+            if len(stop_info) == 1:
+                stop_info_list.append(stop_info)
+                stop_info = list()
                 
             else:
-                time_list.append(temp_times[:-1])
-                temp_times = list([travel_times[base][stop]])
+                stop_info_list.append(stop_info[:-1])
+                stop_info = list()
+                stop_info.append((travel_times[base][stop], stop_counts[stop]))
         base = stop
         
-    if temp_times:
-        time_list.append(temp_times)
-    
+    if stop_info:
+        stop_info_list.append(stop_info)
+                        
     result_list = list()
     ind = 0 
-    for group in time_list:
+    for group in stop_info_list:
         group_list = list()
         for stop in group:
             group_list.append(stud_route[ind])
             ind += 1
         result_list.append(school_route + group_list)
 
-    return result_list, time_list
+    return result_list, stop_info_list
 
-    
 
 
 # Perform routing 
@@ -232,7 +226,7 @@ def breakRoutes(dropoff_time, school_route, stud_route):
 def startRouting(cluster_school_map, schoolcluster_students_map):
     
     routes = dict()
-    route_times = dict()
+    stop_info_map = dict()
     
     for key, schools in cluster_school_map.items():
         school_route, dropoff_time = getPossibleRoute(schools, 0, [])        
@@ -240,16 +234,16 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
         for students in schoolcluster_students_map[key]:
             stud_route = getPossibleRoute(students, 0, [school_route[-1]])[0]
             stud_route.pop(0)
-            stud_cluster_route, route_time = breakRoutes(sum(dropoff_time), school_route, stud_route)
+            stud_cluster_route, stop_info = makeRoutes(sum(dropoff_time), school_route, stud_route, students)
             
-            
-            students.sort(key=lambda x: x.tt_ind, reverse=True)
-            sorted_students = sorted(students, key=lambda x: stud_route.index(x.tt_ind))
-
         routes[key] = stud_cluster_route
-        route_times[key] = route_time
+        stop_info_map[key] = stop_info
         
-    return routes, route_times
+    return routes, stop_info_map
+
+def display(students):
+    for i in students:
+        print(i.tt_ind)
 
 # write routes into .txt file
 # cluster_school_map: maps clusters to schools
