@@ -49,6 +49,7 @@ class Route:
     def updateBus(self, bus_cap):
         self.bus_size = bus_cap
             
+# Set up the buses
 def setup_buses(bus_capacities):
     cap_counts_dict = dict()  #map from capacities to # of buses of that capacity
     caps = open(bus_capacities, 'r')
@@ -85,6 +86,7 @@ def setup_cluster(cluster_schools_file, SC_stops_file, schools_codes_mapFile, st
     with open(codes_inds_mapFile ,'rb') as handle:
         codes_inds_map = pickle.load(handle)
 
+    # Cluster to schools map
     cluster_school_map = dict()
     
     for i in list(cluster_schools_df['label'].drop_duplicates()):
@@ -96,6 +98,7 @@ def setup_cluster(cluster_schools_file, SC_stops_file, schools_codes_mapFile, st
             schoollist.append(School(school_ind, cost_center, row['School_Name']))
         cluster_school_map[i] = schoollist
 
+    # School cluster to cluster of studentts map 
     schoolcluster_students_map = dict()
     
     for key, value in schoolcluster_students_df.items():
@@ -116,7 +119,7 @@ def setup_cluster(cluster_schools_file, SC_stops_file, schools_codes_mapFile, st
     return cluster_school_map, schoolcluster_students_map
 
 # Print statistics of a school cluster
-def printStats(cluster_school_map, schoolcluster_students_map, cap_counts):
+def printBeginStats(cluster_school_map, schoolcluster_students_map, cap_counts, school_type):
     
     numStudents = 0 
     numSchools = 0 
@@ -128,15 +131,20 @@ def printStats(cluster_school_map, schoolcluster_students_map, cap_counts):
     for key, value in cluster_school_map.items():
         numSchools = numSchools + len(value)
 
-    print("Number of Students: " + str(numStudents))
-    print("Number of Schools: " + str(numSchools))
-    print("Number of School Clusters: " +str(len(cluster_school_map)))
-    print("Num of School - Stops Cluster: " + str(len(schoolcluster_students_map)))
-
     tot_cap = 0
     for bus in cap_counts:
         tot_cap += bus[0]*bus[1]
-    print("Total capacity: " + str(tot_cap))
+
+    print("Starting to route " + school_type.upper() + " SCHOOL students")
+    print('---------------------------------')
+    print('Pre-routing statistics')
+    print('---------------------------------')
+    print("Num. of Students: " + str(numStudents))
+    print("Num. of Schools: " + str(numSchools))
+    print("Num. of School Clusters: " +str(len(cluster_school_map)))
+    print("Num. of School - Stops Cluster: " + str(len(schoolcluster_students_map)))
+    print("Total capacity: " + str(tot_cap) + "\n")
+
     print("Bus Info: ")
     print(cap_counts)
 
@@ -145,6 +153,7 @@ def printStats(cluster_school_map, schoolcluster_students_map, cap_counts):
 # index = 0 
 # item_indexes: if routing sch., start with empty list. 
 #               if ruting stud., start with array with closest school
+# Returns: route to go through all schools, time it takes to go through route
 def getPossibleRoute(items, index, item_indexes):
     
     new_indexes = list()
@@ -152,6 +161,7 @@ def getPossibleRoute(items, index, item_indexes):
     time_taken = list()
     visited = list()
         
+    # Create the mini travel-time martrix
     [new_indexes.append(it.tt_ind) for it in items]
     new_indexes = list(dict.fromkeys(new_indexes))
     item_indexes.extend(new_indexes)
@@ -163,6 +173,7 @@ def getPossibleRoute(items, index, item_indexes):
         for j in range(0, len(dropoff_mat[i])):
             dropoff_mat[i][j] = travel_times[item_indexes[i]][item_indexes[j]]  
     
+    # Find shorest path through all the stops
     while len(route) < len(dropoff_mat):
         visited.append(index)
         temp = np.array(dropoff_mat[index])
@@ -289,7 +300,7 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
     routes = dict()
     
     # Loop through every cluster of schools and cluster of stops
-    # Generate route for each cluster_school and cluster_stops pair
+    # Generate route(s) for each cluster_school and cluster_stops pair
     for key, schools in cluster_school_map.items():
         school_route, school_route_time = getPossibleRoute(schools, 0, [])        
         route_list = list()
@@ -349,6 +360,29 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
                     
     file.close()
 
+# Print statistics after routing complete
+def printFinalStats(routes_returned):
+    
+    studentCount = 0
+    for i in routes_returned:
+        for j in routes_returned[i]:
+            for k in j:
+                studentCount += k.occupants
+
+    routesCount = 0 
+    for x in routes_returned:
+        for y in routes_returned[x]:
+            for route in y:
+                routesCount += 1
+
+    print('---------------------------------')
+    print('Post-routing statistics')
+    print('---------------------------------')
+    print("Num. of Students Routed: " + str(studentCount))
+    print("Num. of Routes Generated: " + str(routesCount))
+    print("\n")
+
+# School type can be (elem, middle, or high)
 def start(school_type):
     cluster_school_map, schoolcluster_students_map = setup_cluster(prefix+str(school_type)+'_clustered_schools_file.csv', 
                                                                    prefix+str(school_type)+'_clusteredschools_students_map',
@@ -356,9 +390,11 @@ def start(school_type):
                                                                    prefix+'stops_codes_map',
                                                                    prefix+'codes_inds_map')
     
-    printStats(cluster_school_map, schoolcluster_students_map, cap_counts)
+    printBeginStats(cluster_school_map, schoolcluster_students_map, cap_counts, school_type)
     routes_returned = startRouting(cluster_school_map, schoolcluster_students_map)
     outputRoutes(cluster_school_map, routes_returned, (str(school_type)+"_school_routes"), (school_type.upper()+"SCHOOL ROUTES \n"))
+    printFinalStats(routes_returned)
+    
     return routes_returned
 
 ##############################################################################################################
@@ -373,8 +409,3 @@ routes_returned_elem = start('elem')
 routes_returned_middle = start('middle')
 routes_returned_high = start('high')
 
-count = 0
-for i in routes_returned_elem:
-    for j in routes_returned_elem[i]:
-        for k in j:
-            count += k.occupants
