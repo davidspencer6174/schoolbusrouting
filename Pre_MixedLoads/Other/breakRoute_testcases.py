@@ -25,7 +25,14 @@ school_route = [10361, 9587]
 stud_route = [7860, 5284, 1986, 8324, 3853, 3578, 8125, 525, 168, 1428, 4471]
 max_time = 1800 
 current_time = [232.8]
-students = schoolcluster_students_map_elem[3]
+
+school_route = [10417]
+stud_route = [1962, 8479, 9211, 6253]
+current_time = []
+
+students = schoolcluster_students_map[34][0]
+
+
 
 # Make route objects with route information in them
 # Divide routes based on constraints 
@@ -35,11 +42,11 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
     path_info_list = list()
     path_info = list()
     base = school_route[-1]
-    
+        
     students.sort(key=lambda x: x.tt_ind, reverse=False)
-    stop_counts =[student.tt_ind for student in students]
+    stop_counts =[stud.tt_ind for stud in students]
     stop_counts = dict(Counter(stop_counts))
-    
+        
     # Go through every stop and check if they meet the max_time or bus constraints
     # Create new route (starting from the schools) if the constraints are not met 
     for index, stop in enumerate(stud_route):
@@ -61,6 +68,9 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
     # Add the 'leftover' routes back in to the list
     if path_info:
         path_info_list.append(path_info)
+
+    # Deal with routes that have one stop, which exceed bus capacities
+    
 
     # Get the list of routes from the stop_info_list
     result_list = list()
@@ -87,7 +97,6 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
             for idx, stud in enumerate(students):
                 if stud.tt_ind == stop:
                     current_route.add_student(stud)
-                    del students[idx]        
         
         for bus_ind in range(len(cap_counts)):
             bus = cap_counts[bus_ind]
@@ -95,18 +104,17 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
             if current_route.occupants <= bus[0]:
                 #mark the bus as taken
                 bus[1] -= 1
-                current_route.updateBus(bus[1])
+                current_route.updateBus(bus[0])
                 #if all buses of this capacity are now taken, remove
                 #this capacity
                 if bus[1] == 0:
                     cap_counts.remove(bus)
-            break
+                    
+                break
         
         route_list.append(current_route)
         
     return route_list
-
-
 
 
 
