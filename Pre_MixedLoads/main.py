@@ -260,8 +260,11 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
                 if stud.tt_ind == stop:
                     current_route.add_student(stud)
                     
-                if current_route.occupants > path_info_list[index][0][1]:
+                if current_route.occupants >= current_route.path_info[0][1]:
                     break
+#                    print(current_route.occupants)
+#                    print(path_info_list[index][0][1])
+#                    print("---------------------------")
 
         # Assign buses to the routes according to num. of occupants
         for bus_ind in range(len(cap_counts)):
