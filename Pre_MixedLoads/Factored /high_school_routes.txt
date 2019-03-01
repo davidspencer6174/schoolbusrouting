@@ -1,0 +1,2480 @@
+######################## 
+HIGH SCHOOL ROUTES 
+######################## 
+Cluster Number: 0
+Schools in this cluster: 
+SCIENCE AC STEM MAG
+NO HOLLYWD SH HG MG
+NO HOLLYWD SH ZOO MG
+
+Route Stats: Route index: 0.0
+Route path: [10160, 10884, 4954, 8637, 203, 6738, 3256, 8454]
+Route path information: [(161.0, 0), (832.2, 15), (185.6, 9), (335.8, 15), (242.0, 11), (359.8, 13), (425.1, 11)]
+Bus capacity: 84
+Num. of occupants: 74
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.17056204,-118.3703337/34.16590244,-118.3878304/34.193958,-118.506616/34.190155,-118.52941200000001/34.167275,-118.541482/34.17096,-118.57092/34.195108000000005,-118.60575800000001/34.168507,-118.642478
+---------------------- 
+Route index: 0.1
+Route path: [10160, 10884, 4026]
+Route path information: [(161.0, 0), (1482.6, 25)]
+Bus capacity: 33
+Num. of occupants: 25
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.17056204,-118.3703337/34.16590244,-118.3878304/34.252402000000004,-118.584259
+---------------------- 
+Route index: 0.2
+Route path: [10160, 10884, 4783, 8706, 1395, 8595, 3843]
+Route path information: [(161.0, 0), (939.5, 27), (332.8, 15), (298.0, 3), (318.5, 3), (435.3, 5)]
+Bus capacity: 65
+Num. of occupants: 53
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.17056204,-118.3703337/34.16590244,-118.3878304/34.056490000000004,-118.331876/34.040003000000006,-118.29156299999998/34.008494,-118.291615/34.009335,-118.252072/33.968863,-118.26918400000001
+---------------------- 
+Route index: 0.3
+Route path: [10160, 10884, 9366, 4038]
+Route path information: [(161.0, 0), (1772.7, 2), (387.9, 2)]
+Bus capacity: 24
+Num. of occupants: 4
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.17056204,-118.3703337/34.16590244,-118.3878304/33.934831,-118.26943999999999/33.937851,-118.30458
+---------------------- 
+Route index: 0.4
+Route path: [10160, 10884, 3482, 8624]
+Route path information: [(161.0, 0), (1451.2, 5), (945.1, 2)]
+Bus capacity: 24
+Num. of occupants: 7
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.17056204,-118.3703337/34.16590244,-118.3878304/33.997714,-118.32928999999999/33.954561,-118.20885600000001
+---------------------- 
+Route index: 0.5
+Route path: [10160, 10884, 2745, 3554, 4317, 4797]
+Route path information: [(161.0, 0), (565.2, 20), (327.4, 37), (493.6, 11), (524.8, 13)]
+Bus capacity: 84
+Num. of occupants: 81
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.17056204,-118.3703337/34.16590244,-118.3878304/34.101690000000005,-118.31579599999999/34.109327,-118.275345/34.062118,-118.25435900000001/34.073807,-118.203902
+---------------------- 
+Route index: 0.6
+Route path: [10160, 10884, 18, 2242]
+Route path information: [(161.0, 0), (1234.1, 13), (308.0, 8)]
+Bus capacity: 24
+Num. of occupants: 21
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.17056204,-118.3703337/34.16590244,-118.3878304/34.115376,-118.199198/34.133396999999995,-118.20564399999999
+---------------------- 
+Route index: 0.7
+Route path: [10160, 10884, 3024, 8622, 1394, 8131, 6913, 1884]
+Route path information: [(161.0, 0), (656.0, 15), (228.2, 13), (339.7, 4), (343.8, 7), (271.1, 20), (501.3, 9)]
+Bus capacity: 84
+Num. of occupants: 68
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.17056204,-118.3703337/34.16590244,-118.3878304/34.249265,-118.44528799999999/34.217867,-118.44980600000001/34.239145,-118.477204/34.274852,-118.488577/34.261129,-118.511774/34.273047999999996,-118.44256899999999
+---------------------- 
+Route index: 0.8
+Route path: [10160, 10884, 6397, 7639]
+Route path information: [(161.0, 0), (1056.5, 14), (973.7, 15)]
+Bus capacity: 33
+Num. of occupants: 29
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.17056204,-118.3703337/34.16590244,-118.3878304/34.307258000000004,-118.442682/34.261903000000004,-118.29799399999999
+---------------------- 
+Route index: 0.9
+Route path: [10160, 10884, 3110, 9251, 6451]
+Route path information: [(161.0, 0), (820.3, 23), (790.7, 9), (508.5, 3)]
+Bus capacity: 41
+Num. of occupants: 35
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.17056204,-118.3703337/34.16590244,-118.3878304/34.083717,-118.360556/34.045446999999996,-118.46174199999999/33.998111,-118.445077
+---------------------- 
+Cluster Number: 1
+Schools in this cluster: 
+CDS JOHNSTON
+
+Route Stats: Route index: 1.0
+Route path: [9478, 5451, 1392, 1930, 3071, 5572, 3843]
+Route path information: [(523.5, 3), (306.3, 7), (251.9, 2), (264.5, 1), (333.0, 7), (508.9, 2)]
+Bus capacity: 24
+Num. of occupants: 22
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.76569577,-118.29952/33.794128,-118.26080800000001/33.818851,-118.27555500000001/33.832295,-118.29911799999999/33.866296999999996,-118.296545/33.901793,-118.29203899999999/33.968863,-118.26918400000001
+---------------------- 
+Route index: 1.1
+Route path: [9478, 4240]
+Route path information: [(964.6, 1)]
+Bus capacity: 24
+Num. of occupants: 1
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.76569577,-118.29952/33.836541,-118.21518200000001
+---------------------- 
+Cluster Number: 2
+Schools in this cluster: 
+FRANKLIN HS DLA MAG
+FRANKLIN SH STM MAG
+
+Route Stats: Route index: 2.0
+Route path: [9485, 7832, 8706, 8595]
+Route path information: [(728.9, 39), (357.7, 17), (416.7, 18)]
+Bus capacity: 84
+Num. of occupants: 74
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.11590417,-118.1991203/34.061314,-118.26313400000001/34.040003000000006,-118.29156299999998/34.009335,-118.252072
+---------------------- 
+Route index: 2.1
+Route path: [9485, 3843]
+Route path information: [(1206.6, 23)]
+Bus capacity: 24
+Num. of occupants: 23
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.11590417,-118.1991203/33.968863,-118.26918400000001
+---------------------- 
+Cluster Number: 3
+Schools in this cluster: 
+MARSHALL GIFTED MAG
+
+Route Stats: Route index: 3.0
+Route path: [9512, 6293, 18, 1112, 2771, 6392, 8706]
+Route path information: [(561.5, 2), (354.1, 12), (231.9, 3), (533.0, 6), (476.1, 6), (528.3, 9)]
+Bus capacity: 41
+Num. of occupants: 38
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.10835449,-118.278603/34.08682,-118.218725/34.115376,-118.199198/34.120218,-118.182782/34.081102,-118.177954/34.037366,-118.213704/34.040003000000006,-118.29156299999998
+---------------------- 
+Route index: 3.1
+Route path: [9512, 4783, 8432, 2659]
+Route path information: [(786.7, 19), (864.7, 6), (462.1, 5)]
+Bus capacity: 33
+Num. of occupants: 30
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.10835449,-118.278603/34.056490000000004,-118.331876/33.991496000000005,-118.264321/33.950163,-118.28726999999999
+---------------------- 
+Route index: 3.2
+Route path: [9512, 8027]
+Route path information: [(1136.2, 8)]
+Bus capacity: 24
+Num. of occupants: 8
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.10835449,-118.278603/34.223079999999996,-118.401445
+---------------------- 
+Cluster Number: 4
+Schools in this cluster: 
+CANOGA PRK SH CAM MG
+CANOGA PRK SH EEVS MG
+
+Route Stats: Route index: 4.0
+Route path: [10308, 4327, 7832]
+Route path information: [(1935.2, 2), (478.2, 6)]
+Bus capacity: 24
+Num. of occupants: 8
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19554305,-118.6058977/34.060836,-118.31536399999999/34.061314,-118.26313400000001
+---------------------- 
+Route index: 4.1
+Route path: [10308, 1395]
+Route path information: [(2315.2, 6)]
+Bus capacity: 24
+Num. of occupants: 6
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19554305,-118.6058977/34.008494,-118.291615
+---------------------- 
+Route index: 4.2
+Route path: [10308, 3843]
+Route path information: [(2593.6, 2)]
+Bus capacity: 24
+Num. of occupants: 2
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19554305,-118.6058977/33.968863,-118.26918400000001
+---------------------- 
+Route index: 4.3
+Route path: [10308, 9221]
+Route path information: [(2625.4, 2)]
+Bus capacity: 24
+Num. of occupants: 2
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19554305,-118.6058977/33.937327,-118.269465
+---------------------- 
+Route index: 4.4
+Route path: [10308, 909, 4038]
+Route path information: [(2440.4, 1), (97.5, 1)]
+Bus capacity: 24
+Num. of occupants: 2
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19554305,-118.6058977/33.933822,-118.31017800000001/33.937851,-118.30458
+---------------------- 
+Route index: 4.5
+Route path: [10308, 1879, 299, 8027, 4652, 2319]
+Route path information: [(1005.9, 17), (441.5, 7), (314.1, 4), (290.4, 5), (343.3, 5)]
+Bus capacity: 41
+Num. of occupants: 38
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19554305,-118.6058977/34.18952,-118.453157/34.19023,-118.39718500000001/34.223079999999996,-118.401445/34.249931,-118.422393/34.272384,-118.404446
+---------------------- 
+Route index: 4.6
+Route path: [10308, 6397, 2380, 1394]
+Route path information: [(1632.3, 3), (629.8, 5), (239.3, 14)]
+Bus capacity: 24
+Num. of occupants: 22
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19554305,-118.6058977/34.307258000000004,-118.442682/34.263556,-118.480528/34.239145,-118.477204
+---------------------- 
+Cluster Number: 5
+Schools in this cluster: 
+SAN PEDRO G/STEAM MG
+SAN PEDRO MS/T/M MAG
+SAN PEDRO SH PA MAG
+
+Route Stats: Route index: 5.0
+Route path: [10883, 9624, 5451]
+Route path information: [(223.6, 0), (682.6, 45)]
+Bus capacity: 65
+Num. of occupants: 45
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.73060732,-118.2990629/33.71665489,-118.30019650000001/33.794128,-118.26080800000001
+---------------------- 
+Route index: 5.1
+Route path: [10883, 9624, 5125]
+Route path information: [(223.6, 0), (766.3, 66)]
+Bus capacity: 84
+Num. of occupants: 66
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.73060732,-118.2990629/33.71665489,-118.30019650000001/33.824239,-118.27598300000001
+---------------------- 
+Route index: 5.2
+Route path: [10883, 9624, 1022]
+Route path information: [(223.6, 0), (748.0, 49)]
+Bus capacity: 65
+Num. of occupants: 49
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.73060732,-118.2990629/33.71665489,-118.30019650000001/33.804873,-118.30606100000001
+---------------------- 
+Route index: 5.3
+Route path: [10883, 9624, 3071, 9366]
+Route path information: [(223.6, 0), (998.4, 50), (568.1, 28)]
+Bus capacity: 84
+Num. of occupants: 78
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.73060732,-118.2990629/33.71665489,-118.30019650000001/33.866296999999996,-118.296545/33.934831,-118.26943999999999
+---------------------- 
+Route index: 5.4
+Route path: [10883, 9624, 4454, 3284, 3843]
+Route path information: [(223.6, 0), (1460.1, 11), (358.0, 5), (417.2, 12)]
+Bus capacity: 33
+Num. of occupants: 28
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.73060732,-118.2990629/33.71665489,-118.30019650000001/33.941410999999995,-118.245125/33.954685,-118.209911/33.968863,-118.26918400000001
+---------------------- 
+Route index: 5.5
+Route path: [10883, 9624, 1395, 4038]
+Route path information: [(223.6, 0), (1603.3, 8), (582.7, 13)]
+Bus capacity: 24
+Num. of occupants: 21
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.73060732,-118.2990629/33.71665489,-118.30019650000001/34.008494,-118.291615/33.937851,-118.30458
+---------------------- 
+Cluster Number: 6
+Schools in this cluster: 
+GARDENA SH WL MAG
+GARDENA SH L/PS MAG
+
+Route Stats: Route index: 6.0
+Route path: [10048, 9366, 4454, 3877, 8125, 3843, 1033, 3482]
+Route path information: [(572.2, 9), (312.6, 8), (154.5, 4), (406.4, 1), (234.3, 5), (331.6, 6), (593.8, 3)]
+Bus capacity: 41
+Num. of occupants: 36
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.86637552,-118.2970314/33.934831,-118.26943999999999/33.941410999999995,-118.245125/33.943183000000005,-118.231454/33.980942,-118.25196399999999/33.968863,-118.26918400000001/34.003464,-118.260778/33.997714,-118.32928999999999
+---------------------- 
+Route index: 6.1
+Route path: [10048, 4038]
+Route path information: [(644.2, 7)]
+Bus capacity: 24
+Num. of occupants: 7
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.86637552,-118.2970314/33.937851,-118.30458
+---------------------- 
+Cluster Number: 7
+Schools in this cluster: 
+KENNEDY SH ADDFM MAG
+KENNEDY GIFTED/MD MG
+
+Route Stats: Route index: 7.0
+Route path: [9642, 1394, 7314, 6980, 6871, 6684]
+Route path information: [(348.5, 1), (267.1, 33), (179.9, 23), (376.9, 19), (217.6, 2)]
+Bus capacity: 84
+Num. of occupants: 78
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.27498096,-118.48845729999998/34.239145,-118.477204/34.219684,-118.46191599999999/34.208424,-118.45754/34.197491,-118.417027/34.179365999999995,-118.418076
+---------------------- 
+Route index: 7.1
+Route path: [9642, 7671, 8133, 8027, 4652]
+Route path information: [(954.2, 10), (361.1, 29), (331.8, 42), (290.4, 2)]
+Bus capacity: 84
+Num. of occupants: 83
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.27498096,-118.48845729999998/34.164959,-118.387794/34.204896999999995,-118.37768/34.223079999999996,-118.401445/34.249931,-118.422393
+---------------------- 
+Route index: 7.2
+Route path: [9642, 2319]
+Route path information: [(620.1, 57)]
+Bus capacity: 65
+Num. of occupants: 57
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.27498096,-118.48845729999998/34.272384,-118.404446
+---------------------- 
+Route index: 7.3
+Route path: [9642, 5025]
+Route path information: [(558.8, 83)]
+Bus capacity: 84
+Num. of occupants: 83
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.27498096,-118.48845729999998/34.309634,-118.4474
+---------------------- 
+Route index: 7.4
+Route path: [9642, 7639]
+Route path information: [(1165.0, 15)]
+Bus capacity: 24
+Num. of occupants: 15
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.27498096,-118.48845729999998/34.261903000000004,-118.29799399999999
+---------------------- 
+Route index: 7.5
+Route path: [9642, 5936, 4783, 1395]
+Route path information: [(1660.7, 5), (424.6, 1), (578.9, 2)]
+Bus capacity: 24
+Num. of occupants: 8
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.27498096,-118.48845729999998/34.074913,-118.290306/34.056490000000004,-118.331876/34.008494,-118.291615
+---------------------- 
+Route index: 7.6
+Route path: [9642, 8595, 1264]
+Route path information: [(2279.7, 2), (410.7, 3)]
+Bus capacity: 24
+Num. of occupants: 5
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.27498096,-118.48845729999998/34.009335,-118.252072/33.96022,-118.247552
+---------------------- 
+Route index: 7.7
+Route path: [9642, 6339, 8799, 8911, 8637]
+Route path information: [(797.4, 9), (259.3, 4), (368.3, 11), (723.6, 17)]
+Bus capacity: 41
+Num. of occupants: 41
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.27498096,-118.48845729999998/34.218183,-118.54910100000001/34.203865,-118.570923/34.212804,-118.61148500000002/34.190155,-118.52941200000001
+---------------------- 
+Cluster Number: 8
+Schools in this cluster: 
+MONROE SH FA MAG
+MONROE SH L/G MAG
+MONROE SH PA MAG
+
+Route Stats: Route index: 8.0
+Route path: [9660, 8027, 7671, 2319, 6397]
+Route path information: [(573.6, 11), (453.1, 9), (829.0, 10), (488.6, 12)]
+Bus capacity: 65
+Num. of occupants: 42
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.23605070000001,-118.4763642/34.223079999999996,-118.401445/34.164959,-118.387794/34.272384,-118.404446/34.307258000000004,-118.442682
+---------------------- 
+Route index: 8.1
+Route path: [9660, 7639]
+Route path information: [(1210.8, 2)]
+Bus capacity: 24
+Num. of occupants: 2
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.23605070000001,-118.4763642/34.261903000000004,-118.29799399999999
+---------------------- 
+Route index: 8.2
+Route path: [9660, 8353, 3256, 6339, 8637]
+Route path information: [(953.9, 3), (455.8, 6), (505.6, 5), (362.3, 2)]
+Bus capacity: 24
+Num. of occupants: 16
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.23605070000001,-118.4763642/34.257155,-118.60608300000001/34.195108000000005,-118.60575800000001/34.218183,-118.54910100000001/34.190155,-118.52941200000001
+---------------------- 
+Route index: 8.3
+Route path: [9660, 1826, 7832, 8706, 1395]
+Route path information: [(1308.9, 4), (495.9, 11), (357.7, 2), (298.0, 6)]
+Bus capacity: 24
+Num. of occupants: 23
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.23605070000001,-118.4763642/34.094807,-118.31376999999999/34.061314,-118.26313400000001/34.040003000000006,-118.29156299999998/34.008494,-118.291615
+---------------------- 
+Route index: 8.4
+Route path: [9660, 8595, 3843]
+Route path information: [(2110.4, 10), (435.3, 9)]
+Bus capacity: 24
+Num. of occupants: 19
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.23605070000001,-118.4763642/34.009335,-118.252072/33.968863,-118.26918400000001
+---------------------- 
+Route index: 8.5
+Route path: [9660, 4037]
+Route path information: [(1822.9, 5)]
+Bus capacity: 24
+Num. of occupants: 5
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.23605070000001,-118.4763642/33.995003999999994,-118.329301
+---------------------- 
+Cluster Number: 9
+Schools in this cluster: 
+WASHINGTON SH MUS MG
+WASHINGTON SH STM MG
+
+Route Stats: Route index: 9.0
+Route path: [10858, 3482]
+Route path information: [(572.8, 4)]
+Bus capacity: 24
+Num. of occupants: 4
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.93743792,-118.30465729999999/33.997714,-118.32928999999999
+---------------------- 
+Cluster Number: 10
+Schools in this cluster: 
+WESM ENV NATRL SCI
+WESM G/HG/HA STEAM MG
+WESM HLTH/SPORTS MED
+
+Route Stats: Route index: 10.0
+Route path: [9771, 909]
+Route path information: [(857.7, 40)]
+Bus capacity: 41
+Num. of occupants: 40
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.933822,-118.31017800000001
+---------------------- 
+Route index: 10.1
+Route path: [9771, 8679]
+Route path information: [(210.5, 50)]
+Bus capacity: 65
+Num. of occupants: 50
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.937378,-118.29494299999999
+---------------------- 
+Route index: 10.2
+Route path: [9771, 9221, 1264, 8624]
+Route path information: [(267.2, 46), (299.5, 27), (229.8, 4)]
+Bus capacity: 84
+Num. of occupants: 77
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.937327,-118.269465/33.96022,-118.247552/33.954561,-118.20885600000001
+---------------------- 
+Route index: 10.3
+Route path: [9771, 3877, 7936, 3071]
+Route path information: [(1180.0, 17), (559.0, 35), (715.4, 22)]
+Bus capacity: 84
+Num. of occupants: 74
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.943183000000005,-118.231454/33.978936,-118.27754499999999/33.866296999999996,-118.296545
+---------------------- 
+Route index: 10.4
+Route path: [9771, 1375]
+Route path information: [(1398.1, 10)]
+Bus capacity: 24
+Num. of occupants: 10
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.823913,-118.27591699999999
+---------------------- 
+Route index: 10.5
+Route path: [9771, 909]
+Route path information: [(857.7, 84)]
+Bus capacity: 84
+Num. of occupants: 84
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.933822,-118.31017800000001
+---------------------- 
+Route index: 10.6
+Route path: [9771, 8679]
+Route path information: [(210.5, 84)]
+Bus capacity: 84
+Num. of occupants: 84
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.937378,-118.29494299999999
+---------------------- 
+Route index: 10.7
+Route path: [9771, 4270, 6143]
+Route path information: [(592.4, 2), (602.3, 58)]
+Bus capacity: 65
+Num. of occupants: 60
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.95966454,-118.42850349999999/34.01693,-118.420047/34.021408,-118.346074
+---------------------- 
+Route index: 10.8
+Route path: [9771, 2251, 1395, 7887]
+Route path information: [(808.3, 25), (259.1, 25), (194.1, 31)]
+Bus capacity: 84
+Num. of occupants: 81
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.95966454,-118.42850349999999/34.009696000000005,-118.32951299999999/34.008494,-118.291615/34.019203999999995,-118.30624399999999
+---------------------- 
+Route index: 10.9
+Route path: [9771, 8706, 4769, 4783, 7492]
+Route path information: [(1149.9, 11), (269.1, 1), (200.2, 10), (644.0, 39)]
+Bus capacity: 65
+Num. of occupants: 61
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.95966454,-118.42850349999999/34.040003000000006,-118.29156299999998/34.042696,-118.326214/34.056490000000004,-118.331876/33.9951,-118.32186899999999
+---------------------- 
+Route index: 10.10
+Route path: [9771, 7616, 1652]
+Route path information: [(697.9, 37), (757.6, 19)]
+Bus capacity: 65
+Num. of occupants: 56
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.99228,-118.34306799999999/34.009053,-118.250381
+---------------------- 
+Route index: 10.11
+Route path: [9771, 1879]
+Route path information: [(1655.4, 1)]
+Bus capacity: 24
+Num. of occupants: 1
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.95966454,-118.42850349999999/34.18952,-118.453157
+---------------------- 
+Cluster Number: 11
+Schools in this cluster: 
+WILSON SH AL MAG
+WILSON SH FF MAG
+WILSON SH PA MAG
+LINCOLN ESP MAGNET
+LINCOLN SH
+LINCOLN SH STM MAG
+BRAVO SH MEDICAL MAG
+
+Route Stats: Route index: 11.0
+Route path: [9750, 9954, 10369, 6571, 6587, 8108]
+Route path information: [(266.7, 0), (251.9, 0), (243.6, 6), (746.2, 14), (637.4, 20)]
+Bus capacity: 41
+Num. of occupants: 40
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.059649,-118.197046/34.107929,-118.277823/34.133390999999996,-118.205615
+---------------------- 
+Route index: 11.1
+Route path: [9750, 9954, 10369, 8366, 7849, 8900]
+Route path information: [(266.7, 0), (251.9, 0), (574.5, 5), (218.0, 63), (210.5, 4)]
+Bus capacity: 84
+Num. of occupants: 72
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.05538,-118.27013899999999/34.043979,-118.28845700000001/34.029408000000004,-118.261758
+---------------------- 
+Route index: 11.2
+Route path: [9750, 9954, 10369, 1395, 3482, 3611]
+Route path information: [(266.7, 0), (251.9, 0), (811.7, 55), (361.9, 15), (277.1, 13)]
+Bus capacity: 84
+Num. of occupants: 83
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.008494,-118.291615/33.997714,-118.32928999999999/34.021648,-118.34610900000001
+---------------------- 
+Route index: 11.3
+Route path: [9750, 9954, 10369, 4468]
+Route path information: [(266.7, 0), (251.9, 0), (1024.1, 5)]
+Bus capacity: 24
+Num. of occupants: 5
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.058759,-118.343309
+---------------------- 
+Route index: 11.4
+Route path: [9750, 9954, 10369, 4327]
+Route path information: [(266.7, 0), (251.9, 0), (889.3, 36)]
+Bus capacity: 41
+Num. of occupants: 36
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.060836,-118.31536399999999
+---------------------- 
+Route index: 11.5
+Route path: [9750, 9954, 10369, 2745, 3110]
+Route path information: [(266.7, 0), (251.9, 0), (814.1, 59), (441.5, 4)]
+Bus capacity: 65
+Num. of occupants: 63
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.101690000000005,-118.31579599999999/34.083717,-118.360556
+---------------------- 
+Route index: 11.6
+Route path: [9750, 9954, 10369, 4327]
+Route path information: [(266.7, 0), (251.9, 0), (889.3, 84)]
+Bus capacity: 84
+Num. of occupants: 84
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.060836,-118.31536399999999
+---------------------- 
+Route index: 11.7
+Route path: [9750, 9954, 10369, 7671, 6684, 1879]
+Route path information: [(266.7, 0), (251.9, 0), (1181.6, 11), (309.6, 9), (306.8, 5)]
+Bus capacity: 33
+Num. of occupants: 25
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.164959,-118.387794/34.179365999999995,-118.418076/34.18952,-118.453157
+---------------------- 
+Route index: 11.8
+Route path: [9750, 9954, 10369, 1394]
+Route path information: [(266.7, 0), (251.9, 0), (1855.8, 11)]
+Bus capacity: 24
+Num. of occupants: 11
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.239145,-118.477204
+---------------------- 
+Route index: 11.9
+Route path: [9750, 9954, 10369, 8027]
+Route path information: [(266.7, 0), (251.9, 0), (1406.5, 8)]
+Bus capacity: 24
+Num. of occupants: 8
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.223079999999996,-118.401445
+---------------------- 
+Route index: 11.10
+Route path: [9750, 9954, 10369, 8637]
+Route path information: [(266.7, 0), (251.9, 0), (1861.6, 3)]
+Bus capacity: 24
+Num. of occupants: 3
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.190155,-118.52941200000001
+---------------------- 
+Route index: 11.11
+Route path: [9750, 9954, 10369, 8595]
+Route path information: [(266.7, 0), (251.9, 0), (673.2, 71)]
+Bus capacity: 84
+Num. of occupants: 71
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.009335,-118.252072
+---------------------- 
+Route index: 11.12
+Route path: [9750, 9954, 10369, 8125]
+Route path information: [(266.7, 0), (251.9, 0), (836.7, 77)]
+Bus capacity: 84
+Num. of occupants: 77
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/33.980942,-118.25196399999999
+---------------------- 
+Route index: 11.13
+Route path: [9750, 9954, 10369, 7936]
+Route path information: [(266.7, 0), (251.9, 0), (925.9, 22)]
+Bus capacity: 24
+Num. of occupants: 22
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/33.978936,-118.27754499999999
+---------------------- 
+Route index: 11.14
+Route path: [9750, 9954, 10369, 9221, 4038]
+Route path information: [(266.7, 0), (251.9, 0), (1170.1, 38), (332.0, 23)]
+Bus capacity: 65
+Num. of occupants: 61
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/33.937327,-118.269465/33.937851,-118.30458
+---------------------- 
+Route index: 11.15
+Route path: [9750, 9954, 10369, 3877]
+Route path information: [(266.7, 0), (251.9, 0), (1015.6, 27)]
+Bus capacity: 33
+Num. of occupants: 27
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/33.943183000000005,-118.231454
+---------------------- 
+Route index: 11.16
+Route path: [9750, 9954, 10369, 5070]
+Route path information: [(266.7, 0), (251.9, 0), (1048.9, 66)]
+Bus capacity: 84
+Num. of occupants: 66
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/33.957725,-118.210314
+---------------------- 
+Route index: 11.17
+Route path: [9750, 9954, 10369, 8029]
+Route path information: [(266.7, 0), (251.9, 0), (711.3, 67)]
+Bus capacity: 84
+Num. of occupants: 67
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/33.986740000000005,-118.219172
+---------------------- 
+Route index: 11.18
+Route path: [9750, 9954, 10369, 6389]
+Route path information: [(266.7, 0), (251.9, 0), (997.8, 55)]
+Bus capacity: 65
+Num. of occupants: 55
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/33.97464,-118.190353
+---------------------- 
+Route index: 11.19
+Route path: [9750, 9954, 10369, 7936]
+Route path information: [(266.7, 0), (251.9, 0), (925.9, 84)]
+Bus capacity: 84
+Num. of occupants: 84
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/33.978936,-118.27754499999999
+---------------------- 
+Cluster Number: 12
+Schools in this cluster: 
+RESEDA SH AME MAG
+RESEDA SH L/PS MAG
+RESEDA SH PA MAG
+RESEDA SH SCIENCE MAG
+SOCES MAG
+
+Route Stats: Route index: 12.0
+Route path: [10561, 9754, 8046, 1839, 8197, 4889, 5102]
+Route path information: [(137.7, 0), (560.3, 15), (207.1, 9), (378.0, 14), (279.0, 8), (615.8, 6)]
+Bus capacity: 65
+Num. of occupants: 52
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.252055,-118.55216200000001/34.267933,-118.549175/34.246444,-118.575171/34.257152000000005,-118.60608400000001/34.294367,-118.548295
+---------------------- 
+Route index: 12.1
+Route path: [10561, 9754, 5855, 7832, 5888, 6688, 8900]
+Route path information: [(137.7, 0), (1636.5, 1), (160.7, 7), (232.8, 4), (159.9, 16), (304.3, 4)]
+Bus capacity: 33
+Num. of occupants: 32
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.066762,-118.25458700000001/34.061314,-118.26313400000001/34.057693,-118.28413799999998/34.049795,-118.293774/34.029408000000004,-118.261758
+---------------------- 
+Route index: 12.2
+Route path: [10561, 9754, 7608, 973]
+Route path information: [(137.7, 0), (1990.8, 1), (356.6, 7)]
+Bus capacity: 24
+Num. of occupants: 8
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.022564,-118.250501/34.007384,-118.291615
+---------------------- 
+Route index: 12.3
+Route path: [10561, 9754, 4905, 1673, 7623, 5032, 3897, 1879, 5276]
+Route path information: [(137.7, 0), (377.5, 14), (146.6, 15), (246.3, 9), (193.9, 19), (132.8, 4), (246.0, 11), (145.2, 10)]
+Bus capacity: 84
+Num. of occupants: 82
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.161512,-118.505443/34.156417,-118.483691/34.149477000000005,-118.45515/34.166740999999995,-118.457498/34.169112,-118.45096000000001/34.18952,-118.453157/34.184039,-118.46173700000001
+---------------------- 
+Route index: 12.4
+Route path: [10561, 9754, 4276, 6876, 7626]
+Route path information: [(137.7, 0), (492.0, 28), (132.2, 16), (150.0, 15)]
+Bus capacity: 65
+Num. of occupants: 59
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.195724,-118.476013/34.208364,-118.477301/34.204896000000005,-118.46047800000001
+---------------------- 
+Route index: 12.5
+Route path: [10561, 9754, 3492, 491]
+Route path information: [(137.7, 0), (766.1, 26), (189.9, 38)]
+Bus capacity: 65
+Num. of occupants: 64
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.199661,-118.438906/34.190382,-118.429584
+---------------------- 
+Route index: 12.6
+Route path: [10561, 9754, 6186, 5737, 2964, 6397, 5025]
+Route path information: [(137.7, 0), (1045.8, 2), (207.6, 5), (232.4, 7), (236.1, 14), (85.6, 16)]
+Bus capacity: 65
+Num. of occupants: 44
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.275351,-118.44957/34.287535,-118.432349/34.301607000000004,-118.42956299999999/34.307258000000004,-118.442682/34.309634,-118.4474
+---------------------- 
+Route index: 12.7
+Route path: [10561, 9754, 2745, 116, 4783, 1699]
+Route path information: [(137.7, 0), (1259.0, 15), (206.4, 1), (394.0, 5), (400.9, 12)]
+Bus capacity: 33
+Num. of occupants: 33
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.101690000000005,-118.31579599999999/34.097931,-118.34148/34.056490000000004,-118.331876/34.078951,-118.298099
+---------------------- 
+Route index: 12.8
+Route path: [10561, 9754, 4095, 3881, 5678, 2101, 6056, 1372]
+Route path information: [(137.7, 0), (371.5, 27), (180.3, 17), (424.0, 7), (130.2, 2), (275.3, 9), (484.8, 4)]
+Bus capacity: 84
+Num. of occupants: 66
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.197383,-118.577151/34.213515,-118.58245900000001/34.171907,-118.588104/34.159661,-118.587971/34.163653000000004,-118.565141/34.158587,-118.609192
+---------------------- 
+Route index: 12.9
+Route path: [10561, 9754, 4641]
+Route path information: [(137.7, 0), (487.8, 3)]
+Bus capacity: 24
+Num. of occupants: 3
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.144976,-118.53938000000001
+---------------------- 
+Route index: 12.10
+Route path: [10561, 9754, 7222, 2748]
+Route path information: [(137.7, 0), (1382.5, 2), (364.5, 1)]
+Bus capacity: 24
+Num. of occupants: 3
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.026143,-118.408266/33.99909,-118.44798
+---------------------- 
+Route index: 12.11
+Route path: [10561, 9754, 326, 3410, 8133, 5250, 4946]
+Route path information: [(137.7, 0), (1063.2, 30), (233.8, 4), (204.4, 26), (406.1, 10), (599.4, 5)]
+Bus capacity: 84
+Num. of occupants: 75
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.214584,-118.39988500000001/34.215613,-118.36556499999999/34.204896999999995,-118.37768/34.232091,-118.396405/34.279711,-118.389072
+---------------------- 
+Route index: 12.12
+Route path: [10561, 9754, 3491, 7936]
+Route path information: [(137.7, 0), (1954.7, 2), (329.3, 5)]
+Bus capacity: 24
+Num. of occupants: 7
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/33.972697,-118.31581100000001/33.978936,-118.27754499999999
+---------------------- 
+Route index: 12.13
+Route path: [10561, 9754, 1404, 909, 4038]
+Route path information: [(137.7, 0), (2148.3, 6), (205.1, 5), (97.5, 3)]
+Bus capacity: 24
+Num. of occupants: 14
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/33.923755,-118.294702/33.933822,-118.31017800000001/33.937851,-118.30458
+---------------------- 
+Route index: 12.14
+Route path: [10561, 9754, 4454]
+Route path information: [(137.7, 0), (2411.2, 4)]
+Bus capacity: 24
+Num. of occupants: 4
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/33.941410999999995,-118.245125
+---------------------- 
+Route index: 12.15
+Route path: [10561, 9754, 6322, 7367, 498, 2784, 4652, 3759, 5126, 5234]
+Route path information: [(137.7, 0), (739.5, 18), (275.3, 20), (252.4, 2), (272.7, 7), (168.9, 18), (86.8, 11), (181.9, 5), (432.7, 1)]
+Bus capacity: 84
+Num. of occupants: 82
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.222198,-118.46106/34.239187,-118.458896/34.260909999999996,-118.456465/34.246922,-118.43784199999999/34.249931,-118.422393/34.254467,-118.42173799999999/34.270047999999996,-118.415617/34.234403,-118.429676
+---------------------- 
+Route index: 12.16
+Route path: [10561, 9754, 838]
+Route path information: [(137.7, 0), (878.0, 25)]
+Bus capacity: 33
+Num. of occupants: 25
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.215575,-118.434418
+---------------------- 
+Route index: 12.17
+Route path: [10561, 9754, 2225, 1787, 1394, 8577, 3443, 8131, 7019, 7241]
+Route path information: [(137.7, 0), (602.8, 7), (190.3, 4), (267.8, 32), (250.3, 6), (204.2, 11), (69.9, 4), (160.9, 6), (337.7, 4)]
+Bus capacity: 84
+Num. of occupants: 74
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.226735999999995,-118.49865700000001/34.237212,-118.506964/34.239145,-118.477204/34.253847,-118.495824/34.271842,-118.48475900000001/34.274852,-118.488577/34.27556,-118.502245/34.294998,-118.512918
+---------------------- 
+Route index: 12.18
+Route path: [10561, 9754, 2368, 2428, 7671, 5624, 4265, 8802]
+Route path information: [(137.7, 0), (723.1, 9), (209.9, 13), (233.1, 6), (247.8, 13), (306.0, 3), (463.5, 18)]
+Bus capacity: 65
+Num. of occupants: 62
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.147518,-118.424949/34.142771,-118.390794/34.164959,-118.387794/34.178795,-118.369119/34.147994,-118.367351/34.162471999999994,-118.426943
+---------------------- 
+Route index: 12.19
+Route path: [10561, 9754, 7906, 6729, 6871]
+Route path information: [(137.7, 0), (823.9, 24), (155.1, 24), (94.5, 34)]
+Bus capacity: 84
+Num. of occupants: 82
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.180673999999996,-118.409493/34.195713,-118.41355700000001/34.197491,-118.417027
+---------------------- 
+Route index: 12.20
+Route path: [10561, 9754, 9201, 8911, 4466, 4085, 4246, 8454, 3178]
+Route path information: [(137.7, 0), (581.4, 15), (136.8, 20), (170.8, 6), (337.7, 4), (454.3, 5), (138.9, 6), (180.1, 8)]
+Bus capacity: 65
+Num. of occupants: 64
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.205558,-118.60586299999999/34.212804,-118.61148500000002/34.224421,-118.60583500000001/34.215990999999995,-118.63473/34.177858,-118.646975/34.168507,-118.642478/34.176532,-118.63213400000001
+---------------------- 
+Route index: 12.21
+Route path: [10561, 9754, 6043]
+Route path information: [(137.7, 0), (1855.1, 1)]
+Bus capacity: 24
+Num. of occupants: 1
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.119401,-118.196696
+---------------------- 
+Route index: 12.22
+Route path: [10561, 9754, 7880, 1487, 3765, 8617]
+Route path information: [(137.7, 0), (319.7, 19), (191.6, 10), (183.2, 17), (258.5, 25)]
+Bus capacity: 84
+Num. of occupants: 71
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.214732,-118.54043700000001/34.224571999999995,-118.52742099999999/34.215742999999996,-118.51376499999999/34.193964,-118.501153
+---------------------- 
+Route index: 12.23
+Route path: [10561, 9754, 2271, 2756]
+Route path information: [(137.7, 0), (371.4, 17), (411.1, 9)]
+Bus capacity: 33
+Num. of occupants: 26
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19020949,-118.53003229999999/34.18391247,-118.53871299999999/34.2104,-118.56041/34.238082,-118.54083200000001
+---------------------- 
+Cluster Number: 13
+Schools in this cluster: 
+SUN VALLEY MAG BSEL
+
+Route Stats: Route index: 13.0
+Route path: [9856, 7814, 2319, 5025, 7314]
+Route path information: [(514.0, 3), (353.4, 5), (482.3, 3), (851.9, 9)]
+Bus capacity: 24
+Num. of occupants: 20
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.20359236,-118.37783929999999/34.249387,-118.423294/34.272384,-118.404446/34.309634,-118.4474/34.219684,-118.46191599999999
+---------------------- 
+Route index: 13.1
+Route path: [9856, 8802, 7748]
+Route path information: [(602.4, 1), (1758.9, 6)]
+Bus capacity: 24
+Num. of occupants: 7
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.20359236,-118.37783929999999/34.162471999999994,-118.426943/33.985939,-118.291923
+---------------------- 
+Route index: 13.2
+Route path: [9856, 1264]
+Route path information: [(2070.6, 2)]
+Bus capacity: 24
+Num. of occupants: 2
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.20359236,-118.37783929999999/33.96022,-118.247552
+---------------------- 
+Cluster Number: 14
+Schools in this cluster: 
+SYLMAR SH STM MAG
+
+Route Stats: Route index: 14.0
+Route path: [9872, 8027, 299, 1879]
+Route path information: [(819.1, 13), (310.5, 5), (398.3, 1)]
+Bus capacity: 24
+Num. of occupants: 19
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.30728738,-118.4428388/34.223079999999996,-118.401445/34.19023,-118.39718500000001/34.18952,-118.453157
+---------------------- 
+Route index: 14.1
+Route path: [9872, 7639]
+Route path information: [(971.8, 1)]
+Bus capacity: 24
+Num. of occupants: 1
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.30728738,-118.4428388/34.261903000000004,-118.29799399999999
+---------------------- 
+Cluster Number: 15
+Schools in this cluster: 
+ORTHOPAEDIC HSP SH MG
+MANUAL ARTS SH CP MG
+LAUSD/USC MA/ENG MAG
+
+Route Stats: Route index: 15.0
+Route path: [9880, 10686, 10294, 7661, 909, 4038, 5311, 131, 1264, 3987]
+Route path information: [(227.2, 0), (154.8, 0), (453.3, 6), (237.0, 11), (97.5, 7), (239.7, 16), (107.2, 17), (350.4, 6), (24.6, 16)]
+Bus capacity: 84
+Num. of occupants: 79
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.02914043,-118.27061299999998/34.02491129,-118.28219479999998/34.00876839,-118.29158410000001/33.958909000000006,-118.30616100000002/33.933822,-118.31017800000001/33.937851,-118.30458/33.950106,-118.287021/33.947276,-118.28076399999999/33.96022,-118.247552/33.960195,-118.25044299999999
+---------------------- 
+Route index: 15.1
+Route path: [9880, 10686, 10294, 4454, 8991, 6425, 8346, 8350, 6836]
+Route path information: [(227.2, 0), (154.8, 0), (684.5, 36), (69.1, 3), (252.9, 3), (376.7, 2), (312.7, 1), (549.8, 3)]
+Bus capacity: 65
+Num. of occupants: 48
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.02914043,-118.27061299999998/34.02491129,-118.28219479999998/34.00876839,-118.29158410000001/33.941410999999995,-118.245125/33.934734999999996,-118.24622099999999/33.921378000000004,-118.26731799999999/33.912602,-118.31772/33.895671,-118.29379499999999/33.855961,-118.261676
+---------------------- 
+Route index: 15.2
+Route path: [9880, 10686, 10294, 4471]
+Route path information: [(227.2, 0), (154.8, 0), (475.1, 8)]
+Bus capacity: 24
+Num. of occupants: 8
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.02914043,-118.27061299999998/34.02491129,-118.28219479999998/34.00876839,-118.29158410000001/33.980636,-118.327927
+---------------------- 
+Route index: 15.3
+Route path: [9880, 10686, 10294, 4683, 4463]
+Route path information: [(227.2, 0), (154.8, 0), (723.9, 4), (1394.2, 3)]
+Bus capacity: 24
+Num. of occupants: 7
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.02914043,-118.27061299999998/34.02491129,-118.28219479999998/34.00876839,-118.29158410000001/34.039026,-118.385226/34.20837,-118.46578400000001
+---------------------- 
+Route index: 15.4
+Route path: [9880, 10686, 10294, 8029, 2333, 641, 3766, 4797]
+Route path information: [(227.2, 0), (154.8, 0), (570.3, 6), (116.0, 5), (360.1, 2), (840.2, 5), (394.5, 1)]
+Bus capacity: 24
+Num. of occupants: 19
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.02914043,-118.27061299999998/34.02491129,-118.28219479999998/34.00876839,-118.29158410000001/33.986740000000005,-118.219172/33.980438,-118.227801/33.953323,-118.196526/34.039293,-118.211013/34.073807,-118.203902
+---------------------- 
+Route index: 15.5
+Route path: [9880, 10686, 10294, 2771, 2053]
+Route path information: [(227.2, 0), (154.8, 0), (1008.2, 1), (766.3, 1)]
+Bus capacity: 24
+Num. of occupants: 2
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.02914043,-118.27061299999998/34.02491129,-118.28219479999998/34.00876839,-118.29158410000001/34.081102,-118.177954/34.063358,-118.26641699999999
+---------------------- 
+Cluster Number: 16
+Schools in this cluster: 
+POLYTECHNIC SH
+POLYTECHNIC STM MAG
+
+Route Stats: Route index: 16.0
+Route path: [9890, 6397, 7639]
+Route path information: [(792.7, 23), (973.7, 5)]
+Bus capacity: 33
+Num. of occupants: 28
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.22168145,-118.404072/34.307258000000004,-118.442682/34.261903000000004,-118.29799399999999
+---------------------- 
+Route index: 16.1
+Route path: [9890, 5936, 1395]
+Route path information: [(1129.3, 13), (599.3, 2)]
+Bus capacity: 24
+Num. of occupants: 15
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.22168145,-118.404072/34.074913,-118.290306/34.008494,-118.291615
+---------------------- 
+Cluster Number: 17
+Schools in this cluster: 
+PEARL SH JRNLS/CMM MG
+LAKE BALBOA CP K-12
+
+Route Stats: Route index: 17.0
+Route path: [9891, 10574, 4905, 4326, 7975, 2271, 3881, 4095, 9201, 4026]
+Route path information: [(12.5, 0), (303.7, 3), (307.1, 3), (244.6, 4), (215.5, 4), (244.5, 4), (180.3, 5), (282.8, 1), (453.3, 24)]
+Bus capacity: 65
+Num. of occupants: 48
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19145709,-118.50118090000001/34.19231377,-118.50118090000001/34.161512,-118.505443/34.174845,-118.54606399999999/34.197502,-118.54906399999999/34.2104,-118.56041/34.213515,-118.58245900000001/34.197383,-118.577151/34.205558,-118.60586299999999/34.252402000000004,-118.584259
+---------------------- 
+Route index: 17.1
+Route path: [9891, 10574, 7880, 1487]
+Route path information: [(12.5, 0), (450.4, 2), (191.6, 6)]
+Bus capacity: 24
+Num. of occupants: 8
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19145709,-118.50118090000001/34.19231377,-118.50118090000001/34.214732,-118.54043700000001/34.224571999999995,-118.52742099999999
+---------------------- 
+Route index: 17.2
+Route path: [9891, 10574, 7906, 7671, 5624, 8133, 3410, 326, 3653]
+Route path information: [(12.5, 0), (612.3, 6), (265.7, 1), (247.8, 2), (296.6, 20), (200.6, 1), (237.1, 6), (278.0, 8)]
+Bus capacity: 65
+Num. of occupants: 44
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19145709,-118.50118090000001/34.19231377,-118.50118090000001/34.180673999999996,-118.409493/34.164959,-118.387794/34.178795,-118.369119/34.204896999999995,-118.37768/34.215613,-118.36556499999999/34.214584,-118.39988500000001/34.236087,-118.396404
+---------------------- 
+Route index: 17.3
+Route path: [9891, 10574, 8050, 8432, 9221]
+Route path information: [(12.5, 0), (1910.2, 6), (215.1, 2), (461.9, 2)]
+Bus capacity: 24
+Num. of occupants: 10
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19145709,-118.50118090000001/34.19231377,-118.50118090000001/33.985938,-118.29151599999999/33.991496000000005,-118.264321/33.937327,-118.269465
+---------------------- 
+Route index: 17.4
+Route path: [9891, 10574, 1404]
+Route path information: [(12.5, 0), (2028.8, 2)]
+Bus capacity: 24
+Num. of occupants: 2
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19145709,-118.50118090000001/34.19231377,-118.50118090000001/33.923755,-118.294702
+---------------------- 
+Route index: 17.5
+Route path: [9891, 10574, 7626, 6322, 838, 5234, 491, 6729, 6684, 8802, 5032]
+Route path information: [(12.5, 0), (357.7, 10), (234.3, 4), (296.7, 3), (226.0, 1), (365.3, 9), (175.4, 8), (147.1, 16), (222.7, 1), (253.8, 1)]
+Bus capacity: 65
+Num. of occupants: 53
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19145709,-118.50118090000001/34.19231377,-118.50118090000001/34.204896000000005,-118.46047800000001/34.222198,-118.46106/34.215575,-118.434418/34.234403,-118.429676/34.190382,-118.429584/34.195713,-118.41355700000001/34.179365999999995,-118.418076/34.162471999999994,-118.426943/34.166740999999995,-118.457498
+---------------------- 
+Route index: 17.6
+Route path: [9891, 10574, 3492]
+Route path information: [(12.5, 0), (519.6, 18)]
+Bus capacity: 24
+Num. of occupants: 18
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19145709,-118.50118090000001/34.19231377,-118.50118090000001/34.199661,-118.438906
+---------------------- 
+Route index: 17.7
+Route path: [9891, 10574, 2605, 2784, 5126, 2319, 4946, 2948, 5025]
+Route path information: [(12.5, 0), (751.2, 21), (99.3, 1), (297.1, 1), (149.9, 3), (204.3, 2), (446.8, 5), (313.5, 15)]
+Bus capacity: 65
+Num. of occupants: 48
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19145709,-118.50118090000001/34.19231377,-118.50118090000001/34.251436,-118.441778/34.246922,-118.43784199999999/34.270047999999996,-118.415617/34.272384,-118.404446/34.279711,-118.389072/34.282937,-118.43804399999999/34.309634,-118.4474
+---------------------- 
+Route index: 17.8
+Route path: [9891, 10574, 8767, 7367, 3443, 8131, 7019]
+Route path information: [(12.5, 0), (488.1, 1), (197.1, 4), (403.2, 1), (69.9, 6), (160.9, 4)]
+Bus capacity: 24
+Num. of occupants: 16
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19145709,-118.50118090000001/34.19231377,-118.50118090000001/34.241845,-118.48068799999999/34.239187,-118.458896/34.271842,-118.48475900000001/34.274852,-118.488577/34.27556,-118.502245
+---------------------- 
+Route index: 17.9
+Route path: [9891, 10574, 1826, 1699, 6688]
+Route path information: [(12.5, 0), (1208.7, 4), (250.1, 2), (320.6, 6)]
+Bus capacity: 24
+Num. of occupants: 12
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.19145709,-118.50118090000001/34.19231377,-118.50118090000001/34.094807,-118.31376999999999/34.078951,-118.298099/34.049795,-118.293774
+---------------------- 
+Cluster Number: 18
+Schools in this cluster: 
+TAFT CHS
+TAFT GIFTED/STEAM MG
+
+Route Stats: Route index: 18.0
+Route path: [9960, 4026, 1394, 1879]
+Route path information: [(676.6, 25), (785.7, 13), (536.0, 26)]
+Bus capacity: 65
+Num. of occupants: 64
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.16979136,-118.57100220000001/34.252402000000004,-118.584259/34.239145,-118.477204/34.18952,-118.453157
+---------------------- 
+Route index: 18.1
+Route path: [9960, 8802, 7671, 8027, 2319]
+Route path information: [(763.6, 34), (290.8, 17), (423.2, 4), (588.6, 4)]
+Bus capacity: 65
+Num. of occupants: 59
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.16979136,-118.57100220000001/34.162471999999994,-118.426943/34.164959,-118.387794/34.223079999999996,-118.401445/34.272384,-118.404446
+---------------------- 
+Route index: 18.2
+Route path: [9960, 5936, 4783, 3611, 4037]
+Route path information: [(1507.5, 1), (424.6, 3), (407.5, 6), (293.5, 8)]
+Bus capacity: 24
+Num. of occupants: 18
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.16979136,-118.57100220000001/34.074913,-118.290306/34.056490000000004,-118.331876/34.021648,-118.34610900000001/33.995003999999994,-118.329301
+---------------------- 
+Route index: 18.3
+Route path: [9960, 8050, 3843, 9221]
+Route path information: [(2041.7, 5), (276.9, 1), (246.8, 4)]
+Bus capacity: 24
+Num. of occupants: 10
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.16979136,-118.57100220000001/33.985938,-118.29151599999999/33.968863,-118.26918400000001/33.937327,-118.269465
+---------------------- 
+Route index: 18.4
+Route path: [9960, 4038]
+Route path information: [(2128.9, 6)]
+Bus capacity: 24
+Num. of occupants: 6
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.16979136,-118.57100220000001/33.937851,-118.30458
+---------------------- 
+Cluster Number: 19
+Schools in this cluster: 
+NARBONNE SH STEAM MG
+
+Route Stats: Route index: 19.0
+Route path: [10669, 93, 982, 1969, 1404]
+Route path information: [(616.3, 2), (908.1, 48), (654.8, 16), (220.3, 14)]
+Bus capacity: 84
+Num. of occupants: 80
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.802946999999996,-118.30737040000001/33.730616,-118.29457/33.851507,-118.25203700000002/33.932581,-118.26959/33.923755,-118.294702
+---------------------- 
+Route index: 19.1
+Route path: [10669, 5551]
+Route path information: [(896.1, 83)]
+Bus capacity: 84
+Num. of occupants: 83
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.802946999999996,-118.30737040000001/33.924983000000005,-118.294804
+---------------------- 
+Route index: 19.2
+Route path: [10669, 2659, 4454, 1395]
+Route path information: [(1034.0, 17), (365.3, 10), (693.5, 7)]
+Bus capacity: 34
+Num. of occupants: 34
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.802946999999996,-118.30737040000001/33.950163,-118.28726999999999/33.941410999999995,-118.245125/34.008494,-118.291615
+---------------------- 
+Cluster Number: 20
+Schools in this cluster: 
+GRANT SH CP/DA MAG
+GRANT SH HUM/IS MAG
+
+Route Stats: Route index: 20.0
+Route path: [10067, 4954, 2388, 4716, 203]
+Route path information: [(634.7, 3), (333.0, 2), (442.2, 1), (486.9, 5)]
+Bus capacity: 24
+Num. of occupants: 11
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.1793585,-118.41623100000001/34.193958,-118.506616/34.224529,-118.52479/34.204629,-118.57076299999999/34.167275,-118.541482
+---------------------- 
+Route index: 20.1
+Route path: [10067, 7735, 4783, 6688, 5936, 1395]
+Route path information: [(791.8, 4), (399.2, 1), (263.7, 1), (271.5, 1), (599.3, 4)]
+Bus capacity: 24
+Num. of occupants: 11
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.1793585,-118.41623100000001/34.098054,-118.341296/34.056490000000004,-118.331876/34.049795,-118.293774/34.074913,-118.290306/34.008494,-118.291615
+---------------------- 
+Route index: 20.2
+Route path: [10067, 3611, 1264]
+Route path information: [(1495.2, 2), (948.8, 1)]
+Bus capacity: 24
+Num. of occupants: 3
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.1793585,-118.41623100000001/34.021648,-118.34610900000001/33.96022,-118.247552
+---------------------- 
+Route index: 20.3
+Route path: [10067, 18]
+Route path information: [(1438.8, 1)]
+Bus capacity: 24
+Num. of occupants: 1
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.1793585,-118.41623100000001/34.115376,-118.199198
+---------------------- 
+Route index: 20.4
+Route path: [10067, 3024, 7262, 7314, 2380, 6913, 2319]
+Route path information: [(587.3, 4), (213.6, 4), (225.6, 3), (455.8, 2), (246.1, 3), (745.0, 2)]
+Bus capacity: 24
+Num. of occupants: 18
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.1793585,-118.41623100000001/34.249265,-118.44528799999999/34.242744,-118.467352/34.219684,-118.46191599999999/34.263556,-118.480528/34.261129,-118.511774/34.272384,-118.404446
+---------------------- 
+Route index: 20.5
+Route path: [10067, 6397]
+Route path information: [(1072.7, 4)]
+Bus capacity: 24
+Num. of occupants: 4
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.1793585,-118.41623100000001/34.307258000000004,-118.442682
+---------------------- 
+Cluster Number: 21
+Schools in this cluster: 
+LOS ANGELES STM MAG
+
+Route Stats: Route index: 21.0
+Route path: [10083, 4037, 1395, 8595, 8125, 3877, 4038, 909]
+Route path information: [(548.6, 5), (348.8, 4), (318.5, 5), (284.6, 3), (398.9, 1), (571.3, 2), (100.9, 11)]
+Bus capacity: 33
+Num. of occupants: 31
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.05654116,-118.33255859999998/33.995003999999994,-118.329301/34.008494,-118.291615/34.009335,-118.252072/33.980942,-118.25196399999999/33.943183000000005,-118.231454/33.937851,-118.30458/33.933822,-118.31017800000001
+---------------------- 
+Cluster Number: 22
+Schools in this cluster: 
+DORSEY L/PS/PPS MAG
+DORSEY SH STM MAG
+
+Route Stats: Route index: 22.0
+Route path: [10104, 4038, 9221, 3843, 8646]
+Route path information: [(813.9, 20), (334.3, 4), (243.5, 33), (478.2, 5)]
+Bus capacity: 65
+Num. of occupants: 62
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.022907000000004,-118.34610659999998/33.937851,-118.30458/33.937327,-118.269465/33.968863,-118.26918400000001/33.923747,-118.24626699999999
+---------------------- 
+Cluster Number: 23
+Schools in this cluster: 
+LACES MAG
+HAMILTON SH HUMAN MG
+HAMILTON SH MUS PA MG
+
+Route Stats: Route index: 23.0
+Route path: [10769, 10123, 5750, 1395]
+Route path information: [(235.1, 0), (625.3, 10), (176.5, 68)]
+Bus capacity: 84
+Num. of occupants: 78
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/34.021834000000005,-118.296369/34.008494,-118.291615
+---------------------- 
+Route index: 23.1
+Route path: [10769, 10123, 8595, 8432, 3843]
+Route path information: [(235.1, 0), (851.1, 27), (280.9, 7), (237.0, 42)]
+Bus capacity: 84
+Num. of occupants: 76
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/34.009335,-118.252072/33.991496000000005,-118.264321/33.968863,-118.26918400000001
+---------------------- 
+Route index: 23.2
+Route path: [10769, 10123, 1264, 8624, 3877, 1579]
+Route path information: [(235.1, 0), (1185.3, 21), (229.8, 16), (254.1, 24), (398.9, 13)]
+Bus capacity: 84
+Num. of occupants: 74
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.96022,-118.247552/33.954561,-118.20885600000001/33.943183000000005,-118.231454/33.981558,-118.21853
+---------------------- 
+Route index: 23.3
+Route path: [10769, 10123, 5270, 909]
+Route path information: [(235.1, 0), (971.7, 18), (191.9, 27)]
+Bus capacity: 65
+Num. of occupants: 45
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.956672,-118.306901/33.933822,-118.31017800000001
+---------------------- 
+Route index: 23.4
+Route path: [10769, 10123, 4038]
+Route path information: [(235.1, 0), (1103.2, 6)]
+Bus capacity: 24
+Num. of occupants: 6
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.937851,-118.30458
+---------------------- 
+Route index: 23.5
+Route path: [10769, 10123, 5230]
+Route path information: [(235.1, 0), (1189.9, 9)]
+Bus capacity: 24
+Num. of occupants: 9
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.922069,-118.307854
+---------------------- 
+Route index: 23.6
+Route path: [10769, 10123, 3290]
+Route path information: [(235.1, 0), (727.9, 21)]
+Bus capacity: 24
+Num. of occupants: 21
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.996638,-118.322429
+---------------------- 
+Route index: 23.7
+Route path: [10769, 10123, 7616]
+Route path information: [(235.1, 0), (671.6, 11)]
+Bus capacity: 24
+Num. of occupants: 11
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.99228,-118.34306799999999
+---------------------- 
+Route index: 23.8
+Route path: [10769, 10123, 4038]
+Route path information: [(235.1, 0), (1103.2, 84)]
+Bus capacity: 84
+Num. of occupants: 84
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.937851,-118.30458
+---------------------- 
+Route index: 23.9
+Route path: [10769, 10123, 3290]
+Route path information: [(235.1, 0), (727.9, 84)]
+Bus capacity: 84
+Num. of occupants: 84
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.996638,-118.322429
+---------------------- 
+Route index: 23.10
+Route path: [10769, 10123, 4276, 4954, 6684, 7671, 8212]
+Route path information: [(235.1, 0), (1226.2, 6), (228.8, 11), (621.1, 20), (308.9, 16), (47.2, 1)]
+Bus capacity: 65
+Num. of occupants: 54
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/34.195724,-118.476013/34.193958,-118.506616/34.179365999999995,-118.418076/34.164959,-118.387794/34.159484,-118.38774199999999
+---------------------- 
+Route index: 23.11
+Route path: [10769, 10123, 6397]
+Route path information: [(235.1, 0), (2018.4, 3)]
+Bus capacity: 24
+Num. of occupants: 3
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/34.307258000000004,-118.442682
+---------------------- 
+Route index: 23.12
+Route path: [10769, 10123, 6688, 3351]
+Route path information: [(235.1, 0), (635.5, 37), (247.2, 40)]
+Bus capacity: 84
+Num. of occupants: 77
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/34.049795,-118.293774/34.069055999999996,-118.286593
+---------------------- 
+Route index: 23.13
+Route path: [10769, 10123, 5936, 5914, 9265, 2745]
+Route path information: [(235.1, 0), (842.5, 32), (169.0, 26), (305.1, 7), (163.5, 16)]
+Bus capacity: 84
+Num. of occupants: 81
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/34.074913,-118.290306/34.069076,-118.30289599999999/34.095174,-118.301767/34.101690000000005,-118.31579599999999
+---------------------- 
+Route index: 23.14
+Route path: [10769, 10123, 7735, 2750, 3554, 6587]
+Route path information: [(235.1, 0), (751.3, 22), (470.2, 10), (942.6, 3), (50.3, 4)]
+Bus capacity: 41
+Num. of occupants: 39
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/34.098054,-118.341296/34.114206,-118.379231/34.109327,-118.275345/34.107929,-118.277823
+---------------------- 
+Route index: 23.15
+Route path: [10769, 10123, 6451, 7225, 541]
+Route path information: [(235.1, 0), (414.2, 12), (298.3, 3), (449.3, 43)]
+Bus capacity: 65
+Num. of occupants: 58
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.998111,-118.445077/33.987524,-118.421525/33.959746,-118.428046
+---------------------- 
+Route index: 23.16
+Route path: [10769, 10123, 2175, 9251]
+Route path information: [(235.1, 0), (716.2, 36), (835.0, 9)]
+Bus capacity: 65
+Num. of occupants: 45
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.969151000000004,-118.404867/34.045446999999996,-118.46174199999999
+---------------------- 
+Route index: 23.17
+Route path: [10769, 10123, 1696, 982, 1375]
+Route path information: [(235.1, 0), (1386.4, 7), (499.2, 4), (432.1, 24)]
+Bus capacity: 41
+Num. of occupants: 35
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.882021,-118.299752/33.851507,-118.25203700000002/33.823913,-118.27591699999999
+---------------------- 
+Route index: 23.18
+Route path: [10769, 10123, 8454]
+Route path information: [(235.1, 0), (1802.2, 18)]
+Bus capacity: 24
+Num. of occupants: 18
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/34.168507,-118.642478
+---------------------- 
+Route index: 23.19
+Route path: [10769, 10123, 832, 6293, 6392, 6594, 2771]
+Route path information: [(235.1, 0), (797.2, 21), (408.7, 4), (415.2, 6), (20.1, 6), (494.6, 4)]
+Bus capacity: 41
+Num. of occupants: 41
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/34.05963,-118.257405/34.08682,-118.218725/34.037366,-118.213704/34.036988,-118.212246/34.081102,-118.177954
+---------------------- 
+Route index: 23.20
+Route path: [10769, 10123, 6389]
+Route path information: [(235.1, 0), (1322.3, 9)]
+Bus capacity: 24
+Num. of occupants: 9
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.97464,-118.190353
+---------------------- 
+Cluster Number: 24
+Schools in this cluster: 
+BERNSTEIN SH CA/CT MG
+
+Route Stats: Route index: 24.0
+Route path: [10804, 7887, 973, 8432, 9221, 4037]
+Route path information: [(695.0, 2), (223.8, 3), (329.6, 3), (461.9, 1), (725.1, 2)]
+Bus capacity: 24
+Num. of occupants: 11
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.09506,-118.3136367/34.019203999999995,-118.30624399999999/34.007384,-118.291615/33.991496000000005,-118.264321/33.937327,-118.269465/33.995003999999994,-118.329301
+---------------------- 
+Route index: 24.1
+Route path: [10804, 3611]
+Route path information: [(771.6, 6)]
+Bus capacity: 24
+Num. of occupants: 6
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.09506,-118.3136367/34.021648,-118.34610900000001
+---------------------- 
+Cluster Number: 25
+Schools in this cluster: 
+EGL RCK HS GIFTED MG
+
+Route Stats: Route index: 25.0
+Route path: [10158, 3554, 2745, 9265, 4317, 8366, 8706, 3397]
+Route path information: [(619.6, 4), (331.3, 7), (163.5, 4), (513.8, 16), (291.4, 5), (251.2, 9), (456.0, 4)]
+Bus capacity: 65
+Num. of occupants: 49
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.13327585,-118.20548740000001/34.109327,-118.275345/34.101690000000005,-118.31579599999999/34.095174,-118.301767/34.062118,-118.25435900000001/34.05538,-118.27013899999999/34.040003000000006,-118.29156299999998/33.993435999999996,-118.270068
+---------------------- 
+Route index: 25.1
+Route path: [10158, 2358, 4797, 2771]
+Route path information: [(1365.7, 1), (987.9, 15), (285.6, 4)]
+Bus capacity: 24
+Num. of occupants: 20
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.13327585,-118.20548740000001/33.970022,-118.26945500000001/34.073807,-118.203902/34.081102,-118.177954
+---------------------- 
+Route index: 25.2
+Route path: [10158, 8802]
+Route path information: [(1215.1, 12)]
+Bus capacity: 24
+Num. of occupants: 12
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.13327585,-118.20548740000001/34.162471999999994,-118.426943
+---------------------- 
+Cluster Number: 26
+Schools in this cluster: 
+MACES MAG
+
+Route Stats: Route index: 26.0
+Route path: [10180, 15, 1969, 909, 7832]
+Route path information: [(740.0, 12), (179.1, 5), (280.6, 4), (1033.4, 4)]
+Bus capacity: 33
+Num. of occupants: 25
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.9878053,-118.1832345/33.956897,-118.269423/33.932581,-118.26959/33.933822,-118.31017800000001/34.061314,-118.26313400000001
+---------------------- 
+Route index: 26.1
+Route path: [10180, 4797, 5921]
+Route path information: [(852.1, 2), (1127.0, 1)]
+Bus capacity: 24
+Num. of occupants: 3
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.9878053,-118.1832345/34.073807,-118.203902/34.082395,-118.358473
+---------------------- 
+Cluster Number: 27
+Schools in this cluster: 
+HOLLYWOOD SH NM MAG
+HOLLYWOOD SH PA MAG
+
+Route Stats: Route index: 27.0
+Route path: [10254, 6688, 8900, 973, 7887]
+Route path information: [(643.1, 22), (304.3, 17), (311.8, 20), (202.4, 17)]
+Bus capacity: 84
+Num. of occupants: 76
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.09866305,-118.33870719999999/34.049795,-118.293774/34.029408000000004,-118.261758/34.007384,-118.291615/34.019203999999995,-118.30624399999999
+---------------------- 
+Route index: 27.1
+Route path: [10254, 3611, 4037, 8432, 3843]
+Route path information: [(730.4, 30), (293.5, 13), (484.2, 18), (237.0, 18)]
+Bus capacity: 84
+Num. of occupants: 79
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.09866305,-118.33870719999999/34.021648,-118.34610900000001/33.995003999999994,-118.329301/33.991496000000005,-118.264321/33.968863,-118.26918400000001
+---------------------- 
+Route index: 27.2
+Route path: [10254, 9221, 909, 3796]
+Route path information: [(1378.1, 21), (315.1, 22), (449.6, 11)]
+Bus capacity: 65
+Num. of occupants: 54
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.09866305,-118.33870719999999/33.937327,-118.269465/33.933822,-118.31017800000001/33.882028999999996,-118.30201100000001
+---------------------- 
+Route index: 27.3
+Route path: [10254, 8681, 18]
+Route path information: [(1229.4, 4), (1105.3, 7)]
+Bus capacity: 24
+Num. of occupants: 11
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.09866305,-118.33870719999999/33.981538,-118.21911499999999/34.115376,-118.199198
+---------------------- 
+Route index: 27.4
+Route path: [10254, 7671, 1879, 3024, 1394]
+Route path information: [(556.1, 9), (548.1, 9), (484.9, 15), (268.2, 6)]
+Bus capacity: 41
+Num. of occupants: 39
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.09866305,-118.33870719999999/34.164959,-118.387794/34.18952,-118.453157/34.249265,-118.44528799999999/34.239145,-118.477204
+---------------------- 
+Cluster Number: 28
+Schools in this cluster: 
+FAIRFAX SH PA MAG
+FAIRFAX SH VA MAG
+
+Route Stats: Route index: 28.0
+Route path: [10382, 867, 5353, 8622]
+Route path information: [(728.1, 2), (689.4, 2), (339.0, 4)]
+Bus capacity: 24
+Num. of occupants: 8
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.0837685,-118.36089070000001/34.150369,-118.370401/34.252734000000004,-118.42555800000001/34.217867,-118.44980600000001
+---------------------- 
+Route index: 28.1
+Route path: [10382, 6143, 3482, 7887]
+Route path information: [(647.1, 20), (275.5, 21), (339.0, 30)]
+Bus capacity: 84
+Num. of occupants: 71
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.0837685,-118.36089070000001/34.021408,-118.346074/33.997714,-118.32928999999999/34.019203999999995,-118.30624399999999
+---------------------- 
+Route index: 28.2
+Route path: [10382, 8706, 7832, 6594, 8595, 3843]
+Route path information: [(719.9, 17), (355.3, 11), (507.8, 6), (478.3, 14), (435.3, 21)]
+Bus capacity: 84
+Num. of occupants: 69
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.0837685,-118.36089070000001/34.040003000000006,-118.29156299999998/34.061314,-118.26313400000001/34.036988,-118.212246/34.009335,-118.252072/33.968863,-118.26918400000001
+---------------------- 
+Route index: 28.3
+Route path: [10382, 9221, 4038]
+Route path information: [(1439.2, 9), (332.0, 17)]
+Bus capacity: 33
+Num. of occupants: 26
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.0837685,-118.36089070000001/33.937327,-118.269465/33.937851,-118.30458
+---------------------- 
+Route index: 28.4
+Route path: [10382, 6389]
+Route path information: [(1610.2, 3)]
+Bus capacity: 24
+Num. of occupants: 3
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.0837685,-118.36089070000001/33.97464,-118.190353
+---------------------- 
+Cluster Number: 29
+Schools in this cluster: 
+CRENSHAW MAG STEMM
+
+Route Stats: Route index: 29.0
+Route path: [10345, 8125, 1264, 9366, 5551]
+Route path information: [(615.9, 9), (204.9, 10), (326.4, 5), (317.4, 10)]
+Bus capacity: 34
+Num. of occupants: 34
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.996564,-118.3293568/33.980942,-118.25196399999999/33.96022,-118.247552/33.934831,-118.26943999999999/33.924983000000005,-118.294804
+---------------------- 
+Cluster Number: 30
+Schools in this cluster: 
+GARFIELD SH COSCI MG
+
+Route Stats: Route index: 30.0
+Route path: [10352, 8681, 5070, 1264, 4454, 3843, 8432, 8050]
+Route path information: [(747.1, 1), (299.9, 7), (269.2, 1), (175.2, 2), (360.5, 1), (231.2, 1), (218.4, 4)]
+Bus capacity: 24
+Num. of occupants: 17
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.0251801,-118.15727439999999/33.981538,-118.21911499999999/33.957725,-118.210314/33.96022,-118.247552/33.941410999999995,-118.245125/33.968863,-118.26918400000001/33.991496000000005,-118.264321/33.985938,-118.29151599999999
+---------------------- 
+Route index: 30.1
+Route path: [10352, 8595, 6688]
+Route path information: [(770.2, 1), (537.3, 2)]
+Bus capacity: 24
+Num. of occupants: 3
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.0251801,-118.15727439999999/34.009335,-118.252072/34.049795,-118.293774
+---------------------- 
+Cluster Number: 31
+Schools in this cluster: 
+DBM
+DOWNTOWN CS/DMA/E MG
+
+Route Stats: Route index: 31.0
+Route path: [10394, 9228, 3611, 7735, 7671]
+Route path information: [(613.8, 8), (393.7, 16), (739.2, 11), (589.7, 9)]
+Bus capacity: 65
+Num. of occupants: 44
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.06271535,-118.2509353/34.055925,-118.33397099999999/34.021648,-118.34610900000001/34.098054,-118.341296/34.164959,-118.387794
+---------------------- 
+Route index: 31.1
+Route path: [10394, 1394]
+Route path information: [(1719.0, 4)]
+Bus capacity: 24
+Num. of occupants: 4
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.06271535,-118.2509353/34.239145,-118.477204
+---------------------- 
+Route index: 31.2
+Route path: [10394, 18]
+Route path information: [(719.6, 17)]
+Bus capacity: 24
+Num. of occupants: 17
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.06271535,-118.2509353/34.115376,-118.199198
+---------------------- 
+Route index: 31.3
+Route path: [10394, 834]
+Route path information: [(635.3, 81)]
+Bus capacity: 84
+Num. of occupants: 81
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.06271535,-118.2509353/33.97744,-118.276191
+---------------------- 
+Route index: 31.4
+Route path: [10394, 1264, 3877, 5070, 6389, 8822]
+Route path information: [(856.1, 18), (235.6, 6), (295.6, 3), (356.0, 8), (620.9, 8)]
+Bus capacity: 65
+Num. of occupants: 43
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.06271535,-118.2509353/33.96022,-118.247552/33.943183000000005,-118.231454/33.957725,-118.210314/33.97464,-118.190353/34.025293,-118.15791100000001
+---------------------- 
+Route index: 31.5
+Route path: [10394, 3482, 4038, 9221, 3071]
+Route path information: [(806.6, 35), (574.4, 10), (334.3, 10), (573.9, 3)]
+Bus capacity: 65
+Num. of occupants: 58
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.06271535,-118.2509353/33.997714,-118.32928999999999/33.937851,-118.30458/33.937327,-118.269465/33.866296999999996,-118.296545
+---------------------- 
+Route index: 31.6
+Route path: [10394, 5125]
+Route path information: [(1373.5, 6)]
+Bus capacity: 24
+Num. of occupants: 6
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.06271535,-118.2509353/33.824239,-118.27598300000001
+---------------------- 
+Cluster Number: 32
+Schools in this cluster: 
+GOMPERS MS UP MED MAG
+
+Route Stats: Route index: 32.0
+Route path: [10405, 6688, 4837]
+Route path information: [(826.1, 1), (521.9, 2)]
+Bus capacity: 24
+Num. of occupants: 3
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.93268994,-118.26961990000001/34.049795,-118.293774/34.023956,-118.346034
+---------------------- 
+Cluster Number: 33
+Schools in this cluster: 
+BANNING SH STEAM MAG
+BANNING SH CP MAG
+BANNING SH FF MAG
+
+Route Stats: Route index: 33.0
+Route path: [10423, 6853, 1033]
+Route path information: [(1139.5, 2), (321.8, 5)]
+Bus capacity: 24
+Num. of occupants: 7
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.79540146,-118.2609159/33.985603000000005,-118.287476/34.003464,-118.260778
+---------------------- 
+Cluster Number: 34
+Schools in this cluster: 
+TORRES ELA PA MAG
+
+Route Stats: Route index: 34.0
+Route path: [10519, 4890, 935, 1264, 1033, 8050, 7887, 6688]
+Route path information: [(569.4, 14), (466.3, 6), (188.5, 10), (406.5, 17), (327.9, 12), (362.5, 4), (377.2, 13)]
+Bus capacity: 84
+Num. of occupants: 76
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04155508,-118.1745893/33.98522,-118.19707700000001/33.979295,-118.251995/33.96022,-118.247552/34.003464,-118.260778/33.985938,-118.29151599999999/34.019203999999995,-118.30624399999999/34.049795,-118.293774
+---------------------- 
+Route index: 34.1
+Route path: [10519, 5936]
+Route path information: [(784.4, 5)]
+Bus capacity: 24
+Num. of occupants: 5
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04155508,-118.1745893/34.074913,-118.290306
+---------------------- 
+Cluster Number: 35
+Schools in this cluster: 
+UNIVERSITY MAST MAG
+
+Route Stats: Route index: 35.0
+Route path: [10568, 3361]
+Route path information: [(566.5, 14)]
+Bus capacity: 24
+Num. of occupants: 14
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04559029,-118.4616563/34.033207,-118.391374
+---------------------- 
+Route index: 35.1
+Route path: [10568, 6143]
+Route path information: [(816.6, 8)]
+Bus capacity: 24
+Num. of occupants: 8
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04559029,-118.4616563/34.021408,-118.346074
+---------------------- 
+Route index: 35.2
+Route path: [10568, 3482]
+Route path information: [(1008.0, 6)]
+Bus capacity: 24
+Num. of occupants: 6
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04559029,-118.4616563/33.997714,-118.32928999999999
+---------------------- 
+Route index: 35.3
+Route path: [10568, 7936]
+Route path information: [(1317.8, 41)]
+Bus capacity: 41
+Num. of occupants: 41
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04559029,-118.4616563/33.978936,-118.27754499999999
+---------------------- 
+Route index: 35.4
+Route path: [10568, 9366, 8595]
+Route path information: [(1428.9, 46), (731.3, 7)]
+Bus capacity: 65
+Num. of occupants: 53
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04559029,-118.4616563/33.934831,-118.26943999999999/34.009335,-118.252072
+---------------------- 
+Route index: 35.5
+Route path: [10568, 938]
+Route path information: [(946.4, 59)]
+Bus capacity: 65
+Num. of occupants: 59
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04559029,-118.4616563/34.039933000000005,-118.29066599999999
+---------------------- 
+Route index: 35.6
+Route path: [10568, 4783]
+Route path information: [(884.1, 4)]
+Bus capacity: 24
+Num. of occupants: 4
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04559029,-118.4616563/34.056490000000004,-118.331876
+---------------------- 
+Route index: 35.7
+Route path: [10568, 7832, 3531]
+Route path information: [(1277.5, 21), (520.3, 6)]
+Bus capacity: 33
+Num. of occupants: 27
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04559029,-118.4616563/34.061314,-118.26313400000001/34.108902,-118.27493700000001
+---------------------- 
+Route index: 35.8
+Route path: [10568, 6143]
+Route path information: [(816.6, 84)]
+Bus capacity: 84
+Num. of occupants: 84
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04559029,-118.4616563/34.021408,-118.346074
+---------------------- 
+Route index: 35.9
+Route path: [10568, 3482]
+Route path information: [(1008.0, 84)]
+Bus capacity: 84
+Num. of occupants: 84
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04559029,-118.4616563/33.997714,-118.32928999999999
+---------------------- 
+Route index: 35.10
+Route path: [10568, 4783]
+Route path information: [(884.1, 84)]
+Bus capacity: 84
+Num. of occupants: 84
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.04559029,-118.4616563/34.056490000000004,-118.331876
+---------------------- 
+Cluster Number: 36
+Schools in this cluster: 
+RILEY HS CYESIS
+
+Route Stats: Route index: 36.0
+Route path: [10588, 5125, 5451]
+Route path information: [(951.6, 8), (300.1, 1)]
+Bus capacity: 24
+Num. of occupants: 9
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.9432265,-118.24758090000002/33.824239,-118.27598300000001/33.794128,-118.26080800000001
+---------------------- 
+Cluster Number: 37
+Schools in this cluster: 
+VAN NUYS SH STM MAG
+VAN NUYS SH MED MG
+VAN NUYS SH PA MG
+
+Route Stats: Route index: 37.0
+Route path: [10606, 8133, 5173, 3653]
+Route path information: [(600.0, 22), (377.5, 19), (445.8, 37)]
+Bus capacity: 84
+Num. of occupants: 78
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.18917704,-118.4531437/34.204896999999995,-118.37768/34.216362,-118.35748500000001/34.236087,-118.396404
+---------------------- 
+Route index: 37.1
+Route path: [10606, 2319, 7639]
+Route path information: [(821.9, 22), (738.2, 5)]
+Bus capacity: 33
+Num. of occupants: 27
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.18917704,-118.4531437/34.272384,-118.404446/34.261903000000004,-118.29799399999999
+---------------------- 
+Route index: 37.2
+Route path: [10606, 7015]
+Route path information: [(656.1, 21)]
+Bus capacity: 24
+Num. of occupants: 21
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.18917704,-118.4531437/34.152607,-118.385425
+---------------------- 
+Route index: 37.3
+Route path: [10606, 4367, 4783, 8706, 1395, 8595]
+Route path information: [(982.0, 6), (377.4, 9), (332.8, 12), (298.0, 6), (318.5, 2)]
+Bus capacity: 41
+Num. of occupants: 35
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.18917704,-118.4531437/34.098007,-118.338733/34.056490000000004,-118.331876/34.040003000000006,-118.29156299999998/34.008494,-118.291615/34.009335,-118.252072
+---------------------- 
+Route index: 37.4
+Route path: [10606, 3843, 3877]
+Route path information: [(2027.7, 5), (435.0, 6)]
+Bus capacity: 24
+Num. of occupants: 11
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.18917704,-118.4531437/33.968863,-118.26918400000001/33.943183000000005,-118.231454
+---------------------- 
+Route index: 37.5
+Route path: [10606, 3611, 5936]
+Route path information: [(1582.0, 4), (728.7, 22)]
+Bus capacity: 33
+Num. of occupants: 26
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.18917704,-118.4531437/34.021648,-118.34610900000001/34.074913,-118.290306
+---------------------- 
+Route index: 37.6
+Route path: [10606, 18]
+Route path information: [(1647.5, 1)]
+Bus capacity: 24
+Num. of occupants: 1
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.18917704,-118.4531437/34.115376,-118.199198
+---------------------- 
+Route index: 37.7
+Route path: [10606, 8637, 203, 6738, 3256]
+Route path information: [(522.1, 10), (335.8, 10), (242.0, 2), (359.8, 43)]
+Bus capacity: 65
+Num. of occupants: 65
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.18917704,-118.4531437/34.190155,-118.52941200000001/34.167275,-118.541482/34.17096,-118.57092/34.195108000000005,-118.60575800000001
+---------------------- 
+Route index: 37.8
+Route path: [10606, 4202, 8046, 2388]
+Route path information: [(1265.0, 21), (317.5, 25), (409.6, 18)]
+Bus capacity: 65
+Num. of occupants: 64
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.18917704,-118.4531437/34.253609000000004,-118.592933/34.252055,-118.55216200000001/34.224529,-118.52479
+---------------------- 
+Route index: 37.9
+Route path: [10606, 1884, 8131, 6913]
+Route path information: [(698.5, 28), (359.1, 28), (271.1, 13)]
+Bus capacity: 84
+Num. of occupants: 69
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.18917704,-118.4531437/34.273047999999996,-118.44256899999999/34.274852,-118.488577/34.261129,-118.511774
+---------------------- 
+Route index: 37.10
+Route path: [10606, 6397]
+Route path information: [(1092.9, 35)]
+Bus capacity: 41
+Num. of occupants: 35
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.18917704,-118.4531437/34.307258000000004,-118.442682
+---------------------- 
+Cluster Number: 38
+Schools in this cluster: 
+VENICE SH WL/GS MAG
+VENICE SH STEMM MAG
+
+Route Stats: Route index: 38.0
+Route path: [10615, 8050]
+Route path information: [(965.3, 65)]
+Bus capacity: 65
+Num. of occupants: 65
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.99885659,-118.4429499/33.985938,-118.29151599999999
+---------------------- 
+Route index: 38.1
+Route path: [10615, 4038, 9221]
+Route path information: [(1059.3, 43), (334.3, 33)]
+Bus capacity: 84
+Num. of occupants: 76
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.99885659,-118.4429499/33.937851,-118.30458/33.937327,-118.269465
+---------------------- 
+Route index: 38.2
+Route path: [10615, 3877, 8595]
+Route path information: [(1432.0, 20), (579.2, 35)]
+Bus capacity: 65
+Num. of occupants: 55
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.99885659,-118.4429499/33.943183000000005,-118.231454/34.009335,-118.252072
+---------------------- 
+Route index: 38.3
+Route path: [10615, 6143]
+Route path information: [(718.2, 82)]
+Bus capacity: 84
+Num. of occupants: 82
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.99885659,-118.4429499/34.021408,-118.346074
+---------------------- 
+Route index: 38.4
+Route path: [10615, 4037]
+Route path information: [(779.6, 73)]
+Bus capacity: 84
+Num. of occupants: 73
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.99885659,-118.4429499/33.995003999999994,-118.329301
+---------------------- 
+Route index: 38.5
+Route path: [10615, 1395, 7887, 938]
+Route path information: [(1046.3, 14), (194.1, 38), (281.7, 30)]
+Bus capacity: 84
+Num. of occupants: 82
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.99885659,-118.4429499/34.008494,-118.291615/34.019203999999995,-118.30624399999999/34.039933000000005,-118.29066599999999
+---------------------- 
+Route index: 38.6
+Route path: [10615, 8366]
+Route path information: [(1127.3, 21)]
+Bus capacity: 24
+Num. of occupants: 21
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.99885659,-118.4429499/34.05538,-118.27013899999999
+---------------------- 
+Route index: 38.7
+Route path: [10615, 4783, 4367]
+Route path information: [(796.4, 66), (377.6, 8)]
+Bus capacity: 84
+Num. of occupants: 74
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.99885659,-118.4429499/34.056490000000004,-118.331876/34.098007,-118.338733
+---------------------- 
+Cluster Number: 39
+Schools in this cluster: 
+VERDGO HLS SH
+VERDGO HLS VAPA MAG
+VERDGO HLS STEMM MAG
+
+Route Stats: Route index: 39.0
+Route path: [10815, 18, 4797, 3055, 8706]
+Route path information: [(1350.4, 6), (568.4, 9), (381.0, 4), (389.6, 2)]
+Bus capacity: 24
+Num. of occupants: 21
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.26012,-118.29796670000002/34.115376,-118.199198/34.073807,-118.203902/34.060392,-118.24366699999999/34.040003000000006,-118.29156299999998
+---------------------- 
+Route index: 39.1
+Route path: [10815, 1395, 8595, 3843]
+Route path information: [(1907.0, 11), (318.5, 5), (435.3, 7)]
+Bus capacity: 24
+Num. of occupants: 23
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.26012,-118.29796670000002/34.008494,-118.291615/34.009335,-118.252072/33.968863,-118.26918400000001
+---------------------- 
+Route index: 39.2
+Route path: [10815, 2745]
+Route path information: [(1621.7, 3)]
+Bus capacity: 24
+Num. of occupants: 3
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.26012,-118.29796670000002/34.101690000000005,-118.31579599999999
+---------------------- 
+Route index: 39.3
+Route path: [10815, 8027]
+Route path information: [(827.8, 69)]
+Bus capacity: 84
+Num. of occupants: 69
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.26012,-118.29796670000002/34.223079999999996,-118.401445
+---------------------- 
+Route index: 39.4
+Route path: [10815, 8622, 3024, 2948]
+Route path information: [(1125.1, 21), (237.6, 23), (333.4, 37)]
+Bus capacity: 84
+Num. of occupants: 81
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.26012,-118.29796670000002/34.217867,-118.44980600000001/34.249265,-118.44528799999999/34.282937,-118.43804399999999
+---------------------- 
+Route index: 39.5
+Route path: [10815, 6397, 6684, 7671]
+Route path information: [(936.9, 33), (1070.2, 4), (308.9, 16)]
+Bus capacity: 65
+Num. of occupants: 53
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.26012,-118.29796670000002/34.307258000000004,-118.442682/34.179365999999995,-118.418076/34.164959,-118.387794
+---------------------- 
+Cluster Number: 40
+Schools in this cluster: 
+KING-DREW SH MD/S MG
+
+Route Stats: Route index: 40.0
+Route path: [10647, 982]
+Route path information: [(586.7, 70)]
+Bus capacity: 84
+Num. of occupants: 70
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.92390684,-118.2455375/33.851507,-118.25203700000002
+---------------------- 
+Route index: 40.1
+Route path: [10647, 1375, 5451, 5062, 3071]
+Route path information: [(856.1, 22), (302.2, 7), (393.4, 18), (626.3, 36)]
+Bus capacity: 84
+Num. of occupants: 83
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.92390684,-118.2455375/33.823913,-118.27591699999999/33.794128,-118.26080800000001/33.792972,-118.312109/33.866296999999996,-118.296545
+---------------------- 
+Route index: 40.2
+Route path: [10647, 909, 834]
+Route path information: [(445.2, 73), (518.2, 10)]
+Bus capacity: 84
+Num. of occupants: 83
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.92390684,-118.2455375/33.933822,-118.31017800000001/33.97744,-118.276191
+---------------------- 
+Route index: 40.3
+Route path: [10647, 1395, 11, 6143]
+Route path information: [(755.2, 31), (237.7, 22), (186.2, 26)]
+Bus capacity: 84
+Num. of occupants: 79
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.92390684,-118.2455375/34.008494,-118.291615/34.010816,-118.329396/34.021408,-118.346074
+---------------------- 
+Route index: 40.4
+Route path: [10647, 9228, 3361, 2175]
+Route path information: [(1265.0, 12), (431.9, 4), (732.1, 3)]
+Bus capacity: 24
+Num. of occupants: 19
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.92390684,-118.2455375/34.055925,-118.33397099999999/34.033207,-118.391374/33.969151000000004,-118.404867
+---------------------- 
+Route index: 40.5
+Route path: [10647, 1143, 7832, 6684]
+Route path information: [(723.0, 16), (600.7, 3), (1289.9, 2)]
+Bus capacity: 24
+Num. of occupants: 21
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.92390684,-118.2455375/34.009708,-118.25006200000001/34.061314,-118.26313400000001/34.179365999999995,-118.418076
+---------------------- 
+Cluster Number: 41
+Schools in this cluster: 
+CLEVELAND CHS HUM MG
+
+Route Stats: Route index: 41.0
+Route path: [10867, 1394, 3024]
+Route path information: [(623.9, 28), (274.7, 23)]
+Bus capacity: 65
+Num. of occupants: 51
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.21780039,-118.5491378/34.239145,-118.477204/34.249265,-118.44528799999999
+---------------------- 
+Route index: 41.1
+Route path: [10867, 8622, 8027]
+Route path information: [(764.8, 35), (347.6, 31)]
+Bus capacity: 84
+Num. of occupants: 66
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.21780039,-118.5491378/34.217867,-118.44980600000001/34.223079999999996,-118.401445
+---------------------- 
+Route index: 41.2
+Route path: [10867, 7671]
+Route path information: [(1200.7, 43)]
+Bus capacity: 65
+Num. of occupants: 43
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.21780039,-118.5491378/34.164959,-118.387794
+---------------------- 
+Route index: 41.3
+Route path: [10867, 8802]
+Route path information: [(1035.5, 60)]
+Bus capacity: 65
+Num. of occupants: 60
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.21780039,-118.5491378/34.162471999999994,-118.426943
+---------------------- 
+Route index: 41.4
+Route path: [10867, 3897]
+Route path information: [(938.9, 64)]
+Bus capacity: 65
+Num. of occupants: 64
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.21780039,-118.5491378/34.169112,-118.45096000000001
+---------------------- 
+Route index: 41.5
+Route path: [10867, 1884]
+Route path information: [(986.3, 22)]
+Bus capacity: 24
+Num. of occupants: 22
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.21780039,-118.5491378/34.273047999999996,-118.44256899999999
+---------------------- 
+Route index: 41.6
+Route path: [10867, 8131]
+Route path information: [(795.2, 71)]
+Bus capacity: 84
+Num. of occupants: 71
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.21780039,-118.5491378/34.274852,-118.488577
+---------------------- 
+Route index: 41.7
+Route path: [10867, 6397]
+Route path information: [(1282.1, 26)]
+Bus capacity: 33
+Num. of occupants: 26
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.21780039,-118.5491378/34.307258000000004,-118.442682
+---------------------- 
+Route index: 41.8
+Route path: [10867, 8454]
+Route path information: [(793.9, 52)]
+Bus capacity: 65
+Num. of occupants: 52
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.21780039,-118.5491378/34.168507,-118.642478
+---------------------- 
+Route index: 41.9
+Route path: [10867, 4367, 4783, 1395]
+Route path information: [(1546.3, 9), (377.4, 6), (578.9, 2)]
+Bus capacity: 24
+Num. of occupants: 17
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.21780039,-118.5491378/34.098007,-118.338733/34.056490000000004,-118.331876/34.008494,-118.291615
+---------------------- 
+Cluster Number: 42
+Schools in this cluster: 
+ROOSEVELT SH STM MAG
+
+Route Stats: Route index: 42.0
+Route path: [10807, 8706, 1464, 1395, 8050, 8432, 3843, 1373, 4562, 3877]
+Route path information: [(559.9, 3), (246.2, 7), (537.7, 2), (168.4, 6), (215.1, 15), (237.0, 11), (216.5, 23), (163.0, 4), (182.5, 3)]
+Bus capacity: 84
+Num. of occupants: 74
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.03918867,-118.2112067/34.040003000000006,-118.29156299999998/34.069018,-118.291587/34.008494,-118.291615/33.985938,-118.29151599999999/33.991496000000005,-118.264321/33.968863,-118.26918400000001/33.960887,-118.247584/33.955838,-118.222408/33.943183000000005,-118.231454
+---------------------- 
+Route index: 42.1
+Route path: [10807, 9221, 6389]
+Route path information: [(1023.3, 4), (829.5, 3)]
+Bus capacity: 24
+Num. of occupants: 7
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.03918867,-118.2112067/33.937327,-118.269465/33.97464,-118.190353
+---------------------- 
+Cluster Number: 43
+Schools in this cluster: 
+SAN FERNANDO STM MAG
+
+Route Stats: Route index: 43.0
+Route path: [10840, 299, 1879, 4954]
+Route path information: [(648.5, 10), (398.3, 4), (408.2, 5)]
+Bus capacity: 24
+Num. of occupants: 19
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.27296108,-118.44266359999999/34.19023,-118.39718500000001/34.18952,-118.453157/34.193958,-118.506616
+---------------------- 
+Route index: 43.1
+Route path: [10840, 7639]
+Route path information: [(971.2, 4)]
+Bus capacity: 24
+Num. of occupants: 4
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.27296108,-118.44266359999999/34.261903000000004,-118.29799399999999
+---------------------- 

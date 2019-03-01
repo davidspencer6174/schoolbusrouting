@@ -8,7 +8,6 @@ import pickle
 verbose = 0
 break_num = 6
 
-
 def setup_data(stops, zipdata, schools, phonebook, bell_times, schools_codes_mapFile, codes_inds_mapFile):
     
     with open(schools_codes_mapFile,'rb') as handle:
@@ -130,9 +129,8 @@ def breakLargeClusters(data, break_num, limit):
     result = result.sort_values(by=['label'])
     return result
 
-
+# Partition students based on the school clusters
 def partitionStudents(schools, phonebook):
-    
     counts = Counter(schools['label'])
     schoolcluster_students_map = dict()
     
@@ -154,10 +152,8 @@ def partitionStudents(schools, phonebook):
 # schoolcluster_students_map_df: 
 def outputDictionary(schools_students_attend, schoolcluster_students_map_df, student_level):
     schools_students_attend.to_csv(str(student_level) + '_clustered_schools_file.csv', sep=';', encoding='utf-8')
-    
     with open(str(student_level) + '_clusteredschools_students_map' ,'wb') as handle:
         pickle.dump(schoolcluster_students_map_df, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
 
 ##############################################################################################################################
 # MAIN
@@ -175,6 +171,7 @@ School_Level = "middle"
 prog_types = ['P', 'X', 'M']
 phonebook = phonebook.loc[phonebook['Level'] == School_Level]
 phonebook = phonebook[phonebook.Prog.isin(prog_types)]
+
 schools_students_attend = phonebook["Cost_Center"].drop_duplicates()
 schools_students_attend = schools.loc[schools['Cost_Center'].isin(schools_students_attend)]
 clustered_schools = obtainClust_DBSCAN(schools_students_attend, 2, 1)
@@ -189,7 +186,7 @@ schoolcluster_students_map_df = partitionStudents(schools_students_attend, phone
 print(Counter(clustered_schools['label']))
 print("Num of clusters: " + str(len(Counter(clustered_schools['label']))))
 
-outputDictionary(schools_students_attend, schoolcluster_students_map_df, School_Level)
+# outputDictionary(schools_students_attend, schoolcluster_students_map_df, School_Level)
 
 ##############################################################################################################################
 # MISC
@@ -203,7 +200,7 @@ test = schoolcluster_students_map_df[0]
 stops_subset = test.loc[test['label'] == 0]
 stops_subset = stops_subset[['Lat','Long','label','AM_Stop_Address']].drop_duplicates().dropna()
 
-temp = list()
+
 
 
 

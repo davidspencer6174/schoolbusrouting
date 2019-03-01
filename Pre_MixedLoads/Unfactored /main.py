@@ -4,11 +4,7 @@ import pickle
 from collections import Counter
 
 verbose = 1
-stop_point = 10
 max_time = 1800
-
-prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
-travel_times = np.load(prefix + "travel_times.npy")
 
 class School:
     #tt_ind denotes the index of the school in the travel time matrix
@@ -135,6 +131,7 @@ def printBeginStats(cluster_school_map, schoolcluster_students_map, cap_counts, 
     for bus in cap_counts:
         tot_cap += bus[0]*bus[1]
 
+    print('--------------------------------------------------------------------')
     print("Starting to route " + school_type.upper() + " SCHOOL students")
     print('---------------------------------')
     print('Pre-routing statistics')
@@ -152,7 +149,7 @@ def printBeginStats(cluster_school_map, schoolcluster_students_map, cap_counts, 
 # items: Input schools or students
 # index = 0 
 # item_indexes: if routing sch., start with empty list. 
-#               if ruting stud., start with array with closest school
+#               if routing stud., start with array with closest school
 # Returns: route to go through all schools, time it takes to go through route
 def getPossibleRoute(items, index, item_indexes):
     
@@ -184,6 +181,8 @@ def getPossibleRoute(items, index, item_indexes):
             if ind == index:
                 temp[ind] = np.nan
         
+        # Append the time taken to go from one stop to another in 
+        # time taken and stop in route
         time_to_add = np.nanmin(temp)
         index = list(temp).index(time_to_add)
         time_taken.append(time_to_add)
@@ -392,20 +391,20 @@ def start(school_type):
     
     printBeginStats(cluster_school_map, schoolcluster_students_map, cap_counts, school_type)
     routes_returned = startRouting(cluster_school_map, schoolcluster_students_map)
-    outputRoutes(cluster_school_map, routes_returned, (str(school_type)+"_school_routes"), (school_type.upper()+"SCHOOL ROUTES \n"))
+    outputRoutes(cluster_school_map, routes_returned, (str(school_type)+"_school_routes"), (school_type.upper()+" SCHOOL ROUTES \n"))
     printFinalStats(routes_returned)
     
     return routes_returned
 
 ##############################################################################################################
 # Main()
+    
+prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
+travel_times = np.load(prefix + "travel_times.npy")
+cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
 all_geocodesFile = prefix+'all_geocodes.csv'
 geocodes = pd.read_csv(all_geocodesFile)
-
-prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/'
-cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
 
 routes_returned_elem = start('elem')
 routes_returned_middle = start('middle')
 routes_returned_high = start('high')
-
