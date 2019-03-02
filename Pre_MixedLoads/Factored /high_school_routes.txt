@@ -483,18 +483,18 @@ WESM HLTH/SPORTS MED
 
 Route Stats: Route index: 10.0
 Route path: [9771, 909]
-Route path information: [(857.7, 40)]
-Bus capacity: 41
-Num. of occupants: 40
+Route path information: [(857.7, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.933822,-118.31017800000001
 ---------------------- 
 Route index: 10.1
 Route path: [9771, 8679]
-Route path information: [(210.5, 50)]
-Bus capacity: 65
-Num. of occupants: 50
+Route path information: [(210.5, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.937378,-118.29494299999999
@@ -528,18 +528,18 @@ https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.823913,-118.2
 ---------------------- 
 Route index: 10.5
 Route path: [9771, 909]
-Route path information: [(857.7, 84)]
-Bus capacity: 84
-Num. of occupants: 84
+Route path information: [(857.7, 40)]
+Bus capacity: 41
+Num. of occupants: 40
 
 Google Maps Link: 
 https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.933822,-118.31017800000001
 ---------------------- 
 Route index: 10.6
 Route path: [9771, 8679]
-Route path information: [(210.5, 84)]
-Bus capacity: 84
-Num. of occupants: 84
+Route path information: [(210.5, 50)]
+Bus capacity: 65
+Num. of occupants: 50
 
 Google Maps Link: 
 https://www.google.com/maps/dir/33.95966454,-118.42850349999999/33.937378,-118.29494299999999
@@ -637,9 +637,9 @@ https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118
 ---------------------- 
 Route index: 11.4
 Route path: [9750, 9954, 10369, 4327]
-Route path information: [(266.7, 0), (251.9, 0), (889.3, 36)]
-Bus capacity: 41
-Num. of occupants: 36
+Route path information: [(266.7, 0), (251.9, 0), (889.3, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.060836,-118.31536399999999
@@ -655,9 +655,9 @@ https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118
 ---------------------- 
 Route index: 11.6
 Route path: [9750, 9954, 10369, 4327]
-Route path information: [(266.7, 0), (251.9, 0), (889.3, 84)]
-Bus capacity: 84
-Num. of occupants: 84
+Route path information: [(266.7, 0), (251.9, 0), (889.3, 36)]
+Bus capacity: 41
+Num. of occupants: 36
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/34.060836,-118.31536399999999
@@ -718,9 +718,9 @@ https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118
 ---------------------- 
 Route index: 11.13
 Route path: [9750, 9954, 10369, 7936]
-Route path information: [(266.7, 0), (251.9, 0), (925.9, 22)]
-Bus capacity: 24
-Num. of occupants: 22
+Route path information: [(266.7, 0), (251.9, 0), (925.9, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/33.978936,-118.27754499999999
@@ -772,9 +772,9 @@ https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118
 ---------------------- 
 Route index: 11.19
 Route path: [9750, 9954, 10369, 7936]
-Route path information: [(266.7, 0), (251.9, 0), (925.9, 84)]
-Bus capacity: 84
-Num. of occupants: 84
+Route path information: [(266.7, 0), (251.9, 0), (925.9, 22)]
+Bus capacity: 24
+Num. of occupants: 22
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.07037067,-118.18704440000002/34.05745789,-118.203848/34.0738355,-118.203924/33.978936,-118.27754499999999
@@ -1445,9 +1445,9 @@ https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118
 ---------------------- 
 Route index: 23.4
 Route path: [10769, 10123, 4038]
-Route path information: [(235.1, 0), (1103.2, 6)]
-Bus capacity: 24
-Num. of occupants: 6
+Route path information: [(235.1, 0), (1103.2, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.937851,-118.30458
@@ -1463,9 +1463,9 @@ https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118
 ---------------------- 
 Route index: 23.6
 Route path: [10769, 10123, 3290]
-Route path information: [(235.1, 0), (727.9, 21)]
-Bus capacity: 24
-Num. of occupants: 21
+Route path information: [(235.1, 0), (727.9, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.996638,-118.322429
@@ -1481,18 +1481,18 @@ https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118
 ---------------------- 
 Route index: 23.8
 Route path: [10769, 10123, 4038]
-Route path information: [(235.1, 0), (1103.2, 84)]
-Bus capacity: 84
-Num. of occupants: 84
+Route path information: [(235.1, 0), (1103.2, 6)]
+Bus capacity: 24
+Num. of occupants: 6
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.937851,-118.30458
 ---------------------- 
 Route index: 23.9
 Route path: [10769, 10123, 3290]
-Route path information: [(235.1, 0), (727.9, 84)]
-Bus capacity: 84
-Num. of occupants: 84
+Route path information: [(235.1, 0), (727.9, 21)]
+Bus capacity: 24
+Num. of occupants: 21
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.04359114,-118.37171790000001/34.03386486,-118.3895446/33.996638,-118.322429
@@ -1939,18 +1939,18 @@ https://www.google.com/maps/dir/34.04559029,-118.4616563/34.033207,-118.391374
 ---------------------- 
 Route index: 35.1
 Route path: [10568, 6143]
-Route path information: [(816.6, 8)]
-Bus capacity: 24
-Num. of occupants: 8
+Route path information: [(816.6, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.04559029,-118.4616563/34.021408,-118.346074
 ---------------------- 
 Route index: 35.2
 Route path: [10568, 3482]
-Route path information: [(1008.0, 6)]
-Bus capacity: 24
-Num. of occupants: 6
+Route path information: [(1008.0, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.04559029,-118.4616563/33.997714,-118.32928999999999
@@ -1984,9 +1984,9 @@ https://www.google.com/maps/dir/34.04559029,-118.4616563/34.039933000000005,-118
 ---------------------- 
 Route index: 35.6
 Route path: [10568, 4783]
-Route path information: [(884.1, 4)]
-Bus capacity: 24
-Num. of occupants: 4
+Route path information: [(884.1, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.04559029,-118.4616563/34.056490000000004,-118.331876
@@ -2002,27 +2002,27 @@ https://www.google.com/maps/dir/34.04559029,-118.4616563/34.061314,-118.26313400
 ---------------------- 
 Route index: 35.8
 Route path: [10568, 6143]
-Route path information: [(816.6, 84)]
-Bus capacity: 84
-Num. of occupants: 84
+Route path information: [(816.6, 8)]
+Bus capacity: 24
+Num. of occupants: 8
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.04559029,-118.4616563/34.021408,-118.346074
 ---------------------- 
 Route index: 35.9
 Route path: [10568, 3482]
-Route path information: [(1008.0, 84)]
-Bus capacity: 84
-Num. of occupants: 84
+Route path information: [(1008.0, 6)]
+Bus capacity: 24
+Num. of occupants: 6
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.04559029,-118.4616563/33.997714,-118.32928999999999
 ---------------------- 
 Route index: 35.10
 Route path: [10568, 4783]
-Route path information: [(884.1, 84)]
-Bus capacity: 84
-Num. of occupants: 84
+Route path information: [(884.1, 4)]
+Bus capacity: 24
+Num. of occupants: 4
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.04559029,-118.4616563/34.056490000000004,-118.331876

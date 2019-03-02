@@ -17,7 +17,8 @@ class Route:
         self.students = []
         self.path = path
         self.path_info = path_info
-        self.occupants = 0 
+        self.occupants = 0
+        self.schools_to_visit = set() 
         self.bus_size = None
     
     def get_route_length(self):
@@ -31,3 +32,6 @@ class Route:
     
     def updateBus(self, bus_cap):
         self.bus_size = bus_cap
+    
+    def updateSchoolsToVisit(self, student):
+        self.schools_to_visit.add(student.school_ind)

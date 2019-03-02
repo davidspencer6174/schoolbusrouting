@@ -46,9 +46,9 @@ CDS JOHNSTON
 
 Route Stats: Route index: 2.0
 Route path: [10098, 9478, 3796]
-Route path information: [(229.7, 0), (940.2, 2)]
-Bus capacity: 16
-Num. of occupants: 2
+Route path information: [(229.7, 0), (940.2, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/33.76481907,-118.31657050000001/33.76569577,-118.29952/33.882028999999996,-118.30201100000001
@@ -73,9 +73,9 @@ https://www.google.com/maps/dir/33.76481907,-118.31657050000001/33.76569577,-118
 ---------------------- 
 Route index: 2.3
 Route path: [10098, 9478, 3796]
-Route path information: [(229.7, 0), (940.2, 84)]
-Bus capacity: 84
-Num. of occupants: 84
+Route path information: [(229.7, 0), (940.2, 2)]
+Bus capacity: 16
+Num. of occupants: 2
 
 Google Maps Link: 
 https://www.google.com/maps/dir/33.76481907,-118.31657050000001/33.76569577,-118.29952/33.882028999999996,-118.30201100000001
@@ -118,9 +118,9 @@ https://www.google.com/maps/dir/33.76481907,-118.31657050000001/33.76569577,-118
 ---------------------- 
 Route index: 2.8
 Route path: [10098, 9478, 3216]
-Route path information: [(229.7, 0), (624.2, 35)]
-Bus capacity: 41
-Num. of occupants: 35
+Route path information: [(229.7, 0), (624.2, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/33.76481907,-118.31657050000001/33.76569577,-118.29952/33.825593,-118.28175900000001
@@ -145,9 +145,9 @@ https://www.google.com/maps/dir/33.76481907,-118.31657050000001/33.76569577,-118
 ---------------------- 
 Route index: 2.11
 Route path: [10098, 9478, 3216]
-Route path information: [(229.7, 0), (624.2, 84)]
-Bus capacity: 84
-Num. of occupants: 84
+Route path information: [(229.7, 0), (624.2, 35)]
+Bus capacity: 41
+Num. of occupants: 35
 
 Google Maps Link: 
 https://www.google.com/maps/dir/33.76481907,-118.31657050000001/33.76569577,-118.29952/33.825593,-118.28175900000001
@@ -1188,9 +1188,9 @@ PALMS MS GIFTED MAG
 
 Route Stats: Route index: 22.0
 Route path: [9983, 10037, 4566]
-Route path information: [(233.6, 0), (446.9, 103)]
-Bus capacity: None
-Num. of occupants: 103
+Route path information: [(233.6, 0), (446.9, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/34.03030284,-118.4349288/34.02400993,-118.41630990000002/34.035614,-118.36370600000001
@@ -1241,6 +1241,15 @@ Google Maps Link:
 https://www.google.com/maps/dir/34.03030284,-118.4349288/34.02400993,-118.41630990000002/34.035614,-118.36370600000001
 ---------------------- 
 Route index: 22.6
+Route path: [9983, 10037, 4566]
+Route path information: [(233.6, 0), (446.9, 19)]
+Bus capacity: 24
+Num. of occupants: 19
+
+Google Maps Link: 
+https://www.google.com/maps/dir/34.03030284,-118.4349288/34.02400993,-118.41630990000002/34.035614,-118.36370600000001
+---------------------- 
+Route index: 22.7
 Route path: [9983, 10037, 8050, 2659, 909]
 Route path information: [(233.6, 0), (997.9, 12), (307.3, 30), (276.1, 26)]
 Bus capacity: 84
@@ -1249,7 +1258,7 @@ Num. of occupants: 68
 Google Maps Link: 
 https://www.google.com/maps/dir/34.03030284,-118.4349288/34.02400993,-118.41630990000002/33.985938,-118.29151599999999/33.950163,-118.28726999999999/33.933822,-118.31017800000001
 ---------------------- 
-Route index: 22.7
+Route index: 22.8
 Route path: [9983, 10037, 5230, 1033, 1143]
 Route path information: [(233.6, 0), (1153.4, 18), (770.5, 4), (156.6, 7)]
 Bus capacity: 33
@@ -1258,7 +1267,7 @@ Num. of occupants: 29
 Google Maps Link: 
 https://www.google.com/maps/dir/34.03030284,-118.4349288/34.02400993,-118.41630990000002/33.922069,-118.307854/34.003464,-118.260778/34.009708,-118.25006200000001
 ---------------------- 
-Route index: 22.8
+Route index: 22.9
 Route path: [9983, 10037, 5842]
 Route path information: [(233.6, 0), (1473.9, 2)]
 Bus capacity: 24

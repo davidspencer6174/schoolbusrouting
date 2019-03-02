@@ -23,7 +23,6 @@ BREAK_NUM = 6
 RADIUS = 2
 MIN_PER_CLUSTER = 1
 
-
 PREFIX = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
 TRAVEL_TIMES = np.load(PREFIX + "travel_times.npy")
 CAP_COUNTS = setup_buses(PREFIX+'dist_bus_capacities.csv')
@@ -35,6 +34,3 @@ with open(PREFIX+'stops_codes_map' ,'rb') as handle:
     STOPS_CODES_MAP = pickle.load(handle)
 with open(PREFIX+'codes_inds_map' ,'rb') as handle:
     CODES_INDS_MAP = pickle.load(handle)
-
-
-

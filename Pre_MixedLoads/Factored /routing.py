@@ -54,6 +54,7 @@ def getPossibleRoute(items, index, item_indexes):
     
     return result, time_taken
 
+# TODO: If route doesn't have students that attend specific school, remove school from the route
 # Make route objects with route information in them
 # Divide routes based on constraints 
 def makeRoutes(school_route_time, school_route, stud_route, students):
@@ -101,13 +102,13 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
     
     # Stops that might have more students than bus capacity 
     # Break these into different routes
-    for idx, path_info_group in enumerate(path_info_list):   
+    for idx, path_info_group in enumerate(path_info_list):  
         for stop in path_info_group:   
             if stop[1] > constants.CAP_COUNTS[-1][0]:
                 to_update = list()
-                temp = (stop[0], stop[1] - constants.CAP_COUNTS[-1][0])
+                temp = (stop[0], constants.CAP_COUNTS[-1][0])
                 path_info_group[0] = temp
-                to_update.append((stop[0], constants.CAP_COUNTS[-1][0]))                
+                to_update.append((stop[0], stop[1] - constants.CAP_COUNTS[-1][0]))                
                 result_list.append(result_list[idx])
                 path_info_list.append(to_update)
                         
@@ -126,10 +127,10 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
         # the number of students that should be picked up according to path_info_list 
         # then break 
         for stop in current_route.path:
-            
             for idx, stud in enumerate(students):
                 if stud.tt_ind == stop:
                     current_route.add_student(stud)
+                    current_route.updateSchoolsToVisit(stud)
                     
                 if current_route.occupants >= sum([j for i, j in current_route.path_info]):
                     break
@@ -149,7 +150,18 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
                 break
         
         route_list.append(current_route)
-        
+    
+    # If no students in route attend particular school
+    # Remove school from the path and path_info (will decrease length of routes)
+    # for route in route_list:
+    #     for idx, item in enumerate(route.path):
+    #         if item in route.schools_to_visit:
+    #             pass
+    #         else:
+    #             print("Willy")
+    #             # route.path.pop(idx)
+    #             # route.path_info.pop(idx)
+    # print("testing")
     return route_list
 
 # Perform routing 

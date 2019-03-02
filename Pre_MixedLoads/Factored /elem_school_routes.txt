@@ -1675,9 +1675,9 @@ https://www.google.com/maps/dir/33.800752,-118.32032190000001/34.021834000000005
 ---------------------- 
 Route index: 34.6
 Route path: [10417, 1692]
-Route path information: [(388.5, 37)]
-Bus capacity: 41
-Num. of occupants: 37
+Route path information: [(388.5, 84)]
+Bus capacity: 84
+Num. of occupants: 84
 
 Google Maps Link: 
 https://www.google.com/maps/dir/33.800752,-118.32032190000001/33.786609999999996,-118.27249099999999
@@ -1693,9 +1693,9 @@ https://www.google.com/maps/dir/33.800752,-118.32032190000001/33.804511,-118.262
 ---------------------- 
 Route index: 34.8
 Route path: [10417, 1692]
-Route path information: [(388.5, 84)]
-Bus capacity: 84
-Num. of occupants: 84
+Route path information: [(388.5, 37)]
+Bus capacity: 41
+Num. of occupants: 37
 
 Google Maps Link: 
 https://www.google.com/maps/dir/33.800752,-118.32032190000001/33.786609999999996,-118.27249099999999
@@ -1893,24 +1893,6 @@ Schools in this cluster:
 
 Route Stats: Route index: 39.0
 Route path: [10631, 2696]
-Route path information: [(214.8, 49)]
-Bus capacity: 62
-Num. of occupants: 49
-
-Google Maps Link: 
-https://www.google.com/maps/dir/33.86201453,-118.30588119999999/33.845005,-118.303976
----------------------- 
-Route index: 39.1
-Route path: [10631, 4414]
-Route path information: [(172.9, 1)]
-Bus capacity: 16
-Num. of occupants: 1
-
-Google Maps Link: 
-https://www.google.com/maps/dir/33.86201453,-118.30588119999999/33.829088,-118.308929
----------------------- 
-Route index: 39.2
-Route path: [10631, 2696]
 Route path information: [(214.8, 84)]
 Bus capacity: 84
 Num. of occupants: 84
@@ -1918,11 +1900,29 @@ Num. of occupants: 84
 Google Maps Link: 
 https://www.google.com/maps/dir/33.86201453,-118.30588119999999/33.845005,-118.303976
 ---------------------- 
-Route index: 39.3
+Route index: 39.1
 Route path: [10631, 4414]
 Route path information: [(172.9, 84)]
 Bus capacity: 84
 Num. of occupants: 84
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.86201453,-118.30588119999999/33.829088,-118.308929
+---------------------- 
+Route index: 39.2
+Route path: [10631, 2696]
+Route path information: [(214.8, 49)]
+Bus capacity: 62
+Num. of occupants: 49
+
+Google Maps Link: 
+https://www.google.com/maps/dir/33.86201453,-118.30588119999999/33.845005,-118.303976
+---------------------- 
+Route index: 39.3
+Route path: [10631, 4414]
+Route path information: [(172.9, 1)]
+Bus capacity: 16
+Num. of occupants: 1
 
 Google Maps Link: 
 https://www.google.com/maps/dir/33.86201453,-118.30588119999999/33.829088,-118.308929

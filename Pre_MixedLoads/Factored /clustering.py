@@ -1,8 +1,8 @@
-from collections import Counter
 import pandas as pd 
 import numpy as np 
 from sklearn.cluster import DBSCAN
 from sklearn.cluster import KMeans
+from collections import Counter
 import constants
 
 # Reformat the outputs from DBSCAN

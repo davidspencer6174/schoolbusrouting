@@ -1,5 +1,7 @@
 import pandas as pd
+import numpy as np 
 import pickle
+import math
 
 # Print statistics of a school cluster
 def printBeginStats(cluster_school_map, schoolcluster_students_map, cap_counts, school_type):
@@ -31,14 +33,29 @@ def printBeginStats(cluster_school_map, schoolcluster_students_map, cap_counts, 
     print("Bus Info: ")
     print(cap_counts)
 
+# TODO: ADD MORE STATISTICS 
 # Print statistics after routing complete
 def printFinalStats(routes_returned):
     studentCount = 0
+    buses_used = dict()
+    route_travel_info = list()
+    utility_rate = list()
+    
     for i in routes_returned:
         for j in routes_returned[i]:
             for k in j:
                 studentCount += k.occupants
 
+                if k.bus_size in buses_used: 
+                    buses_used[k.bus_size] += 1
+                else: 
+                    buses_used[k.bus_size] = 0
+                    
+                utility_rate.append(k.occupants/k.bus_size)
+                    
+                for x in k.path_info:
+                    route_travel_info.append(x)
+                    
     routesCount = 0 
     for x in routes_returned:
         for y in routes_returned[x]:
@@ -49,8 +66,12 @@ def printFinalStats(routes_returned):
     print('---------------------------------')
     print("Num. of Students Routed: " + str(studentCount))
     print("Num. of Routes Generated: " + str(routesCount))
+    print("Total travel time: " + str(round((sum([i for i, j in route_travel_info])/3600), 2)) + " hours" )
+    print("Utility rate: " + str(round(np.average(utility_rate), 2)) + "%")
+    print("Bus Info: ")
+    print(buses_used)
     print("\n")
-
+    
 # write routes into .txt file
 # cluster_school_map: maps clusters to schools
 # routes_returned: bus routes for each school cluster
