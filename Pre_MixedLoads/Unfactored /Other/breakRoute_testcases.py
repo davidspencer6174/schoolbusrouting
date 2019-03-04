@@ -30,8 +30,18 @@ school_route = [10417]
 stud_route = [1962, 8479, 9211, 6253]
 current_time = []
 
-students = schoolcluster_students_map[34][0]
+a = [10156, 10158, 10263, 10050, 10327, 9453, 9485, 3551, 8595, 3397]
+b = [(364.2, 0), (164.7, 0), (204.8, 0), (0.9, 0), (244.4, 0), (92.5, 0), (894.5, 2), (164.0, 1), (248.1, 13)]
+school_route = [10156, 10158, 10263, 10050, 10327, 9453, 9485]
+route = Route(a,b,school_route)
+route.schools_to_visit = set()
+route.schools_to_visit.add(10156)
+route.schools_to_visit.add(10158)
+route_list = list()
+route_list.append(route)
 
+result_path = [10156, 10158, 3551, 8595, 3397]
+result_path_info = [(364.2, 0), (164.7, 0), (204.8, 0), (0.9, 0), (244.4, 0), (92.5, 0), (894.5, 2), (164.0, 1), (248.1, 13)]
 
 
 # Make route objects with route information in them
@@ -164,5 +174,9 @@ def originalBreakRoute(dropoff_time, school_route, stud_route):
 print("\n")
 print(result_list)
 print(time_list)
+
+
+
+
 
 

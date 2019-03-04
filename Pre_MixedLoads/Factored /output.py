@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np 
 import pickle
 import math
+import constants
 
 # Print statistics of a school cluster
 def printBeginStats(cluster_school_map, schoolcluster_students_map, cap_counts, school_type):
@@ -22,6 +23,8 @@ def printBeginStats(cluster_school_map, schoolcluster_students_map, cap_counts, 
 
     print('--------------------------------------------------------------------')
     print("Starting to route " + school_type.upper() + " SCHOOL students")
+    print('PARAMETERS USED')
+    print('RADIUS: ' + str(constants.RADIUS))
     print('---------------------------------')
     print('Pre-routing statistics')
     print('---------------------------------')
@@ -37,40 +40,46 @@ def printBeginStats(cluster_school_map, schoolcluster_students_map, cap_counts, 
 # Print statistics after routing complete
 def printFinalStats(routes_returned):
     studentCount = 0
-    buses_used = dict()
+    buses_used = dict({16: 0, 17: 0, 24: 0, 33: 0, 34: 0, 41: 0, 62: 0, 65: 0, 71: 0, 84: 0})
     route_travel_info = list()
     utility_rate = list()
-    
+    routesCount = 0 
+
     for i in routes_returned:
         for j in routes_returned[i]:
+            
+            routesCount += len(j)
+            
             for k in j:
                 studentCount += k.occupants
 
                 if k.bus_size in buses_used: 
                     buses_used[k.bus_size] += 1
-                else: 
-                    buses_used[k.bus_size] = 0
                     
                 utility_rate.append(k.occupants/k.bus_size)
                     
                 for x in k.path_info:
                     route_travel_info.append(x)
-                    
-    routesCount = 0 
-    for x in routes_returned:
-        for y in routes_returned[x]:
-            routesCount += len(y)
-            
+                                
+    total_travel_time = round((sum([i for i, j in route_travel_info])/3600), 2)
+    utility_rate = round(np.average(utility_rate), 2)
+    average_travel_time = round(total_travel_time*60/routesCount)
+    
     print('---------------------------------')
     print('Post-routing statistics')
     print('---------------------------------')
     print("Num. of Students Routed: " + str(studentCount))
     print("Num. of Routes Generated: " + str(routesCount))
-    print("Total travel time: " + str(round((sum([i for i, j in route_travel_info])/3600), 2)) + " hours" )
-    print("Utility rate: " + str(round(np.average(utility_rate), 2)) + "%")
+    print("Total travel time: " + str(total_travel_time) + " hours" )
+    print("Average travel time / route: " + str(average_travel_time) + " minutes")
+    print("Utility rate: " + str(utility_rate) + "%")
+    print("Buses Used: " + str(sum(buses_used.values())))
     print("Bus Info: ")
     print(buses_used)
     print("\n")
+    
+    output = [routesCount, total_travel_time, average_travel_time, utility_rate]
+    return output
     
 # write routes into .txt file
 # cluster_school_map: maps clusters to schools

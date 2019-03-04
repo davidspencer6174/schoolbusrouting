@@ -20,13 +20,14 @@ def getPossibleRoute(items, index, item_indexes):
     visited = list()
         
     # Create the mini travel-time martrix
+    # Fill this tt_matrix with appropriate information
     [new_indexes.append(it.tt_ind) for it in items]
     new_indexes = list(dict.fromkeys(new_indexes))
     item_indexes.extend(new_indexes)
     route.append(index)
     
     dropoff_mat = [[0 for x in range(len(item_indexes))] for y in range(len(item_indexes))]
-    
+
     for i in range(0, len(dropoff_mat)):
         for j in range(0, len(dropoff_mat[i])):
             dropoff_mat[i][j] = travel_times[item_indexes[i]][item_indexes[j]]  
@@ -54,7 +55,6 @@ def getPossibleRoute(items, index, item_indexes):
     
     return result, time_taken
 
-# TODO: If route doesn't have students that attend specific school, remove school from the route
 # Make route objects with route information in them
 # Divide routes based on constraints 
 def makeRoutes(school_route_time, school_route, stud_route, students):
@@ -101,7 +101,7 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
         result_list.append(school_route + group_list)
     
     # Stops that might have more students than bus capacity 
-    # Break these into different routes
+    # Break these into seperate (duplicate) routes
     for idx, path_info_group in enumerate(path_info_list):  
         for stop in path_info_group:   
             if stop[1] > constants.CAP_COUNTS[-1][0]:
@@ -121,7 +121,7 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
     # Make the route objects and put them into a list 
     route_list = list()
     for index, route in enumerate(result_list):
-        current_route = Route(route, path_info_list[index])
+        current_route = Route(route, path_info_list[index], school_route)
         
         # Pick up students at each stop, but if the number of students exceeds 
         # the number of students that should be picked up according to path_info_list 
@@ -150,24 +150,14 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
                 break
         
         route_list.append(current_route)
-    
-    # If no students in route attend particular school
-    # Remove school from the path and path_info (will decrease length of routes)
-    # for route in route_list:
-    #     for idx, item in enumerate(route.path):
-    #         if item in route.schools_to_visit:
-    #             pass
-    #         else:
-    #             print("Willy")
-    #             # route.path.pop(idx)
-    #             # route.path_info.pop(idx)
-    # print("testing")
+
     return route_list
 
 # Perform routing 
 # cluster_school_map: maps clusters to schools
 # schoolcluster_students_map: maps schoolclusters to students
 def startRouting(cluster_school_map, schoolcluster_students_map):
+    
     routes = dict()
     # Loop through every cluster of schools and cluster of stops
     # Generate route(s) for each cluster_school and cluster_stops pair

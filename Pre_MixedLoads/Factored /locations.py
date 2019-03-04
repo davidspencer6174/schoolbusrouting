@@ -13,11 +13,12 @@ class Student:
 
 class Route:
     #For now, encapsulated as a list of student/stop index pairs in order
-    def __init__(self, path, path_info):
+    def __init__(self, path, path_info, school_path):
         self.students = []
         self.path = path
         self.path_info = path_info
         self.occupants = 0
+        self.school_path = school_path
         self.schools_to_visit = set() 
         self.bus_size = None
     

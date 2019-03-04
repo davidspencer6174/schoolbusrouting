@@ -15,8 +15,7 @@ PROG_TYPES = ['P', 'X', 'M']
 
 # School_type: 'elem', 'middle', 'high
 SCHOOL_TYPE = 'elem'
-
-BREAK_NUM = 6 
+BREAK_NUM = 5
 
 # DBSCAN paramters
 # Radius (km)

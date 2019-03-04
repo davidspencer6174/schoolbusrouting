@@ -24,7 +24,6 @@ def obtainClust_DBSCAN(loc, dist, min_samples):
     cluster_labels = db.labels_
     num_clusters = len(set(cluster_labels))
     clusters = pd.Series([coordinates[cluster_labels == n] for n in range(num_clusters)])
-    
     return reformatClustersDBSCAN(clusters)
 
 # Use KMeans to perform clustering
@@ -74,5 +73,4 @@ def partitionStudents(schools, phonebook):
         students = students.sort_values(by=['label'])
         
         schoolcluster_students_map[row[0]] = students
-
     return schoolcluster_students_map
