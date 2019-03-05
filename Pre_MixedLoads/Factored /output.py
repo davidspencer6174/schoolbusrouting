@@ -103,7 +103,7 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
         
         count = 0
         for clus_school in cluster_school_map[index]:            
-            file.write(str(clus_school.school_name) + "\n")
+            file.write(str(clus_school.school_name) +  " (" + str(clus_school.cost_center) + ")"+"\n")
         
         googlemap_routes = list()
 
@@ -128,7 +128,7 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
                 googlemap_routes.append(link)
                 file.write("Google Maps Link: \n")
                 file.write(link)
-                file.write('\n')
+                file.write("\n---------------------- \n")
                 count += 1
                 
         file.write("\n###################################################\n")

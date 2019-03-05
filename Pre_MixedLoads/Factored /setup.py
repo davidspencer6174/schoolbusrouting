@@ -2,6 +2,7 @@ import constants
 import pandas as pd
 import numpy as np
 from locations import School, Student
+from collections import Counter
 from clustering import obtainClust_DBSCAN, partitionStudents 
 
 def californiafy(address):
@@ -46,7 +47,7 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     phonebook = phonebook.dropna()
     phonebook = phonebook[phonebook['AM_Stop_Address'] != str(", , ")]
     phonebook = phonebook.dropna()
-    phonebook =  pd.merge(phonebook, stops[['AM_Stop_Address','Lat', 'Long']], on= 'AM_Stop_Address', how='left')
+    phonebook = pd.merge(phonebook, stops[['AM_Stop_Address','Lat', 'Long']], on= 'AM_Stop_Address', how='left')
     
     phonebook["Level"] = None
     mask = (phonebook['Grade'] < 6)
