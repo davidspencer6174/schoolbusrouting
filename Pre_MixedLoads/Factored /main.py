@@ -31,4 +31,3 @@ middle_routes, midStats = main()
 
 constants.SCHOOL_TYPE = 'high'
 high_routes, highStats = main()
-

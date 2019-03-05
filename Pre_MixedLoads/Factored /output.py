@@ -97,6 +97,7 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
 
     for index, routes_cluster in enumerate(routes_returned):   
         
+        file.write("\n---------------------- \n")
         file.write("Cluster Number: " + str(index) + "\n")
         file.write("Schools in this cluster: \n") 
         
@@ -104,13 +105,13 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
         for clus_school in cluster_school_map[index]:            
             file.write(str(clus_school.school_name) + "\n")
         
-        file.write("\n")
-        file.write("Route Stats: ")
-        
+        googlemap_routes = list()
+
         for idx, routes in enumerate(routes_returned[index]):
             
             for route_idx, route in enumerate(routes_returned[index][idx]):
                 
+                file.write("\n")
                 file.write("Route index: " + str(index) + "." + str(count) + "\n")
                 file.write("Route path: " + str(route.path) + "\n")
                 file.write("Route path information: " + str(route.path_info) + "\n")
@@ -124,11 +125,19 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
                     
                     link += ("/" + str(point_geoloc['Lat']) + "," + str(point_geoloc['Long']))
                     
+                googlemap_routes.append(link)
                 file.write("Google Maps Link: \n")
                 file.write(link)
-                file.write("\n---------------------- \n")
+                file.write('\n')
                 count += 1
-                    
+                
+        file.write("\n###################################################\n")
+        file.write("BULK GOOGLE MAP ROUTES FOR CLUSTER \n")
+        for x in googlemap_routes:
+            file.write(x)
+            file.write("\n")
+        file.write("###################################################\n")
+
     file.close()
 
 # Output the clustered objects (schools/stops) with
