@@ -2,7 +2,6 @@ import constants
 import pandas as pd
 import numpy as np
 from locations import School, Student
-from collections import Counter
 from clustering import obtainClust_DBSCAN, partitionStudents 
 
 def californiafy(address):
@@ -25,6 +24,18 @@ def editBellTimes(schools):
 
 # Set up up the dataframes to make stops, zipdata, schools, and phonebook
 # Filter and wrangle through data 
+    
+
+prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
+
+stops = prefix+'stop_geocodes_fixed.csv'
+zipdata =prefix+'zipData.csv'
+schools = prefix+'school_geocodes_fixed.csv'
+phonebook = prefix+'totalPhoneBook.csv'
+bell_times = prefix+'bell_times.csv'
+
+
+
 def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
     stops = pd.read_csv(stops, low_memory=False)

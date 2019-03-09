@@ -25,13 +25,13 @@ def displayLAUSDRoutes(schools):
         for school in schools:
             school_geoloc = SCHOOLS_CODES_MAP[school]
             school_geoloc = school_geoloc.split(";")
-            link += ("/" + str(school_geoloc[0]) + "," + str(school_geoloc[1]))
+            link += ("/" + str(round(float(school_geoloc[0]),6)) + "," + str(round(float(school_geoloc[1]),6)))
         
         for idx, stop in subset.iterrows():
             point = californiafy(stop['AM_Stop_Address'])
             point_geoloc = STOPS_CODES_MAP[point]
             point_geoloc = point_geoloc.split(";")
-            link += ("/" + str(point_geoloc[0]) + "," + str(point_geoloc[1]))
+            link += ("/" + str(round(float(point_geoloc[0]),6)) + "," + str(round(float(point_geoloc[1]),6)))
         
         links_list.append(link)        
         print(link)
@@ -64,15 +64,14 @@ def setup_files(school_type):
 
     return phonebook, STOPS_CODES_MAP, SCHOOLS_CODES_MAP
 
-phonebook, STOPS_CODES_MAP, SCHOOLS_CODES_MAP = setup_files('middle')
+phonebook, STOPS_CODES_MAP, SCHOOLS_CODES_MAP = setup_files('elem')
 
 schools = ['1521901']
 links1 = displayLAUSDRoutes(schools)
 
-
-search_locations = '33.854882;-118.25291100000001'
-for name, loc in STOPS_CODES_MAP.items():    
-    if loc == search_locations:
-        print(name)
+#search_locations = '33.854882;-118.25291100000001'
+#for name, loc in STOPS_CODES_MAP.items():    
+#    if loc == search_locations:
+#        print(name)
 
 

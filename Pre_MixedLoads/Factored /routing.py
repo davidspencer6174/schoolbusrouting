@@ -2,6 +2,7 @@ import numpy as np
 import constants
 from collections import Counter
 from locations import Route
+from geopy.distance import geodesic
 
 prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
 travel_times = np.load(prefix + "travel_times.npy")
@@ -18,7 +19,7 @@ def getPossibleRoute(items, index, item_indexes):
     route = list()
     time_taken = list()
     visited = list()
-        
+    
     # Create the mini travel-time martrix
     # Fill this tt_matrix with appropriate information
     [new_indexes.append(it.tt_ind) for it in items]
@@ -48,12 +49,9 @@ def getPossibleRoute(items, index, item_indexes):
         time_to_add = np.nanmin(temp)
         index = list(temp).index(time_to_add)
         time_taken.append(time_to_add)
-        route.append(index)
-
-    result = list()
-    [result.append(item_indexes[i]) for i in route]
-    
-    return result, time_taken
+        route.append(item_indexes[index])
+     
+    return route, time_taken
 
 # Make route objects with route information in them
 # Divide routes based on constraints 
@@ -166,10 +164,55 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
         route_list = list()
 
         for students in schoolcluster_students_map[key]:
+            break
             stud_route = getPossibleRoute(students, 0, [school_route[-1]])[0]
             stud_route.pop(0)
-            routes_returned = makeRoutes(school_route_time, school_route, stud_route, students)    
-            route_list.append(routes_returned)
-            
+            routes_returned = makeRoutes(school_route_time, school_route, stud_route, students)
+            routes_returned = combineRoutes(routes_returned)
+            route_list.append(combined_routes)
+
         routes[key] = route_list        
     return routes
+
+# Combine routes that have low occupancies 
+def combineRoutes(routes):
+        
+    # Categorize low occ. routes and non_full_routes(ones that have empty seats)
+    low_occ_routes = list()
+    routes_to_return = list()
+    
+    for route in routes:
+        if route.occupants < constants.OCCUPANTS_LIMIT: 
+            low_occ_routes.append(route)
+        else: 
+            if route.occupants != route.bus_size:
+                routes_to_return.append(route)
+            
+    # Iterate through the low occ. routes list 
+    idx = 0
+    while idx < len(low_occ_routes):
+        
+        routes_to_compare = list()
+        # Check if there are routes with available seats that could fit the students of the low_occ_route
+        # Add these routes to pos_routes list
+        for pos_route in routes_to_return:
+            if (pos_route.bus_size - pos_route.occupants) > low_occ_routes[idx].occupants:
+                routes_to_compare.append(pos_route)
+         
+        # If there aren't any routes that can fit the this low_occ_route's students
+        # We have to compare solely based on distance
+        if not routes_to_compare:
+            routes_to_compare.extend(routes_to_return)
+            
+        # Choose which routes (low_occ_route and non_full_route) should be combined together
+        # Choose using route 'center'
+        clust_dis = [geodesic(low_occ_routes[idx].findRouteCenter(), a.findRouteCenter()) for a in routes_to_compare]
+        clust_dis = [round(float(str(a).strip('km')),6) for a in clust_dis]
+        minval = min(clust_dis)
+        ind = [i for i, v in enumerate(clust_dis) if v == minval][0]
+        routes_to_return[ind].combineRoute(low_occ_routes[idx])
+        idx += 1
+        
+    return routes_to_return 
+
+        

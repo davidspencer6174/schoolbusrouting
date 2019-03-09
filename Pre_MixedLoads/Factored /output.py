@@ -109,9 +109,14 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
 
         for idx, routes in enumerate(routes_returned[index]):
             
+            file.write("Student Cluster: " + str(index) + "\n")
+            
             for route_idx, route in enumerate(routes_returned[index][idx]):
                 
                 file.write("\n")
+                if int(route.occupants) < 8:
+                    file.write("LOW OCCUPANCY BUS \n")
+                    
                 file.write("Route index: " + str(index) + "." + str(count) + "\n")
                 file.write("Route path: " + str(route.path) + "\n")
                 file.write("Route path information: " + str(route.path_info) + "\n")
@@ -123,7 +128,7 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
                 for point in route.path:
                     point_geoloc = geocodes.iloc[point,: ]
                     
-                    link += ("/" + str(point_geoloc['Lat']) + "," + str(point_geoloc['Long']))
+                    link += ("/" + str(round(point_geoloc['Lat'],6)) + "," + str(round(point_geoloc['Long'],6)))
                     
                 googlemap_routes.append(link)
                 file.write("Google Maps Link: \n")
