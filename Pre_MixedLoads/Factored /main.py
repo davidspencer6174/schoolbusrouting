@@ -21,8 +21,6 @@ def main():
     
     return routes_returned, finalStats
 
-# TODO: Check how changing eps. of DBSCAN and cluster number of KMEANs 
-#       will affect the performance of the routing 
 constants.SCHOOL_TYPE = 'elem'
 elem_routes, elemStats = main()
 

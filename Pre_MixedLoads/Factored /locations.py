@@ -1,5 +1,6 @@
 import constants
 import numpy as np
+from itertools import chain
 
 class School:
     #tt_ind denotes the index of the school in the travel time matrix
@@ -39,6 +40,7 @@ class Route:
         
     # Obtain the "center" of the route
     def findRouteCenter(self):
+        
         lat = []
         long = []
         
@@ -66,17 +68,16 @@ class Route:
         # Update path into route path 
         visited = list()
         index = 0
-        route = [index]
+                
+        total_indexes = sum([[self.school_path[-1]], self.schoollessPath(), new_route.schoollessPath()], [])
+        route = [total_indexes[index]]
 
-        item_indexes = [self.school_path[-1]]
-        item_indexes.extend(self.schoollessPath())
-        item_indexes.extend(new_route.schoollessPath())
-                        
-        dropoff_mat = [[0 for x in range(len(item_indexes))] for y in range(len(item_indexes))]
+        # Create mini travel-time matrix and perform routing 
+        dropoff_mat = [[0 for x in range(len(total_indexes))] for y in range(len(total_indexes))]
                 
         for i in range(0, len(dropoff_mat)):
             for j in range(0, len(dropoff_mat[i])):
-                dropoff_mat[i][j] = constants.TRAVEL_TIMES[item_indexes[i]][item_indexes[j]]  
+                dropoff_mat[i][j] = constants.TRAVEL_TIMES[total_indexes[i]][total_indexes[j]]  
                 
         # Find shorest path through all the stops
         while len(route) < len(dropoff_mat):
@@ -93,14 +94,16 @@ class Route:
             # time taken and stop in route
             time_to_add = np.nanmin(temp)
             index = list(temp).index(time_to_add)
-            route.append(item_indexes[index])
+            route.append(total_indexes[index])
         route.pop(0)
         
+        # Update path and path_info
+        self.path_info.append((constants.TRAVEL_TIMES[self.path[-1]][new_route.path[len(new_route.school_path)]], new_route.path_info[len(new_route.school_path)-1][1]))
+        self.path_info.extend(new_route.path_info[2:])
         self.path = self.school_path + route
         
-        # Update path_info 
+        # Update bus information 
         
         
-        # Update bus information
 
 
