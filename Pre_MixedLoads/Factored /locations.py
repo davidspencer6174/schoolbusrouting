@@ -45,9 +45,9 @@ class Route:
         long = []
         
         route_coords = constants.GEOCODES[constants.GEOCODES.index.isin(self.path)]
-        for idx, row in route_coords.iterrows(): 
-            lat.append(row['Lat'])
-            long.append(row['Long'])
+        for row in route_coords.iterrows(): 
+            lat.append(row[1]['Lat'])
+            long.append(row[1]['Long'])
         
         return (round(sum(lat)/float(len(lat)),6), round(sum(long)/float(len(long)),6))
     
@@ -84,7 +84,7 @@ class Route:
             visited.append(index)
             temp = np.array(dropoff_mat[index])
             
-            for ind, item in enumerate(temp):
+            for ind in range(0, len(temp)):
                 if ind in visited: 
                     temp[ind]=np.nan
                 if ind == index:

@@ -4,9 +4,6 @@ from collections import Counter
 from locations import Route
 from geopy.distance import geodesic
 
-prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
-travel_times = np.load(prefix + "travel_times.npy")
-
 # Precompute possible route based on shortest path
 # items: Input schools or students
 # index = 0 
@@ -31,14 +28,14 @@ def getPossibleRoute(items, index, total_indexes):
 
     for i in range(0, len(dropoff_mat)):
         for j in range(0, len(dropoff_mat[i])):
-            dropoff_mat[i][j] = travel_times[total_indexes[i]][total_indexes[j]]  
+            dropoff_mat[i][j] = constants.TRAVEL_TIMES[total_indexes[i]][total_indexes[j]]  
     
     # Find shorest path through all the stops
     while len(route) < len(dropoff_mat):
         visited.append(index)
         temp = np.array(dropoff_mat[index])
         
-        for ind, item in enumerate(temp):
+        for ind in range(0, len(temp)):
             if ind in visited: 
                 temp[ind]=np.nan
             if ind == index:
@@ -69,7 +66,7 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
     # Go through every stop and check if they meet the constants.MAX_TIME or bus constraints
     # Create new route (starting from the schools) if the constraints are not met 
     for index, stop in enumerate(stud_route):
-        path_info.append((travel_times[base][stop], stop_counts[stop]))
+        path_info.append((constants.TRAVEL_TIMES[base][stop], stop_counts[stop]))
         
         # If the travel time or the bus capacity doesn't work, then break the routes
         if (time + sum([i for i, j in path_info]) > constants.MAX_TIME) or (sum([j for i, j in path_info]) > constants.CAP_COUNTS[-1][0]):
@@ -81,7 +78,7 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
             else:
                 path_info_list.append(path_info[:-1])
                 path_info = list()
-                path_info.append((travel_times[base][stop], stop_counts[stop]))
+                path_info.append((constants.TRAVEL_TIMES[base][stop], stop_counts[stop]))
         base = stop
     
     # Add the 'leftover' routes back in to the list
@@ -183,6 +180,7 @@ def combineRoutes(routes):
     # Categorize low occ. routes and non_full_routes(ones that have empty seats)
     low_occ_routes = list()
     routes_to_return = list()
+    full_routes = list()
 
     for route in routes:
         if route.occupants < constants.OCCUPANTS_LIMIT: 
@@ -190,6 +188,8 @@ def combineRoutes(routes):
         else: 
             if route.occupants != route.bus_size:
                 routes_to_return.append(route)
+            else:
+                full_routes.append(route) 
 
     # If only one route, then no comparison and combining needed or 
     # If all routes are already filled to capacity and low_occ_route can't be merged with other 
@@ -223,7 +223,10 @@ def combineRoutes(routes):
         # Combine appropriate routes
         routes_to_return[ind].combineRoute(low_occ_routes[idx])
         idx += 1
+
+    if full_routes:
+        routes_to_return.extend(full_routes)
         
-    return routes_to_return 
+    return routes_to_return
 
         

@@ -10,9 +10,9 @@ def californiafy(address):
 # Edit belltimes from ___AM to only seconds
 def editBellTimes(schools):
     newTime = list()
-    for idx, row in schools.iterrows():        
-        if isinstance(row["r1_start"], str):
-            hours, mins = row["r1_start"].split(":", 1)
+    for row in schools.iterrows():        
+        if isinstance(row[1]["r1_start"], str):
+            hours, mins = row[1]["r1_start"].split(":", 1)
             hours = int(hours)*3600
             mins = int(mins[:2])*60
             newTime.append(hours+mins)
@@ -45,8 +45,9 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     schools = pd.merge(schools, bell_times[['r1_start','Cost_Center']], on ='Cost_Center', how='left')
     
     school_index_list = list()
-    for ind, row in schools.iterrows():
-        school_index_list.append(constants.CODES_INDS_MAP[constants.SCHOOLS_CODES_MAP[str(row['Cost_Center'])]])
+    for row in schools.iterrows():
+        school_index_list.append(constants.CODES_INDS_MAP[constants.SCHOOLS_CODES_MAP[str(row[1]['Cost_Center'])]])
+
     schools['tt_ind'] = school_index_list
     schools = editBellTimes(schools)
 
@@ -109,10 +110,10 @@ def setup_cluster(cluster_schools_df, schoolcluster_students_df):
     for i in list(cluster_schools_df['label'].drop_duplicates()):
         subset = cluster_schools_df.loc[cluster_schools_df['label'] == i].copy()  
         schoollist = []
-        for index, row in subset.iterrows():
-            cost_center = str(int(row['Cost_Center']))
+        for row in subset.iterrows():
+            cost_center = str(int(row[1]['Cost_Center']))
             school_ind = constants.CODES_INDS_MAP[constants.SCHOOLS_CODES_MAP[cost_center]]
-            schoollist.append(School(school_ind, cost_center, row['School_Name']))
+            schoollist.append(School(school_ind, cost_center, row[1]['School_Name']))
         cluster_school_map[i] = schoollist
 
     # School cluster to cluster of studentts map 

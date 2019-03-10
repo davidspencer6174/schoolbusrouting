@@ -10,11 +10,11 @@ def printBeginStats(cluster_school_map, schoolcluster_students_map, cap_counts, 
     numStudents = 0 
     numSchools = 0 
 
-    for key, value in schoolcluster_students_map.items():
+    for value in schoolcluster_students_map.values():
         for j in range(0, len(value)):
             numStudents = numStudents + len(value[j])
             
-    for key, value in cluster_school_map.items():
+    for value in cluster_school_map.values():
         numSchools = numSchools + len(value)
 
     tot_cap = 0
@@ -91,19 +91,22 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
     geocodes = pd.read_csv(all_geocodesFile)
     output = printFinalStats(routes_returned)
 
-    file = open(str(filename) + ".txt", "w")     
-
+    if constants.REMOVE_LOW_OCC:
+        file = open("remove_low_occ_" + str(filename) + ".txt", "w")   
+    else:
+        file = open(str(filename) + ".txt", "w")   
+ 
     file.write('---------------------------------\n')
     file.write('ROUTE STATS: ' + str(title) + '\n')
     file.write('---------------------------------\n')
-    file.write("LOW OCCUPANCY REMOVAL: " + str(constants.REMOVE_LOW_OCC))
+    file.write("LOW OCCUPANCY REMOVAL: " + str(constants.REMOVE_LOW_OCC) + '\n')
     file.write("Num. of Students Routed: " + str(output[0]) + '\n')
     file.write("Num. of Routes Generated: " + str(output[1]) + '\n')
     file.write("Total travel time: " + str(output[2]) + " hours" + '\n')
     file.write("Average travel time / route: " + str(output[3]) + " minutes" + '\n')
     file.write("Utility rate: " + str(output[4]*100) + '%\n')
 
-    for index, routes_cluster in enumerate(routes_returned):   
+    for index in range(0, len(routes_returned)):   
         
         file.write("----------------------\n")
         file.write("Cluster Number: " + str(index) + "\n")
@@ -116,9 +119,9 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
         file.write('\n')
         googlemap_routes = list()
 
-        for idx, routes in enumerate(routes_returned[index]):
+        for idx in range(0, len(routes_returned[index])):
             
-            for route_idx, route in enumerate(routes_returned[index][idx]):
+            for route in routes_returned[index][idx]:
                 if int(route.occupants) < 8:
                     file.write("LOW OCCUPANCY BUS \n")
                     

@@ -5,9 +5,9 @@ import pickle
 
 #If true, informational lines will be printed
 VERBOSE = True
+REMOVE_LOW_OCC = True 
 
 #Max allowable travel time in seconds
-#MAX_TIME = 3600
 MAX_TIME = 2700
 
 # Program types 
@@ -17,13 +17,11 @@ PROG_TYPES = ['P', 'X', 'M']
 SCHOOL_TYPE = 'elem'
 BREAK_NUM = 5
 OCCUPANTS_LIMIT = 10 
-REMOVE_LOW_OCC = True 
 
 # DBSCAN paramters
 # Radius (km)
 RADIUS = 2
 MIN_PER_CLUSTER = 1
-
 
 PREFIX = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
 TRAVEL_TIMES = np.load(PREFIX + "travel_times.npy")
