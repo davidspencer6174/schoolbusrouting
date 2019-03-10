@@ -179,10 +179,6 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
 
 # Combine routes that have low occupancies 
 def combineRoutes(routes):
-        
-    # If only one route, then no comparison and combining needed
-    if len(routes) == 1:
-        return routes
 
     # Categorize low occ. routes and non_full_routes(ones that have empty seats)
     low_occ_routes = list()
@@ -194,7 +190,13 @@ def combineRoutes(routes):
         else: 
             if route.occupants != route.bus_size:
                 routes_to_return.append(route)
-            
+
+    # If only one route, then no comparison and combining needed or 
+    # If all routes are already filled to capacity and low_occ_route can't be merged with other 
+    # existing routes
+    if not routes_to_return or len(routes) ==1:
+        return routes
+
     # Iterate through the low occ. routes list 
     idx = 0
     while idx < len(low_occ_routes):
@@ -204,7 +206,7 @@ def combineRoutes(routes):
         # Check if there are routes with available seats that could fit the students of the low_occ_route
         # Add these routes to pos_routes list
         for pos_route in routes_to_return:
-            if (pos_route.bus_size - pos_route.occupants) > low_occ_routes[idx].occupants:
+            if (pos_route.bus_size - pos_route.occupants) >= low_occ_routes[idx].occupants:
                 routes_to_compare.append(pos_route)
          
         # If there aren't any routes that can fit the this low_occ_route's students

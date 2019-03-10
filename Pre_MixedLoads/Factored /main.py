@@ -16,7 +16,7 @@ def main():
     
     printBeginStats(cluster_school_map, schoolcluster_students_map, constants.CAP_COUNTS, constants.SCHOOL_TYPE)
     routes_returned = startRouting(cluster_school_map, schoolcluster_students_map)
-    outputRoutes(cluster_school_map, routes_returned, (str(constants.SCHOOL_TYPE)+"_school_routes"), (constants.SCHOOL_TYPE.upper()+" SCHOOL ROUTES \n"))
+    outputRoutes(cluster_school_map, routes_returned, (str(constants.SCHOOL_TYPE)+"_school_routes"), (constants.SCHOOL_TYPE.upper() + " SCHOOL ROUTES"))
     finalStats = printFinalStats(routes_returned)
     
     return routes_returned, finalStats

@@ -17,7 +17,7 @@ PROG_TYPES = ['P', 'X', 'M']
 SCHOOL_TYPE = 'elem'
 BREAK_NUM = 5
 OCCUPANTS_LIMIT = 10 
-REMOVE_LOW_OCC = True
+REMOVE_LOW_OCC = True 
 
 # DBSCAN paramters
 # Radius (km)

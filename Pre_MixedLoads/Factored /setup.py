@@ -34,8 +34,6 @@ schools = prefix+'school_geocodes_fixed.csv'
 phonebook = prefix+'totalPhoneBook.csv'
 bell_times = prefix+'bell_times.csv'
 
-
-
 def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
     stops = pd.read_csv(stops, low_memory=False)

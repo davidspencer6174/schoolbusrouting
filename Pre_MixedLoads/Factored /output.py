@@ -72,13 +72,13 @@ def printFinalStats(routes_returned):
     print("Num. of Routes Generated: " + str(routesCount))
     print("Total travel time: " + str(total_travel_time) + " hours" )
     print("Average travel time / route: " + str(average_travel_time) + " minutes")
-    print("Utility rate: " + str(utility_rate) + "%")
+    print("Utility rate: " + str(utility_rate*100) + "%")
     print("Buses Used: " + str(sum(buses_used.values())))
     print("Bus Info: ")
     print(buses_used)
     print("\n")
     
-    output = [routesCount, total_travel_time, average_travel_time, utility_rate]
+    output = [studentCount, routesCount, total_travel_time, average_travel_time, utility_rate, buses_used]
     return output
     
 # write routes into .txt file
@@ -89,15 +89,23 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
     prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
     all_geocodesFile = prefix+'all_geocodes.csv'
     geocodes = pd.read_csv(all_geocodesFile)
+    output = printFinalStats(routes_returned)
 
     file = open(str(filename) + ".txt", "w")     
-    file.write("######################## \n")
-    file.write(title)
-    file.write("######################## \n")
+
+    file.write('---------------------------------\n')
+    file.write('ROUTE STATS: ' + str(title) + '\n')
+    file.write('---------------------------------\n')
+    file.write("LOW OCCUPANCY REMOVAL: " + str(constants.REMOVE_LOW_OCC))
+    file.write("Num. of Students Routed: " + str(output[0]) + '\n')
+    file.write("Num. of Routes Generated: " + str(output[1]) + '\n')
+    file.write("Total travel time: " + str(output[2]) + " hours" + '\n')
+    file.write("Average travel time / route: " + str(output[3]) + " minutes" + '\n')
+    file.write("Utility rate: " + str(output[4]*100) + '%\n')
 
     for index, routes_cluster in enumerate(routes_returned):   
         
-        file.write("\n---------------------- \n")
+        file.write("----------------------\n")
         file.write("Cluster Number: " + str(index) + "\n")
         file.write("Schools in this cluster: \n") 
         
@@ -105,15 +113,12 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
         for clus_school in cluster_school_map[index]:            
             file.write(str(clus_school.school_name) +  " (" + str(clus_school.cost_center) + ")"+"\n")
         
+        file.write('\n')
         googlemap_routes = list()
 
         for idx, routes in enumerate(routes_returned[index]):
             
-            file.write("Student Cluster: " + str(index) + "\n")
-            
             for route_idx, route in enumerate(routes_returned[index][idx]):
-                
-                file.write("\n")
                 if int(route.occupants) < 8:
                     file.write("LOW OCCUPANCY BUS \n")
                     
