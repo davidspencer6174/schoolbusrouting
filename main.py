@@ -64,8 +64,6 @@ def main():
             if len(types) > 1:
                 print("Bad")
                 print(types)
-                
-    searchgreedy(all_routes)
     
     random.shuffle(all_routes)    
     all_routes = sorted(all_routes, key = lambda x:x.occupants)
@@ -92,7 +90,7 @@ def main():
     
 num_routes = [[], []]
 routes_returned = None
-for mins in range(60, 65, 5):
+for mins in range(40, 45, 5):
     constants.MAX_TIME = mins*60
     [routes_returned, before_splitting] = main()
     saving = open(("output//testing_greedy"+str(mins)+"bused"+".obj"), "wb")
