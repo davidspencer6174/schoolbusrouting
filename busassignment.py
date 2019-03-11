@@ -7,8 +7,6 @@ from locations import Student, School
 #the buses will be modified to whichever buses remain
 #after the assignment
 #the routes list will be sorted
-#TODO: Actually build the resulting routes, since
-#routes may need to be split
 #TODO: Implement use of contract buses
 
 def assign_buses(routes, buses):

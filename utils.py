@@ -7,6 +7,8 @@ def californiafy(address):
 #Bit of a hack to compute seconds since midnight
 def timesecs(time_string):
     pieces = time_string.split(':')
+    if len(pieces) < 2:
+        return 100000
     minutes = int(pieces[1][:2])  #minutes
     minutes += 60*int(pieces[0])  #hours
     if 'p' in pieces[1].lower():  #PM

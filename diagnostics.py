@@ -98,6 +98,10 @@ def printout_google_maps(route):
                 link = "https://www.google.com/maps/dir"
                 link = append_to_link(link, locs[i].tt_ind)
     print(link)
+    
+def print_all(route_iter):
+    for r in route_iter:
+        printout(r)
 
 def diagnostics(route_iter):
     route_list = []
@@ -202,5 +206,7 @@ def diagnostics(route_iter):
     
 loading = open("output//routes_separated7.obj", "rb")
 obj = pickle.load(loading)
-diagnostics(obj)
+#diagnostics(obj)
+print_all(obj)
 loading.close()
+            
