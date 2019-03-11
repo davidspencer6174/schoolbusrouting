@@ -60,7 +60,8 @@ SLACK = 1.1
 TRAVEL_TIMES = np.load("data//travel_time_matrix.npy")*TT_MULT
 
 #Max allowable travel time in seconds
-#MAX_TIME = 3600
+#MAX_TIME = 5500
+#MAX_TIME = 4100
 MAX_TIME = 2700
 
 #Seconds before belltime to determine valid arrival

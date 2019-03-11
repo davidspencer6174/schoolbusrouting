@@ -7,6 +7,7 @@ from setup import setup_buses, setup_students
 from singleloads import route_school
 from validation import full_verification
 from busassignment import assign_buses
+from greedymoves import searchgreedy
 
 def main():
     #prefix = "C://Users//David//Documents//UCLA//SchoolBusResearch//data//csvs//"
@@ -63,12 +64,20 @@ def main():
             if len(types) > 1:
                 print("Bad")
                 print(types)
+                
+    searchgreedy(all_routes)
     
     random.shuffle(all_routes)    
     all_routes = sorted(all_routes, key = lambda x:x.occupants)
     print("Buses saved: " + str(mixed_loads(all_routes)))
         
     full_verification(all_routes, print_result = True)
+    
+    saving = open(("output//testing_greedy60unbused.obj"), "wb")
+    pickle.dump(all_routes, saving)
+    saving.close()
+    
+    before_splitting = len(all_routes)
     
     out = assign_buses(all_routes, cap_counts)
     used = out[0]
@@ -77,11 +86,18 @@ def main():
     
     #print("Buses saved next time around: " + str(mixed_loads(out[1])))
     full_verification(out[1], print_result = True)
-    return out[1]
+    print("Original length: " + str(len(all_routes)))
     
+    return (out[1], before_splitting)
+    
+num_routes = [[], []]
 routes_returned = None
-for i in range(10):
-    routes_returned = main()
-    saving = open(("output//routes_separated"+str(i)+".obj"), "wb")
+for mins in range(60, 65, 5):
+    constants.MAX_TIME = mins*60
+    [routes_returned, before_splitting] = main()
+    saving = open(("output//testing_greedy"+str(mins)+"bused"+".obj"), "wb")
     pickle.dump(routes_returned, saving)
+    num_routes[0].append(before_splitting)
+    num_routes[1].append(len(routes_returned))
+    print(num_routes)
     saving.close()
