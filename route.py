@@ -94,13 +94,13 @@ class Route:
                 return False
         #Then add the student before the school.
         if not self.insert_mincost(student,
-                                   post=self.locations.index(student.school)):
+                                   post=self.locations.index(student.school) + 1):
             self.temp_restore()
             return False
         self.max_time = max(self.max_time,
                             constants.SLACK*constants.TRAVEL_TIMES[student.tt_ind,
                                                                    student.school.tt_ind])
-        self.two_opt()
+        #self.two_opt()
         if self.feasibility_check():
             return True
         #If the feasibility check failed, need to revert the change.

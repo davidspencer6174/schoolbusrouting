@@ -32,3 +32,20 @@ def closest_pair(from_iter, to_iter, age_type = None):
                 opt_from_loc = from_loc
                 opt_to_loc = to_loc
     return opt_from_loc, opt_to_loc
+
+def closest_addition(locations, betw_iter, age_type = None):
+    opt_dist = 100000
+    opt_loc = None
+    opt_ind = -1
+    for i in range(len(locations) - 1):
+        for loc in betw_iter:
+            if (constants.TRAVEL_TIMES[locations[i].tt_ind, loc.tt_ind] +
+                constants.TRAVEL_TIMES[loc.tt_ind, locations[i+1].tt_ind] -
+                constants.TRAVEL_TIMES[locations[i].tt_ind, locations[i+1].tt_ind] < opt_dist and
+                (age_type == None or loc.type == age_type)):
+                opt_dist = (constants.TRAVEL_TIMES[locations[i].tt_ind, loc.tt_ind] +
+                            constants.TRAVEL_TIMES[loc.tt_ind, locations[i+1].tt_ind] -
+                            constants.TRAVEL_TIMES[locations[i].tt_ind, locations[i+1].tt_ind])
+                opt_loc = loc
+                opt_ind = i
+    return (opt_loc, i, opt_dist)
