@@ -73,3 +73,4 @@ LATEST = 600
 #Constants to govern weighting of importance of
 #distance from school in single-load initialization
 ALPHAS = [0.0, 0.1, 0.2, 0.3, 0.4]
+#ALPHAS = [0.0]

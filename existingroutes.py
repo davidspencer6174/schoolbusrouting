@@ -219,9 +219,21 @@ lengths = sorted([route.length for route in mxp_routes])
 minute_lengths = sorted([int(route.length/60) for route in mxp_routes])
 shortest = minute_lengths[0]
 longest = minute_lengths[-1]
-plt.hist(minute_lengths, bins = range(shortest, longest))
-#plt.hist(minute_lengths, bins = range(shortest//5*5, longest+5, 5))
+#plt.hist(minute_lengths, bins = range(shortest, longest))
+plt.hist(minute_lengths, bins = range(shortest//5*5, longest+5, 5))
 plt.xlabel("Estimated length (minutes)")
 plt.ylabel("Number of routes")
 plt.title("Route length estimates - existing routes")
 plt.savefig('output//existing_routes_unbinned.eps')
+
+
+
+#bused, = plt.plot(x, lengths_bused, 'bo', label = 'Program routes - bused')
+#unbused, = plt.plot(x, lengths_unbused, 'ro', label = 'Program routes - unbused')
+#existing_bused = plt.axhline(y = 691, color = 'g', label = 'Existing routes - bused')
+#existing_unbused = plt.axhline(y = 451, color = 'y', label = 'Existing routes - unbused')
+#plt.legend(handles = [bused, unbused, existing_bused, existing_unbused])
+#plt.xlabel("Max number of minutes parameter")
+#plt.ylabel("Number of routes in plan")
+#plt.title("Number of routes for varying default max minutes parameter")
+#plt.savefig('output//timecomparison.eps')
