@@ -49,6 +49,7 @@ def main():
         if len(student_set) > 0:
             if constants.VERBOSE:
                 print("Routed school of size " + str(len(student_set)))
+                print(len(all_routes))
             tot += len(student_set)
             if constants.VERBOSE:
                 print(tot)
@@ -71,7 +72,7 @@ def main():
         
     full_verification(all_routes, print_result = True)
     
-    saving = open(("output//testing_greedy60unbused.obj"), "wb")
+    saving = open(("output//weightedcost"+str(int(constants.MAX_TIME/60))+"2unbused.obj"), "wb")
     pickle.dump(all_routes, saving)
     saving.close()
     
@@ -90,10 +91,10 @@ def main():
     
 num_routes = [[], []]
 routes_returned = None
-for mins in range(40, 45, 5):
+for mins in range(60, 95, 5):
     constants.MAX_TIME = mins*60
     [routes_returned, before_splitting] = main()
-    saving = open(("output//testing_greedy"+str(mins)+"bused"+".obj"), "wb")
+    saving = open(("output//weightedcost"+str(mins)+"2bused"+".obj"), "wb")
     pickle.dump(routes_returned, saving)
     num_routes[0].append(before_splitting)
     num_routes[1].append(len(routes_returned))
