@@ -33,19 +33,36 @@ def closest_pair(from_iter, to_iter, age_type = None):
                 opt_to_loc = to_loc
     return opt_from_loc, opt_to_loc
 
-def closest_addition(locations, betw_iter, age_type = None):
+def closest_addition(locations, betw_iter, available_time, alpha, age_type = None):
+    opt_cost = 100000
     opt_dist = 100000
     opt_loc = None
     opt_ind = -1
     for i in range(len(locations) - 1):
         for loc in betw_iter:
-            if (constants.TRAVEL_TIMES[locations[i].tt_ind, loc.tt_ind] +
+            if ((constants.TRAVEL_TIMES[locations[i].tt_ind, loc.tt_ind] +
                 constants.TRAVEL_TIMES[loc.tt_ind, locations[i+1].tt_ind] -
-                constants.TRAVEL_TIMES[locations[i].tt_ind, locations[i+1].tt_ind] < opt_dist and
+                constants.TRAVEL_TIMES[locations[i].tt_ind, locations[i+1].tt_ind])/
+                (constants.TRAVEL_TIMES[loc.tt_ind, loc.school.tt_ind]**alpha) < opt_cost and
+                constants.TRAVEL_TIMES[locations[i].tt_ind, loc.tt_ind] +
+                constants.TRAVEL_TIMES[loc.tt_ind, locations[i+1].tt_ind] -
+                constants.TRAVEL_TIMES[locations[i].tt_ind, locations[i+1].tt_ind] < available_time and
                 (age_type == None or loc.type == age_type)):
+            #if (constants.TRAVEL_TIMES[locations[i].tt_ind, loc.tt_ind] +
+            #    constants.TRAVEL_TIMES[loc.tt_ind, locations[i+1].tt_ind] -
+            #    constants.TRAVEL_TIMES[locations[i].tt_ind, locations[i+1].tt_ind] < opt_dist and
+            #    (age_type == None or loc.type == age_type)):
+                opt_cost = ((constants.TRAVEL_TIMES[locations[i].tt_ind, loc.tt_ind] +
+                            constants.TRAVEL_TIMES[loc.tt_ind, locations[i+1].tt_ind] -
+                           constants.TRAVEL_TIMES[locations[i].tt_ind, locations[i+1].tt_ind])/
+                            (constants.TRAVEL_TIMES[loc.tt_ind, loc.school.tt_ind]**alpha))
                 opt_dist = (constants.TRAVEL_TIMES[locations[i].tt_ind, loc.tt_ind] +
                             constants.TRAVEL_TIMES[loc.tt_ind, locations[i+1].tt_ind] -
                             constants.TRAVEL_TIMES[locations[i].tt_ind, locations[i+1].tt_ind])
                 opt_loc = loc
                 opt_ind = i
-    return (opt_loc, i, opt_dist)
+                if opt_dist == 0:
+                    break
+        if opt_dist == 0:
+            break
+    return (opt_loc, opt_ind, opt_dist)

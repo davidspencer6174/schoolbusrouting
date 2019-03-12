@@ -68,3 +68,8 @@ MAX_TIME = 2700
 #Valid arrival times are [belltime-EARLIEST, belltime-LATEST]
 EARLIEST = 1800
 LATEST = 600
+
+
+#Constants to govern weighting of importance of
+#distance from school in single-load initialization
+ALPHAS = [0.0, 0.1, 0.2, 0.3, 0.4]
