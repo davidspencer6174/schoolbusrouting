@@ -91,7 +91,7 @@ def main():
     
 num_routes = [[], []]
 routes_returned = None
-for mins in range(60, 95, 5):
+for mins in range(70, 95, 5):
     constants.MAX_TIME = mins*60
     [routes_returned, before_splitting] = main()
     saving = open(("output//weightedcost"+str(mins)+"2bused"+".obj"), "wb")
