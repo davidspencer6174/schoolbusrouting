@@ -1,22 +1,22 @@
-import numpy as np
-from setup import setup_buses
-import pandas as pd
 import pickle
+import numpy as np
+import pandas as pd
+from setup import setup_buses
 
 #If true, informational lines will be printed
 VERBOSE = True
-REMOVE_LOW_OCC = True 
+REMOVE_LOW_OCC = True
 
 #Max allowable travel time in seconds
 MAX_TIME = 2700
 
-# Program types 
+# Program types
 PROG_TYPES = ['P', 'X', 'M']
 
 # School_type: 'elem', 'middle', 'high
 SCHOOL_TYPE = 'elem'
 BREAK_NUM = 5
-OCCUPANTS_LIMIT = 10 
+OCCUPANTS_LIMIT = 10
 
 # DBSCAN paramters
 # Radius (km)
@@ -28,9 +28,9 @@ TRAVEL_TIMES = np.load(PREFIX + "travel_times.npy")
 CAP_COUNTS = setup_buses(PREFIX+'dist_bus_capacities.csv')
 GEOCODES = pd.read_csv(PREFIX+'all_geocodes.csv')
 
-with open(PREFIX+'schools_codes_map','rb') as handle:
+with open(PREFIX+'schools_codes_map', 'rb') as handle:
     SCHOOLS_CODES_MAP = pickle.load(handle)
-with open(PREFIX+'stops_codes_map' ,'rb') as handle:
+with open(PREFIX+'stops_codes_map', 'rb') as handle:
     STOPS_CODES_MAP = pickle.load(handle)
-with open(PREFIX+'codes_inds_map' ,'rb') as handle:
+with open(PREFIX+'codes_inds_map', 'rb') as handle:
     CODES_INDS_MAP = pickle.load(handle)

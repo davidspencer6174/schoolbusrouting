@@ -54,9 +54,6 @@ class Route:
     def schoollessPath(self):
         return list(filter(lambda x: x not in self.school_path, self.path))
     
-    def printWilly(self):
-        print("Willy")
-
     # Combine route
     def combineRoute(self, new_route):
         
@@ -102,8 +99,10 @@ class Route:
         self.path_info.extend(new_route.path_info[2:])
         self.path = self.school_path + route
         
-        # Update bus information 
-        
+        # Update bus information
+        for bus in constants.CAP_COUNTS:
+            if bus[0] == new_route.bus_size:
+                bus[1] += 1
         
 
 

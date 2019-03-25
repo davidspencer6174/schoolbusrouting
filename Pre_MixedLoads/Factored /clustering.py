@@ -63,13 +63,14 @@ def partitionStudents(schools, phonebook):
     schoolcluster_students_map = dict()
     
     for row in counts.items():
+        
         temp = schools.loc[schools['label'] == row[0]].copy()  
         schools_in_cluster = list(temp['Cost_Center'].astype(str))
         students = phonebook[phonebook['Cost_Center'].isin(schools_in_cluster)].copy()
         students.loc[:,'School_Group'] = row[0]
         
         student_labels = obtainClust_KMEANS(students, constants.BREAK_NUM)
-        students = pd.merge(students, student_labels, on=['Lat', 'Long'], how='inner').drop_duplicates()
+        students = pd.merge(students, student_labels, on=['Lat', 'Long'], how='inner')
         students = students.sort_values(by=['label'])
         
         schoolcluster_students_map[row[0]] = students

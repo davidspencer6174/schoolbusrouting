@@ -14,19 +14,22 @@ def main():
 
     cluster_school_map, schoolcluster_students_map = setup_cluster(schools_students_attend, schoolcluster_students_map_df)
     
-    printBeginStats(cluster_school_map, schoolcluster_students_map, constants.CAP_COUNTS, constants.SCHOOL_TYPE)
+    # printBeginStats(cluster_school_map, schoolcluster_students_map, constants.CAP_COUNTS, constants.SCHOOL_TYPE)
     routes_returned = startRouting(cluster_school_map, schoolcluster_students_map)
-    outputRoutes(cluster_school_map, routes_returned, (str(constants.SCHOOL_TYPE)+"_school_routes"), (constants.SCHOOL_TYPE.upper() + " SCHOOL ROUTES"))
+    # outputRoutes(cluster_school_map, routes_returned, (str(constants.SCHOOL_TYPE)+"_school_routes"), (constants.SCHOOL_TYPE.upper() + " SCHOOL ROUTES"))
     finalStats = printFinalStats(routes_returned)
     
     return routes_returned, finalStats
 
 constants.SCHOOL_TYPE = 'elem'
 elem_routes, elemStats = main()
+print(constants.CAP_COUNTS)
 
 constants.SCHOOL_TYPE = 'middle'
 middle_routes, midStats = main()
+print(constants.CAP_COUNTS)
 
 constants.SCHOOL_TYPE = 'high'
 high_routes, highStats = main()
+print(constants.CAP_COUNTS)
 

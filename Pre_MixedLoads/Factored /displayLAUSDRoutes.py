@@ -22,16 +22,16 @@ def displayLAUSDRoutes(schools):
         
         link = "https://www.google.com/maps/dir"
         
-        for school in schools:
-            school_geoloc = SCHOOLS_CODES_MAP[school]
-            school_geoloc = school_geoloc.split(";")
-            link += ("/" + str(round(float(school_geoloc[0]),6)) + "," + str(round(float(school_geoloc[1]),6)))
-        
         for stop in subset.iterrows():
             point = californiafy(stop[1]['AM_Stop_Address'])
             point_geoloc = STOPS_CODES_MAP[point]
             point_geoloc = point_geoloc.split(";")
             link += ("/" + str(round(float(point_geoloc[0]),6)) + "," + str(round(float(point_geoloc[1]),6)))
+
+        for school in schools:
+            school_geoloc = SCHOOLS_CODES_MAP[school]
+            school_geoloc = school_geoloc.split(";")
+            link += ("/" + str(round(float(school_geoloc[0]),6)) + "," + str(round(float(school_geoloc[1]),6)))
         
         links_list.append(link)        
         print(link)

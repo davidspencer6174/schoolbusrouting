@@ -26,13 +26,13 @@ def editBellTimes(schools):
 # Filter and wrangle through data 
     
 
-prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
-
-stops = prefix+'stop_geocodes_fixed.csv'
-zipdata =prefix+'zipData.csv'
-schools = prefix+'school_geocodes_fixed.csv'
-phonebook = prefix+'totalPhoneBook.csv'
-bell_times = prefix+'bell_times.csv'
+#prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
+#
+#stops = prefix+'stop_geocodes_fixed.csv'
+#zipdata =prefix+'zipData.csv'
+#schools = prefix+'school_geocodes_fixed.csv'
+#phonebook = prefix+'totalPhoneBook.csv'
+#bell_times = prefix+'bell_times.csv'
 
 def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
@@ -51,13 +51,11 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     schools['tt_ind'] = school_index_list
     schools = editBellTimes(schools)
 
-    phonebook = pd.read_csv(phonebook, dtype={"RecordID": str, 'Prog': str, 'Cost_Center': str, "AM_Route": str, 'Lat': float, 'Long': float}, low_memory=False)
+    phonebook = pd.read_csv(phonebook, dtype={"RecordID": str, 'Prog': str, 'Grade': int, 'Cost_Center': str, "AM_Route": str, 'Lat': float, 'Long': float}, low_memory=False)
     phonebook = phonebook[['RecordID', 'Prog', 'Cost_Center', 'Cost_Center_Name','Grade','AM_Stop_Address', 'AM_Route']]
     phonebook = phonebook[phonebook['AM_Route'] != str(9500)]
-    phonebook = phonebook.dropna()
     phonebook = phonebook[phonebook['AM_Stop_Address'] != str(", , ")]
-    phonebook = phonebook.dropna()
-    phonebook = pd.merge(phonebook, stops[['AM_Stop_Address','Lat', 'Long']], on= 'AM_Stop_Address', how='left')
+    phonebook = pd.merge(phonebook, stops[['AM_Stop_Address','Lat', 'Long']], on= 'AM_Stop_Address', how='inner')
     
     phonebook["Level"] = None
     mask = (phonebook['Grade'] < 6)

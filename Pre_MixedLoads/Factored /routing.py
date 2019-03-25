@@ -1,8 +1,8 @@
 import numpy as np
+from geopy.distance import geodesic
 import constants
 from collections import Counter
 from locations import Route
-from geopy.distance import geodesic
 
 # Precompute possible route based on shortest path
 # items: Input schools or students
@@ -95,6 +95,8 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
             ind += 1
         result_list.append(school_route + group_list)
     
+    temp = path_info_list 
+
     # Stops that might have more students than bus capacity 
     # Break these into seperate (duplicate) routes
     for idx, path_info_group in enumerate(path_info_list):  
@@ -106,7 +108,7 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
                 to_update.append((stop[0], stop[1] - constants.CAP_COUNTS[-1][0]))                
                 result_list.append(result_list[idx])
                 path_info_list.append(to_update)
-                        
+
     # Add information about the routes between schools 
     # Prepend travel times from school -> school into the stop_info
     for info in path_info_list:
@@ -131,19 +133,19 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
                     break
 
         # Assign buses to the routes according to num. of occupants
-        for bus_ind in range(len(constants.CAP_COUNTS)):
-            bus = constants.CAP_COUNTS[bus_ind]
-            #found the smallest suitable bus
-            if current_route.occupants <= bus[0]:
-                #mark the bus as taken
-                bus[1] -= 1
-                current_route.updateBus(bus[0])
-                #if all buses of this capacity are now taken, remove
-                #this capacity
-                if bus[1] == 0:
-                    constants.CAP_COUNTS.remove(bus)
-                break
-        
+        # for bus_ind in range(len(constants.CAP_COUNTS)):
+        #     bus = constants.CAP_COUNTS[bus_ind]
+        #     #found the smallest suitable bus
+        #     if current_route.occupants <= bus[0]:
+        #         #mark the bus as taken
+        #         bus[1] -= 1
+        #         current_route.updateBus(bus[0])
+        #         #if all buses of this capacity are now taken, remove
+        #         #this capacity
+        #         if bus[1] == 0:
+        #             constants.CAP_COUNTS.remove(bus)
+        #         break
+
         route_list.append(current_route)
 
     return route_list
@@ -219,14 +221,14 @@ def combineRoutes(routes):
         clust_dis = [geodesic(low_occ_routes[idx].findRouteCenter(), a.findRouteCenter()) for a in routes_to_compare]
         clust_dis = [round(float(str(a).strip('km')),6) for a in clust_dis]
         ind = [i for i, v in enumerate(clust_dis) if v == min(clust_dis)][0]
-        
+       
         # Combine appropriate routes
         routes_to_return[ind].combineRoute(low_occ_routes[idx])
         idx += 1
 
     if full_routes:
         routes_to_return.extend(full_routes)
-        
+       
     return routes_to_return
 
-        
+       

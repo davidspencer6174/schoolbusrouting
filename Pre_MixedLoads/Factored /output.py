@@ -56,13 +56,13 @@ def printFinalStats(routes_returned):
                 if k.bus_size in buses_used: 
                     buses_used[k.bus_size] += 1
                     
-                utility_rate.append(k.occupants/k.bus_size)
+                # utility_rate.append(k.occupants/k.bus_size)
                     
                 for x in k.path_info:
                     route_travel_info.append(x)
                                 
     total_travel_time = round((sum([i for i, j in route_travel_info])/3600), 2)
-    utility_rate = round(np.average(utility_rate), 2)
+    # utility_rate = round(np.average(utility_rate), 2)
     average_travel_time = round(total_travel_time*60/routesCount)
     
     print('---------------------------------')
@@ -72,7 +72,7 @@ def printFinalStats(routes_returned):
     print("Num. of Routes Generated: " + str(routesCount))
     print("Total travel time: " + str(total_travel_time) + " hours" )
     print("Average travel time / route: " + str(average_travel_time) + " minutes")
-    print("Utility rate: " + str(utility_rate*100) + "%")
+    # print("Utility rate: " + str(utility_rate*100) + "%")
     print("Buses Used: " + str(sum(buses_used.values())))
     print("Bus Info: ")
     print(buses_used)
