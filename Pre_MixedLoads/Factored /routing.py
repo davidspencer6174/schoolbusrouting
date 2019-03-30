@@ -133,21 +133,21 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
                     break
 
         # Assign buses to the routes according to num. of occupants
-        # for bus_ind in range(len(constants.CAP_COUNTS)):
-        #     bus = constants.CAP_COUNTS[bus_ind]
-        #     #found the smallest suitable bus
-        #     if current_route.occupants <= bus[0]:
-        #         #mark the bus as taken
-        #         bus[1] -= 1
-        #         current_route.updateBus(bus[0])
-        #         #if all buses of this capacity are now taken, remove
-        #         #this capacity
-        #         if bus[1] == 0:
-        #             constants.CAP_COUNTS.remove(bus)
-        #         break
+        for bus_ind in range(len(constants.CAP_COUNTS)):
+             bus = constants.CAP_COUNTS[bus_ind]
+             #found the smallest suitable bus
+             if current_route.occupants <= bus[0]:
+                 #mark the bus as taken
+                 bus[1] -= 1
+                 current_route.updateBus(bus[0])
+                 #if all buses of this capacity are now taken, remove
+                 #this capacity
+                 if bus[1] == 0:
+                     constants.CAP_COUNTS.remove(bus)
+                 break
 
         route_list.append(current_route)
-
+        
     return route_list
 
 # Perform routing 
@@ -230,5 +230,4 @@ def combineRoutes(routes):
         routes_to_return.extend(full_routes)
        
     return routes_to_return
-
-       
+ 

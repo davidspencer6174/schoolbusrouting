@@ -61,7 +61,7 @@ def breakLargeClusters(data, break_num, limit):
 def partitionStudents(schools, phonebook):
     counts = Counter(schools['label'])
     schoolcluster_students_map = dict()
-    
+     
     for row in counts.items():
         
         temp = schools.loc[schools['label'] == row[0]].copy()  
@@ -70,8 +70,9 @@ def partitionStudents(schools, phonebook):
         students.loc[:,'School_Group'] = row[0]
         
         student_labels = obtainClust_KMEANS(students, constants.BREAK_NUM)
-        students = pd.merge(students, student_labels, on=['Lat', 'Long'], how='inner')
+        students = pd.merge(students, student_labels, on=['Lat', 'Long'], how='inner').drop_duplicates()
         students = students.sort_values(by=['label'])
         
         schoolcluster_students_map[row[0]] = students
+    
     return schoolcluster_students_map
