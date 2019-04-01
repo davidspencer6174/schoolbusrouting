@@ -1,5 +1,5 @@
 import constants
-from locations import Student
+from locations import Student, School
 
 #Perform the mixed-load improvement procedure on a list of routes.
 #This function does require it to be a list rather than a
@@ -25,15 +25,34 @@ def mixed_loads(route_list):
         for location in locations:
             #If this is a student, find a route to add to
             if isinstance(location, Student):
-                moved = False
+                best_cost = 100000
+                best_route = None
                 for route_to_add_to in route_list:
+                    #close_enough_school = False
+                    #for loc in route_to_add_to.locations:
+                    #    if isinstance(loc, School):
+                    #        if (constants.TRAVEL_TIMES[location.school.tt_ind,
+                    #                                  loc.tt_ind] < 1000 or
+                    #            constants.TRAVEL_TIMES[loc.tt_ind,
+                    #                                   location.school.tt_ind] < 1000):
+                    #            close_enough_school = True
+                    #            break
+                    #if not close_enough_school:
+                    #    continue
+                    route_to_add_to.temp_backup()
+                    prev_length = route_to_add_to.length
                     if (route_to_add_to != route_to_delete and
                         route_to_add_to.add_student(location)):
-                        moved = True
-                        break
-                if not moved:
+                        cur_cost = route_to_add_to.length - prev_length
+                        if cur_cost < best_cost:
+                            best_cost = cur_cost
+                            best_route = route_to_add_to
+                    route_to_add_to.temp_restore()
+                if best_route == None:
                     succeeded = False  #We were unable to move this student
                     break
+                if not best_route.add_student(location):
+                    print("Something went wrong")
         if not succeeded:  #Couldn't move all students; revert changes
             for route in route_list:
                 route.restore()

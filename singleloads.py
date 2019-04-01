@@ -49,7 +49,7 @@ def route_school(student_set, school):
             while True:
                 [student_to_add, foo, opt_dist] = closest_addition(current_route.locations,
                                               school_students,
-                                              current_route.max_time - current_route.length,
+                                              current_route.max_time*.8 - current_route.length,
                                               alpha,
                                               age_type)
                 if student_to_add == None:
