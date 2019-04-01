@@ -205,6 +205,7 @@ def diagnostics(route_iter):
             printout(r)
     
 loading = open("output//weightedcost602bused.obj", "rb")
+#loading = open("output//greedymlmove60bused.obj", "rb")
 obj = pickle.load(loading)
 diagnostics(obj)
 #print_all(obj)
