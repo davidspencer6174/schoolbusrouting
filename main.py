@@ -36,7 +36,15 @@ def main():
 
     routes = generate_routes(all_schools)
     
-    print("Number of routes: " + str(len(routes)))
+    if constants.VERBOSE:
+        print("Number of routes: " + str(len(routes)))
+    
+    all_verified = True
+    for route in routes:
+        if not route.feasibility_check(verbose = True):
+            all_verified = False
+    if constants.VERBOSE:
+        print("All routes verified.")
     
     #full_verification(all_routes, print_result = True)
     
@@ -60,10 +68,21 @@ def main():
     
 num_routes = [[], []]
 routes_returned = None
-for i in range(1):
+route_plan_sizes = []
+for i in range(500):
+    constants.MAX_SCHOOL_DIST = random.random()*1000 + 600
+    constants.DIST_WEIGHT = random.random()*1.5 + .1
     routes_returned = main()
-    lengths = np.array([r.length for r in routes_returned])
-    print(np.mean(lengths))
+    route_plan_sizes.append(len(routes_returned))
+    if constants.VERBOSE:
+        lengths = np.array([r.length for r in routes_returned])
+        print("Mean length: " + str(np.mean(lengths)))
+        occs = np.array([r.occupants for r in routes_returned])
+        print("Total occupants: " + str(np.sum(occs)))
+        numstops = np.array([len(r.stops) for r in routes_returned])
+        print("Total number of stops visited: " + str(np.sum(numstops)))
+    print(str(constants.MAX_SCHOOL_DIST) + " " + str(constants.DIST_WEIGHT) +
+          " " + str(len(routes_returned)))
     #[routes_returned, before_splitting] = main()
     #saving = open(("output//greedymlmove"+str(mins)+"p8busedcloseschool"+".obj"), "wb")
     #pickle.dump(routes_returned, saving)
@@ -71,3 +90,4 @@ for i in range(1):
     #num_routes[1].append(len(routes_returned))
     #print(num_routes)
     #saving.close()
+print(route_plan_sizes)

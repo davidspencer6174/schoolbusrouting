@@ -1,7 +1,7 @@
 import numpy as np
 
 #If true, informational lines will be printed
-VERBOSE = True
+VERBOSE = False
 
 #Identifies elementary, middle, and high school students
 GRADES_TYPE_MAP = dict()
@@ -65,6 +65,10 @@ TRAVEL_TIMES = np.load("data//travel_time_matrix.npy")*TT_MULT
 #MAX_TIME = 5500
 #MAX_TIME = 4100
 MAX_TIME = 3600
+
+#Determines importance of distance from stop to
+#school when deciding which stop to pick up
+DIST_WEIGHT = .75
 
 #Seconds before belltime to determine valid arrival
 #Valid arrival times are [belltime-EARLIEST, belltime-LATEST]
