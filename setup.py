@@ -1,5 +1,5 @@
 import constants
-from locations import School, Student
+from locations import School, Stop, Student
 from utils import californiafy, timesecs
 
 #phonebooks: list of filenames for phonebooks
@@ -62,6 +62,8 @@ def setup_students(phonebooks, all_geocodes, geocoded_stops,
     #Maintain a dictionary of school indices to schools so that
     #school objects can be tested for equality.
     ind_school_dict = dict()
+    #Maintain a set of all School objects to return                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+    all_schools = set()
     for pb_part_filename in phonebooks:
         pb_part = open(pb_part_filename, 'r')
         pb_part.readline()  #header
@@ -103,13 +105,14 @@ def setup_students(phonebooks, all_geocodes, geocoded_stops,
                     if constants.VERBOSE:
                         print("No time given for " + school)                    
                 ind_school_dict[school_ind] = School(school_ind, belltime)
+                all_schools.add(ind_school_dict[school_ind])
             this_student = Student(stop_ind, ind_school_dict[school_ind],
                                    age_type, fields)
             students.append(this_student)
             schools_students_map[school].add(this_student)
         pb_part.close()
         
-    return students, schools_students_map, schools_inds_map
+    return students, schools_students_map, all_schools
 
 
 
@@ -131,3 +134,20 @@ def setup_buses(bus_capacities):
     for i in range(len(cap_counts_list)):
         cap_counts_list[i] = list(cap_counts_list[i])
     return cap_counts_list
+
+#Sets up the stops based on the output of setup_students
+#Populates unrouted_stops in the Schools
+def setup_stops(schools_students_map):
+    stops = set()
+    for school in schools_students_map:
+        ttind_age_stop_map = dict()
+        for student in schools_students_map[school]:
+            dict_key = (student.tt_ind, student.type)
+            if dict_key not in ttind_age_stop_map:
+                new_stop = Stop(student.school, student.type)
+                ttind_age_stop_map[dict_key] = new_stop
+                stops.add(ttind_age_stop_map[dict_key])
+                student.school.unrouted_stops[student.type].add(new_stop)
+            ttind_age_stop_map[dict_key].add_student(student)
+    return stops
+                

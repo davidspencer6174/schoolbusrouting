@@ -18,6 +18,8 @@ TYPE_IND_MAP = dict()
 TYPE_IND_MAP['E'] = 0
 TYPE_IND_MAP['M'] = 1
 TYPE_IND_MAP['H'] = 2
+
+MAX_SCHOOL_DIST = 900
     
 #For a stated capacity, make it easy to access the
 #capacities for each age - elementary, middle, high
@@ -62,7 +64,7 @@ TRAVEL_TIMES = np.load("data//travel_time_matrix.npy")*TT_MULT
 #Max allowable travel time in seconds
 #MAX_TIME = 5500
 #MAX_TIME = 4100
-MAX_TIME = 2700
+MAX_TIME = 3600
 
 #Seconds before belltime to determine valid arrival
 #Valid arrival times are [belltime-EARLIEST, belltime-LATEST]

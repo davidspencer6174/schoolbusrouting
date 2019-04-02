@@ -1,19 +1,26 @@
 import constants
 import copy
-from locations import School, Student
+import itertools
+from locations import School, Stop, Student
+
+#Returns travel time from loc1 to loc2
+def trav_time(loc1, loc2):
+    return constants.TRAVEL_TIMES[loc1.tt_ind,
+                                  loc2.tt_ind]
 
 class Route:
     
-    #Encapsulated as a list of Locations in order.
+    #Encapsulated as a list of Stops in order and
+    #a list of Schools in order.
+    #It is assumed that the Schools are all visited
+    #after the Stops.
     def __init__(self):
-        self.locations = []
+        self.stops = []
+        self.schools = []
         self.length = 0
         self.occupants = 0
-        self.backup_locs = []
-        self.backup_occs = 0
+        self.valid_school_orderings = []
         self.max_time = constants.MAX_TIME
-        self.backup_max_time = constants.MAX_TIME
-        self.temp_backup_max_time = constants.MAX_TIME
         #If no bus is assigned, the default capacity is infinite.
         #This is denoted by a -1.
         #Otherwise, this variable should be modified to reflect
@@ -26,211 +33,137 @@ class Route:
     #and so all routes must be reverted and the moved students
     #returned to the bus.    
     def backup(self):
-        self.backup_locs = copy.copy(self.locations)
+        self.backup_stops = copy.copy(self.stops)
+        self.backup_schools = copy.copy(self.schools)
         self.backup_occs = self.occupants
         self.backup_length = self.length
         self.backup_max_time = self.max_time
+        self.backup_school_orderings = copy.copy(self.valid_school_orderings)
         
     def restore(self):
-        self.locations = self.backup_locs
+        self.stops = copy.copy(self.backup_stops)
+        self.schools = copy.copy(self.backup_schools)
         self.occupants = self.backup_occs
         self.length = self.backup_length
         self.max_time = self.backup_max_time
+        self.valid_school_orderings = copy.copy(self.backup_school_orderings)
         
-    #This is a backup used when attempting to add a single student
-    #to a route. A backup will be made, the route will be modified
-    #to add the student, the feasibility check will be performed,
-    #and if the modified route is infeasible, the change will be reverted.
-    def temp_backup(self):
-        self.temp_backup_locs = copy.copy(self.locations)
-        self.temp_backup_occs = self.occupants
-        self.temp_backup_length = self.length
-        self.temp_backup_max_time = self.max_time
-        
-    def temp_restore(self):
-        self.locations = self.temp_backup_locs
-        self.occupants = self.temp_backup_occs
-        self.length = self.temp_backup_length
-        self.max_time = self.temp_backup_max_time
-        
-    #Inserts a Location visit at position pos in the route.
+    #Inserts a stop visit at position pos in the route.
     #The default position is the end.
     #Does not do any checks.
-    def add_location(self, location, pos = -1):
+    def add_stop(self, stop, pos = -1):
+        if not self.add_school(stop.school):
+            return False
         if pos == -1:
-            self.locations.append(location)
-            if len(self.locations) > 1:
-                self.length += constants.TRAVEL_TIMES[self.locations[-2].tt_ind,
-                                                      self.locations[-1].tt_ind]
-            if isinstance(location, Student):
-                self.occupants += 1
+            self.stops.append(stop)
+            #Maintain the travel time field and occupants field
+            self.occupants += stop.occs
+            self.recompute_length()
             return
-        #Add the location
-        self.locations = self.locations[:pos] + [location] + self.locations[pos:]
-        #Maintain the travel time field
-        if (pos == -1 and len(self.locations) > 1) or pos > 0:
-            self.length += constants.TRAVEL_TIMES[self.locations[pos - 1].tt_ind,
-                                                  self.locations[pos].tt_ind]
-        if pos > -1 and pos < len(self.locations) - 1:
-            self.length += constants.TRAVEL_TIMES[self.locations[pos].tt_ind,
-                                                  self.locations[pos + 1].tt_ind]
-        #Maintain the occupants field
-        if isinstance(location, Student):
-            self.occupants += 1
-            self.max_time = max(self.max_time,
-                                constants.SLACK*constants.TRAVEL_TIMES[location.tt_ind,
-                                                                       location.school.tt_ind])
-            
-    #When doing the post-improvement procedure, adding a student
-    #also requires adding the school.
-    def add_student(self, student):
-        if student.type != self.locations[0].type:  #Different age group
-            return False
-        self.temp_backup()
-        #First, add the school as late as possible.
-        if student.school not in self.locations:
-            if not self.insert_school(student.school):
-                self.temp_restore()
-                return False
-        #Then add the student before the school.
-        if not self.insert_mincost(student,
-                                   post=self.locations.index(student.school) + 1):
-            self.temp_restore()
-            return False
+        #Add the stop
+        self.stops = self.stops[:pos] + [stop] + self.stops[pos:]
+        #Maintain the travel time field and occupants field
+        #TODO: memoize length for cheaper maintenance
+        self.recompute_length()
+        self.occupants += stop.occs
         self.max_time = max(self.max_time,
-                            constants.SLACK*constants.TRAVEL_TIMES[student.tt_ind,
-                                                                   student.school.tt_ind])
-        #self.two_opt()
-        if self.feasibility_check():
-            return True
-        #If the feasibility check failed, need to revert the change.
-        self.temp_restore()
-        return False
+                            constants.SLACK*trav_time(stop, stop.school))
         
     def get_route_length(self):
         return self.length
     
-    #Performs an insertion of a Location at an index
-    #in the travel time matrix such that the cost is
-    #minmized.
-    #pre and post allow enforcement of precedence relations
-    #pre=-1 is a default value, post=-1 is just a placeholder
-    def insert_mincost(self, location, pre = -1, post = -1):
-        if post == -1:  #Replace the placeholder
-            post = len(self.locations) + 1
+    #Performs an insertion of a stop such that the cost is minimized.
+    #TODO: Allow for addition to the end to interface with
+    #reorderings of the schools
+    def insert_mincost(self, stop):
+        if not self.add_school(stop.school):
+            return False
         best_cost = 100000
-        best_cost_ind = -1
-        for i in range(pre+1, post):
-            cost = 0
-            if i > 0:
-                cost += constants.TRAVEL_TIMES[self.locations[i-1].tt_ind,
-                                               location.tt_ind]
-            if i < len(self.locations):
-                cost += constants.TRAVEL_TIMES[location.tt_ind,
-                                               self.locations[i].tt_ind]
-            if i > 0 and i < len(self.locations):
-                cost -= constants.TRAVEL_TIMES[self.locations[i-1].tt_ind,
-                                               self.locations[i].tt_ind]
-            if cost < best_cost:
-                best_cost = cost
-                best_cost_ind = i
-        if best_cost_ind > -1:
-            self.length += best_cost
-            if isinstance(location, Student):
-                self.occupants += 1
-            self.locations = (self.locations[:best_cost_ind] + [location] +
-                              self.locations[best_cost_ind:])
-            return True
-        #If insertion fails, e.g. because [pre+1,post) is empty
-        return False
-    
-    #When inserting a school, we choose to insert it as late as
-    #possible while maintaining validity w.r.t bell times.
-    def insert_school(self, school):
-        if school in self.locations:
-            return
-        #Need to test all possible insertion locations.
-        #Start by testing adding to the end, which is a special case
-        self.locations = self.locations + [school]
-        self.length += constants.TRAVEL_TIMES[self.locations[-2].tt_ind,
-                                              self.locations[-1].tt_ind]
-        #Perform the feasibility check, which among other things
-        #tests bell time validity
-        if self.feasibility_check():
-            return True
+        best_ind = 0
+        if len(self.stops) > 0:
+            best_cost = trav_time(stop, self.stops[0])
+            for i in range(len(self.stops) - 1):
+                cost = (trav_time(self.stops[i], stop)
+                        + trav_time(stop, self.stops[i + 1])
+                        - trav_time(self.stops[i], self.stops[i + 1]))
+                if cost < best_cost:
+                    best_cost = cost
+                    best_ind = i + 1
+        final_cost = (trav_time(self.stops[-1], stop) +
+                      trav_time(stop, self.schools[0]))
+        if final_cost < best_cost:
+            self.stops.append(stop)
         else:
-            self.temp_restore()
-        #Now test all possible locations in the middle
-        for i in range(len(self.locations) - 1, 0, -1):
-            self.length += constants.TRAVEL_TIMES[self.locations[i-1].tt_ind,
-                                                  school.tt_ind]
-            self.length += constants.TRAVEL_TIMES[school.tt_ind,
-                                                  self.locations[i].tt_ind]
-            self.length -= constants.TRAVEL_TIMES[self.locations[i-1].tt_ind,
-                                                  self.locations[i].tt_ind]
-            if self.length > self.max_time:
-                self.temp_restore()
-                continue
-            self.locations = self.locations[:i] + [school] + self.locations[i:]
-            if self.feasibility_check():
-                return True
-            else:
-                self.temp_restore()
-        return False
+            self.stops.insert(best_ind, stop)
+        self.recompute_length()
+        self.occupants += stop.occs
+        self.max_time = max(self.max_time,
+                            constants.SLACK*trav_time(stop, stop.school))
+        return (self.length <= self.max_time)
+    
+    #Checks whether adding the school would leave
+    #any valid orderings. If so, adds the school
+    #and returns True.
+    def add_school(self, school):
+        if school not in self.schools:
+            self.schools.append(school)
+            self.enumerate_school_orderings()
+            if len(self.valid_school_orderings) == 0:
+                self.schools.remove(school)
+                self.enumerate_school_orderings()
+                return False
+        return True
         
     
-    #Performs the two-opt improvement procedure to try to
-    #improve route quality
-    #Note: Not every 2-opt improvement will be a global improvement
-    #due to asymmetry of the travel time matrix, so it's necessary
-    #to either check or just accept that some improvements will
-    #be failures. For now, we'll take the easy way out.
-    def two_opt(self):
-        modified = False
-        for i in range(len(self.locations) - 3):
-            if isinstance(self.locations[i], School):
-                break
-            for j in range(i+2, len(self.locations) - 1):
-                if isinstance(self.locations[j], School):
-                    break
-                existing_length = constants.TRAVEL_TIMES[self.locations[i].tt_ind,
-                                                         self.locations[i+1].tt_ind]
-                existing_length += constants.TRAVEL_TIMES[self.locations[j].tt_ind,
-                                                          self.locations[j+1].tt_ind]
-                modlength = constants.TRAVEL_TIMES[self.locations[i].tt_ind,
-                                                   self.locations[j].tt_ind]
-                modlength += constants.TRAVEL_TIMES[self.locations[i+1].tt_ind,
-                                                    self.locations[j+1].tt_ind]
-                if modlength < existing_length:
-                    modified = True
-                    self.locations[i+1:j+1] = self.locations[i+1:j+1][::-1]
-                    self.recompute_length()
-        if modified:
-            return True
-        return False
+    #Outputs (valid, time) where valid is true if the belltimes
+    #line up appropriately and time gives the amount of time
+    #required to use this ordering.
+    def time_check(self, school_perm):
+        time = 0
+        mintime = school_perm[0].start_time - constants.EARLIEST
+        maxtime = school_perm[0].start_time - constants.LATEST
+        for i in range(1, len(school_perm)):
+            leg_time = trav_time(school_perm[i-1], school_perm[i])
+            mintime += trav_time(school_perm[i-1], school_perm[i])
+            maxtime += trav_time(school_perm[i-1], school_perm[i])
+            time += leg_time
+            school_mintime = school_perm[i].start_time - constants.EARLIEST
+            school_maxtime = school_perm[i].start_time - constants.LATEST
+            #Can't get to the school in time - give up
+            if school_maxtime < mintime:
+                return (False, 0)
+            #Have to wait at the school - add the waiting time
+            if school_mintime > maxtime:
+                time += school_mintime - maxtime
+            mintime = max(school_mintime, mintime)
+            maxtime = min(school_maxtime, max(maxtime, mintime))
+        return (True, time)
+    
+    def enumerate_school_orderings(self):
+        self.valid_school_orderings = []
+        for perm in itertools.permutations(self.schools):
+            result = self.time_check(perm)
+            if result[0]:
+                self.valid_school_orderings.append([list(perm), result[1]])
         
     #If there is ever uncertainty about the length field, recompute length
     def recompute_length(self):
-        self.length = 0
-        for i in range(len(self.locations) - 1):
-            self.length += constants.TRAVEL_TIMES[self.locations[i].tt_ind,
-                                                  self.locations[i+1].tt_ind]
-        return self.length
-    
-    def recompute_occs(self):
-        self.occupants = 0
-        for loc in self.locations:
-            if isinstance(loc, Student):
-                self.occupants += 1
-        return self.occupants
-    
-    def recompute_maxtime(self):
-        for loc in self.locations:
-            if isinstance(loc, Student):
-                self.max_time = max(self.max_time, constants.SLACK*
-                                    constants.TRAVEL_TIMES[loc.tt_ind,
-                                                           loc.school.tt_ind])
-    
+        length = 0
+        for i in range(len(self.stops) - 1):
+            length += trav_time(self.stops[i], self.stops[i+1])
+        best_length = 100000
+        for possible_schools in self.valid_school_orderings:
+            #Length is stop travel time plus stop to first school
+            #plus school travel time
+            possible_length = (length +
+                               trav_time(self.stops[-1], possible_schools[0][0]) +
+                               possible_schools[1])
+            if possible_length < best_length:
+                best_length = possible_length
+                self.schools = possible_schools[0]
+        self.length = best_length
+        return best_length
+        
     #Determines whether the route is feasible with
     #respect to constraints.
     #Simple for now
@@ -246,28 +179,9 @@ class Route:
                 print("Too full")
             return False
         #Now test mixed load bell time feasibility
-        earliest_possible = 0
-        latest_possible = 100000
-        waiting_time = 0
-        for i in range(1, len(self.locations)):
-            dist = constants.TRAVEL_TIMES[self.locations[i - 1].tt_ind,
-                                          self.locations[i].tt_ind]
-            earliest_possible += dist
-            latest_possible += dist
-            if isinstance(self.locations[i], School):
-                earliest_arrival = self.locations[i].start_time-constants.EARLIEST
-                latest_arrival = self.locations[i].start_time-constants.LATEST
-                #can't get to the school in time - give up
-                if latest_arrival < earliest_possible:
-                    return False
-                #get to the school too early - add slack time
-                if earliest_arrival > latest_possible:
-                    waiting_time += earliest_arrival - latest_possible
-                earliest_possible = max(earliest_possible, earliest_arrival)
-                latest_possible = min(latest_possible, latest_arrival)
-        if self.length + waiting_time > self.max_time:
-            if verbose:
-                print("Too long when considering bells")
+        result = self.time_check(self.schools)
+        if not result[0]:
+            print("Bell times contradict")
             return False
         return True
     
@@ -306,33 +220,3 @@ class Route:
         out = self.is_acceptable(cap)
         self.occupants -= num_students
         return out
-    
-    #Intended to help with greedy moves.
-    #Remove the student at locations index ind and all subsequent
-    #students with the same tt_ind and school.
-    #Additionally see whether the student's school can be removed
-    #ind must index a Student, not a School.
-    #Add these locations to the other route.
-    def remove_and_add(self, ind, other_route):
-        tt_ind = self.locations[ind].tt_ind
-        school = self.locations[ind].school
-        postind = ind + 1
-        while postind < len(self.locations):
-            if (isinstance(self.locations[postind], School) or
-                self.locations[postind].tt_ind != tt_ind or
-                self.locations[postind].school != school):
-                break
-            postind += 1
-        for i in range(tt_ind, postind):
-            if not other_route.add_student(self.locations[i]):
-                return False
-        self.locations = self.locations[:tt_ind] + self.locations[postind:]
-        self.recompute_length()
-        self.recompute_maxtime()
-        for loc in self.locations:
-            if isinstance(loc, Student) and loc.school == school:
-                return True
-        self.locations.remove(school)
-        self.recompute_length()
-        self.recompute_maxtime()
-        return True
