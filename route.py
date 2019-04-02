@@ -7,6 +7,8 @@ from locations import School, Stop, Student
 def trav_time(loc1, loc2):
     return constants.TRAVEL_TIMES[loc1.tt_ind,
                                   loc2.tt_ind]
+    
+memoized_timechecks = dict()
 
 class Route:
     
@@ -106,10 +108,11 @@ class Route:
     #and returns True.
     def add_school(self, school):
         if school not in self.schools:
-            self.schools.append(school)
+            oldschools = self.schools
+            self.schools = oldschools + [school]
             self.enumerate_school_orderings()
             if len(self.valid_school_orderings) == 0:
-                self.schools.remove(school)
+                self.schools = oldschools
                 self.enumerate_school_orderings()
                 return False
         return True
@@ -119,6 +122,8 @@ class Route:
     #line up appropriately and time gives the amount of time
     #required to use this ordering.
     def time_check(self, school_perm):
+        if tuple(school_perm) in memoized_timechecks:
+            return memoized_timechecks[tuple(school_perm)]
         time = 0
         mintime = school_perm[0].start_time - constants.EARLIEST
         maxtime = school_perm[0].start_time - constants.LATEST
@@ -131,12 +136,14 @@ class Route:
             school_maxtime = school_perm[i].start_time - constants.LATEST
             #Can't get to the school in time - give up
             if school_maxtime < mintime:
+                memoized_timechecks[tuple(school_perm)] = (False, 0)
                 return (False, 0)
             #Have to wait at the school - add the waiting time
             if school_mintime > maxtime:
                 time += school_mintime - maxtime
             mintime = max(school_mintime, mintime)
             maxtime = min(school_maxtime, max(maxtime, mintime))
+        memoized_timechecks[tuple(school_perm)] = (True, time)
         return (True, time)
     
     def enumerate_school_orderings(self):
@@ -166,13 +173,47 @@ class Route:
         
     #Determines whether the route is feasible with
     #respect to constraints.
-    #Simple for now
     def feasibility_check(self, verbose = False):
+        #Recompute max time
+        self.max_time = constants.MAX_TIME
+        for s in self.stops:
+            self.max_time = max(self.max_time,
+                                constants.SLACK*trav_time(s, s.school))
         #Too long
+        self.recompute_length()
         if self.length > self.max_time:
             if verbose:
                 print("Too long")
             return False
+        #Sanity check for time
+        #Doesn't take into account waiting time at schools,
+        #just intended to make sure things are working properly
+        sc_time = 0
+        for i in range(1, len(self.stops)):
+            sc_time += trav_time(self.stops[i-1], self.stops[i])
+        sc_time += trav_time(self.stops[-1], self.schools[0])
+        for i in range(1, len(self.schools)):
+            sc_time += trav_time(self.schools[i-1], self.schools[i])
+        #Need a bit of tolerance because of nonassociativity
+        #of floating point operations
+        if sc_time > self.length + 1e-8:
+            print(sc_time)
+            print(self.length)
+            print("Failed sanity check")
+        #School not visited or mixed student types
+        student_type = None
+        for s in self.stops:
+            for student in s.students:
+                if student_type == None:
+                    student_type = student.type
+                if student_type != student.type:
+                    if verbose:
+                        print("Student types differ")
+                    return False
+                if student.school not in self.schools:
+                    if verbose:
+                        print("School not visited")
+                    return False
         #Too many students and there is a bus assigned
         if self.bus_capacity > -1 and self.occupants > self.bus_capacity:
             if verbose:
@@ -181,7 +222,8 @@ class Route:
         #Now test mixed load bell time feasibility
         result = self.time_check(self.schools)
         if not result[0]:
-            print("Bell times contradict")
+            if verbose:
+                print("Bell times contradict")
             return False
         return True
     

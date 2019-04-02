@@ -1,7 +1,7 @@
 import constants
 from locations import School, Stop
 from route import Route
-from random import shuffle
+from random import random, shuffle
 
 #Returns travel time from loc1 to loc2
 def trav_time(loc1, loc2):
@@ -47,11 +47,13 @@ def generate_routes(schools):
     routes = set()
     near_schools = determine_school_proximities(schools)
     while len(all_stops) > 0:
-        print(len(all_stops))
+        #print(len(all_stops))
         current_route = Route()
         #Pick up the most distant stop
         init_stop = all_stops[0]
         root_school = init_stop.school
+        root_school.unrouted_stops[init_stop.type].remove(init_stop)
+        all_stops.remove(init_stop)
         #Figure out which schools can be mixed with the stop
         admissible_schools = near_schools[root_school]
         current_route.add_stop(init_stop)
@@ -71,16 +73,17 @@ def generate_routes(schools):
                         #faraway stops.
                         time_cost = current_route.length - oldlength
                         dist = trav_time(stop, stop.school)
-                        score = time_cost / dist
+                        score = time_cost - dist*constants.DIST_WEIGHT
                         if score < best_score:
                             best_score = score
                             best_stop = stop
                     current_route.restore()
             if best_stop == None:
                 break
-            current_route.insert_mincost(best_stop)
+            if not current_route.insert_mincost(best_stop):
+                print("Something went wrong")
             best_stop.school.unrouted_stops[init_stop.type].remove(best_stop)
             all_stops.remove(best_stop)
-        print(len(current_route.stops))
+        #print(len(current_route.stops))
         routes.add(current_route)
     return routes
