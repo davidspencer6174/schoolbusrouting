@@ -1,3 +1,10 @@
+import constants
+
+#Returns travel time from loc1 to loc2
+def trav_time(loc1, loc2):
+    return constants.TRAVEL_TIMES[loc1.tt_ind,
+                                  loc2.tt_ind]
+
 class School:
     
     #tt_ind denotes the index of the school in the travel time matrix.
@@ -40,9 +47,17 @@ class Stop:
         self.students = set()
         self.school = school
         self.type = stud_type
-        self.routed = False
         self.tt_ind = None
         self.occs = 0
+        #We will assign each stop a value; routes will strive
+        #to pick up the stops with the most value.
+        self.value = -1000
+        #Keep track of the nearest Stop from its school, or the
+        #School itself if it happens to be closest.
+        #The farther it is, the more valued this stop is.
+        #If dependent is a Stop, when it gets routed, we need
+        #to update, so we store it for the sake of memoization.
+        self.dependent = None
         
     def add_student(self, s):
         if s.type != self.type:
@@ -54,3 +69,22 @@ class Stop:
         self.tt_ind = s.tt_ind
         self.occs += 1
         return True
+    
+    def update_value(self, removed_stop):
+        #If our dependent was not removed, no need to update
+        if self.dependent != None and removed_stop != self.dependent:
+            return
+        self.value = -1000
+        for stop in self.school.unrouted_stops[self.type]:
+            if self == stop:
+                continue
+            value = (trav_time(self, self.school)*constants.SCH_DIST_WEIGHT +
+                     trav_time(self, stop)*constants.STOP_DIST_WEIGHT)
+            if value > self.value:
+                self.value = value
+                self.dependent = stop
+        value = trav_time(self, self.school)*(constants.SCH_DIST_WEIGHT +
+                                              constants.STOP_DIST_WEIGHT)
+        if value > self.value:
+            self.value = value
+            self.dependent = self.school

@@ -19,7 +19,7 @@ TYPE_IND_MAP['E'] = 0
 TYPE_IND_MAP['M'] = 1
 TYPE_IND_MAP['H'] = 2
 
-MAX_SCHOOL_DIST = 900
+MAX_SCHOOL_DIST = 1200
     
 #For a stated capacity, make it easy to access the
 #capacities for each age - elementary, middle, high
@@ -66,9 +66,8 @@ TRAVEL_TIMES = np.load("data//travel_time_matrix.npy")*TT_MULT
 #MAX_TIME = 4100
 MAX_TIME = 3600
 
-#Determines importance of distance from stop to
-#school when deciding which stop to pick up
-DIST_WEIGHT = .75
+SCH_DIST_WEIGHT = 1.0
+STOP_DIST_WEIGHT = 0.5
 
 #Seconds before belltime to determine valid arrival
 #Valid arrival times are [belltime-EARLIEST, belltime-LATEST]
