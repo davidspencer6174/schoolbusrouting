@@ -61,6 +61,8 @@ class Route:
             #Maintain the travel time field and occupants field
             self.occupants += stop.occs
             self.recompute_length()
+            self.max_time = max(self.max_time,
+                                constants.SLACK*trav_time(stop, stop.school))
             return
         #Add the stop
         self.stops = self.stops[:pos] + [stop] + self.stops[pos:]

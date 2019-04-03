@@ -1,6 +1,6 @@
 from busassignment import assign_buses
 import constants
-from locations import School, Student
+from locations import School, Stop, Student
 from route import Route
 from setup import setup_buses
 from utils import californiafy, timesecs
@@ -159,7 +159,7 @@ def existing_routes(phonebooks, all_geocodes, geocoded_stops,
             grade = -1
         if int(grade) in constants.GRADES_TYPE_MAP:
             age_type = constants.GRADES_TYPE_MAP[int(grade)]
-        if age_type == 'Other':
+        if age_type == 'Other' and fields[5].strip() in ["M", "X", "P"]:
             print(grade)
         if school_ind not in ind_school_dict:
             belltime = 8*60*60  #default to 8AM start
@@ -177,18 +177,21 @@ def existing_routes(phonebooks, all_geocodes, geocoded_stops,
             routes_map[route_number] = [Route(), 0]
         #Students the routing program routes
         if fields[5].strip() in ["M", "X", "P"]:
-            routes_map[route_number][0].add_location(this_student)
+            route = routes_map[route_number][0]
+            student_placed = False
+            for stop in route.stops:
+                if (stop.tt_ind == this_student.tt_ind and
+                    stop.school == this_student.school and
+                    stop.type == this_student.type):
+                    stop.add_student(this_student)
+                    student_placed = True
+            if not student_placed:
+                new_stop = Stop(this_student.school, this_student.type)
+                new_stop.add_student(this_student)
+                route.add_stop(new_stop)
         else:
             routes_map[route_number][1] += 1
-        
-    for route_number in routes_map:
-        route = routes_map[route_number][0]
-        for loc_ind in range(len(route.locations) - 1, -1, -1):
-            loc = route.locations[loc_ind]
-            if isinstance(loc, Student):
-                if loc.school not in route.locations:
-                    route.insert_mincost(loc.school, pre = loc_ind)
-        
+            
     return routes_map
 
 prefix = "data//"
@@ -202,7 +205,7 @@ output = existing_routes([prefix+'phonebook_parta.csv',
 for route_number in output:
     num_students_mxp = output[route_number][0].occupants
     num_students_notmxp = output[route_number][1]
-    print(str(num_students_mxp) + " " + str(num_students_notmxp))
+    #print(str(num_students_mxp) + " " + str(num_students_notmxp))
     
 mxp_routes = []
 for route_number in output:
@@ -210,8 +213,8 @@ for route_number in output:
     if num_students_mxp > 0:
         mxp_routes.append(output[route_number][0])
         
-cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
-mxp_routes = assign_buses(mxp_routes, cap_counts)[1]
+#cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
+#mxp_routes = assign_buses(mxp_routes, cap_counts)[1]
         
 occupants = sorted([route.occupants for route in mxp_routes])
 lengths = sorted([route.length for route in mxp_routes])
@@ -224,7 +227,7 @@ plt.hist(minute_lengths, bins = range(shortest//5*5, longest+5, 5))
 plt.xlabel("Estimated length (minutes)")
 plt.ylabel("Number of routes")
 plt.title("Route length estimates - existing routes")
-plt.savefig('output//existing_routes_unbinned.eps')
+#plt.savefig('output//existing_routes_unbinned.eps')
 
 
 
