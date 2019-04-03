@@ -1,4 +1,5 @@
 import constants
+from greedymoves import make_greedy_moves
 from locations import Student
 from mixedloads import mixed_loads
 import pickle
@@ -36,6 +37,16 @@ def main(partial_route_plan = None):
 
     routes = generate_routes(all_schools, partial_route_plan)
     
+    make_greedy_moves(routes)
+    
+    to_delete = set()
+    for route in routes:
+        if len(route.stops) == 0:
+            to_delete.add(route)
+    for route in to_delete:
+        print("Saved one")
+        routes.remove(route)
+    
     if constants.VERBOSE:
         print("Number of routes: " + str(len(routes)))
     
@@ -48,7 +59,7 @@ def main(partial_route_plan = None):
     
     #full_verification(all_routes, print_result = True)
     
-    #saving = open(("output//stopdiscretizedub.obj"), "wb")
+    #saving = open(("output//greedymoves.obj"), "wb")
     #pickle.dump(routes, saving)
     #saving.close()
     
@@ -96,7 +107,7 @@ for i in range(1):
         for t in range(pieces):
             if new_lengths[t] == best_length:
                 routes_returned = new_plans[t]
-                saving = open(("output//partialreplacedubnoswap.obj"), "wb")
+                saving = open(("output//greedymoves.obj"), "wb")
                 pickle.dump(routes_returned, saving)
                 saving.close()
                 break
