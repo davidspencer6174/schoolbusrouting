@@ -1,7 +1,7 @@
 import constants
 from locations import School, Stop
 from route import Route
-from random import random, shuffle
+from random import random, shuffle, randint
 
 #Returns travel time from loc1 to loc2
 def trav_time(loc1, loc2):
@@ -46,7 +46,12 @@ def generate_routes(schools):
     #683 unbused routes given 45 minutes
     all_stops = sorted(all_stops, key = lambda s: trav_time(s, s.school))
     #Trying other things...
-    #all_stops = sorted(all_stops, key = lambda s: (len(s.school.unrouted_stops['E'])+len(s.school.unrouted_stops['M'])+len(s.school.unrouted_stops['H'])))
+#    all_stops = sorted(all_stops, key = lambda s: s.value)
+#    for swap in range(20):
+#        ind1 = randint(0, len(all_stops) - 1)
+#        ind2 = randint(0, len(all_stops) - 1)
+#        all_stops[ind1], all_stops[ind2] = all_stops[ind2], all_stops[ind1]
+#    #all_stops = sorted(all_stops, key = lambda s: (len(s.school.unrouted_stops['E'])+len(s.school.unrouted_stops['M'])+len(s.school.unrouted_stops['H'])))
     routes = set()
     near_schools = determine_school_proximities(schools)
     while len(all_stops) > 0:
@@ -77,7 +82,7 @@ def generate_routes(schools):
                         #faraway stops.
                         time_cost = current_route.length - oldlength
                         value = stop.value
-                        score = value - time_cost
+                        score = value - 1.0*time_cost
                         if score > best_score:
                             best_score = score
                             best_stop = stop
