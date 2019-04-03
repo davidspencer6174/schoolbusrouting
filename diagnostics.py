@@ -125,9 +125,13 @@ def diagnostics(route_iter):
     most_locs = 0
     most_locs_route = None
     for route in route_list:
-        cur_locs = len(route.stops) + len(route.schools)
-        if cur_locs > most_locs:
-            most_locs = cur_locs
+        cur_locs = route.stops + route.schools
+        num_locs = 0
+        for i in range(len(cur_locs)):
+            if i == 0 or (cur_locs[i].tt_ind != cur_locs[i - 1].tt_ind):
+                num_locs += 1
+        if num_locs > most_locs:
+            most_locs = num_locs
             most_locs_route = route
     print("Most distinct locations on one route: " + str(most_locs))
     printout(most_locs_route)
@@ -155,8 +159,7 @@ def diagnostics(route_iter):
             print("Route that goes to Taft")
             printout(r)
     
-#loading = open("output//stopdiscretizedub.obj", "rb")
-loading = open("output//stopdiscretizedb.obj", "rb")
+loading = open("output//greedymoves.obj", "rb")
 obj = pickle.load(loading)
 diagnostics(obj)
 #print_all(obj)

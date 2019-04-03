@@ -75,6 +75,21 @@ class Route:
         
     def remove_stop(self, stop):
         self.stops.remove(stop)
+        school = stop.school
+        school_still_needed = False
+        for other_stop in self.stops:
+            if other_stop.school == school:
+                school_still_needed = True
+                break
+        if not school_still_needed:
+            self.schools = copy.copy(self.schools)
+            self.schools.remove(school)
+            #If there is nothing left, our length is 0
+            #TODO: Figure out the right way to deal with this
+            if len(self.schools) == 0:
+                self.length = 0
+                return
+            self.enumerate_school_orderings()
         #Route will no longer be used in this case
         if len(self.stops) == 0:
             return
@@ -173,6 +188,8 @@ class Route:
         for possible_schools in self.valid_school_orderings:
             #Length is stop travel time plus stop to first school
             #plus school travel time
+            if len(self.stops) == 0 or len(possible_schools[0]) == 0:
+                print("hmmmmmmmm")
             possible_length = (length +
                                trav_time(self.stops[-1], possible_schools[0][0]) +
                                possible_schools[1])
