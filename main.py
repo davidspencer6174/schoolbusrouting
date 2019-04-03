@@ -54,9 +54,9 @@ def main():
     
     #before_splitting = len(all_routes)
     
-    #out = assign_buses(all_routes, cap_counts)
-    #used = out[0]
-    #print("Number of buses used: " + str(used))
+    out = assign_buses(routes, cap_counts)
+    used = out[0]
+    print("Number of buses used: " + str(used))
     #print("Leftover buses: " + str(cap_counts))
     
     #print("Buses saved next time around: " + str(mixed_loads(out[1])))
@@ -70,8 +70,8 @@ num_routes = [[], []]
 routes_returned = None
 route_plan_sizes = []
 for i in range(500):
-    constants.MAX_SCHOOL_DIST = random.random()*1000 + 600
-    constants.DIST_WEIGHT = random.random()*1.5 + .1
+    constants.SCH_DIST_WEIGHT = random.random()*1.0
+    constants.STOP_DIST_WEIGHT = random.random()*1.0
     routes_returned = main()
     route_plan_sizes.append(len(routes_returned))
     if constants.VERBOSE:
@@ -81,8 +81,9 @@ for i in range(500):
         print("Total occupants: " + str(np.sum(occs)))
         numstops = np.array([len(r.stops) for r in routes_returned])
         print("Total number of stops visited: " + str(np.sum(numstops)))
-    print(str(constants.MAX_SCHOOL_DIST) + " " + str(constants.DIST_WEIGHT) +
-          " " + str(len(routes_returned)))
+    print(str(constants.SCH_DIST_WEIGHT) + " " +
+          str(constants.STOP_DIST_WEIGHT) + " " + 
+          str(len(routes_returned)))
     #[routes_returned, before_splitting] = main()
     #saving = open(("output//greedymlmove"+str(mins)+"p8busedcloseschool"+".obj"), "wb")
     #pickle.dump(routes_returned, saving)

@@ -38,6 +38,9 @@ def generate_routes(schools):
         all_stops.extend(school.unrouted_stops['E'])
         all_stops.extend(school.unrouted_stops['M'])
         all_stops.extend(school.unrouted_stops['H'])
+    #Initialize stop values
+    for stop in all_stops:
+        stop.update_value(None)
     #We will process the stops in order of distance
     #from their schools - an "inward-out" approach.
     #683 unbused routes given 45 minutes
@@ -47,7 +50,8 @@ def generate_routes(schools):
     routes = set()
     near_schools = determine_school_proximities(schools)
     while len(all_stops) > 0:
-        #print(len(all_stops))
+        if constants.VERBOSE:
+            print(len(all_stops))
         current_route = Route()
         #Pick up the most distant stop
         init_stop = all_stops[0]
@@ -61,7 +65,7 @@ def generate_routes(schools):
         while True:
             oldlength = current_route.length
             current_route.backup()
-            best_score = 100000
+            best_score = -100000
             best_stop = None
             for school in admissible_schools:
                 for stop in school.unrouted_stops[init_stop.type]:
@@ -72,9 +76,9 @@ def generate_routes(schools):
                         #increases while rewarding collecting
                         #faraway stops.
                         time_cost = current_route.length - oldlength
-                        dist = trav_time(stop, stop.school)
-                        score = time_cost - dist*constants.DIST_WEIGHT
-                        if score < best_score:
+                        value = stop.value
+                        score = value - time_cost
+                        if score > best_score:
                             best_score = score
                             best_stop = stop
                     current_route.restore()
@@ -84,6 +88,8 @@ def generate_routes(schools):
                 print("Something went wrong")
             best_stop.school.unrouted_stops[init_stop.type].remove(best_stop)
             all_stops.remove(best_stop)
+            for stop in best_stop.school.unrouted_stops[best_stop.type]:
+                stop.update_value(best_stop)
         #print(len(current_route.stops))
         routes.add(current_route)
     return routes

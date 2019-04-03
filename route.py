@@ -71,6 +71,15 @@ class Route:
         self.max_time = max(self.max_time,
                             constants.SLACK*trav_time(stop, stop.school))
         
+    def remove_stop(self, stop):
+        self.stops.remove(stop)
+        #Route will no longer be used in this case
+        if len(self.stops) == 0:
+            return
+        self.recompute_length()
+        self.recompute_occupants()
+        self.recompute_maxtime()
+        
     def get_route_length(self):
         return self.length
     
@@ -170,6 +179,17 @@ class Route:
                 self.schools = possible_schools[0]
         self.length = best_length
         return best_length
+    
+    def recompute_occupants(self):
+        self.occupants = 0
+        for stop in self.stops:
+            self.occupants += stop.occs
+            
+    def recompute_maxtime(self):
+        self.max_time = constants.MAX_TIME
+        for stop in self.stops:
+            self.max_time = max(self.max_time, constants.SLACK*
+                                            trav_time(stop, stop.school))
         
     #Determines whether the route is feasible with
     #respect to constraints.
@@ -214,8 +234,13 @@ class Route:
                     if verbose:
                         print("School not visited")
                     return False
-        #Too many students and there is a bus assigned
-        if self.bus_capacity > -1 and self.occupants > self.bus_capacity:
+        #Too many students and there is a bus assigned and
+        #there are multiple stops (sometimes, a single stop
+        #has too many students for any bus to take, so we
+        #assume that stop is handled alone)
+        if (self.bus_capacity > -1 and
+            self.occupants > self.bus_capacity and
+            len(self.stops) > 1):
             if verbose:
                 print("Too full")
             return False
@@ -231,14 +256,10 @@ class Route:
     #stores the corresponding capacity
     def set_capacity(self, cap):
         self.unmodified_bus_capacity = cap
-        first_stud = None
-        for loc in self.locations:
-            if isinstance(loc, Student):
-                first_stud = loc
-                break
-        if first_stud.type == 'E':
+        first_stop = self.stops[0]
+        if first_stop.type == 'E':
             self.bus_capacity =  constants.CAPACITY_MODIFIED_MAP[cap][0]
-        elif first_stud.type == 'M':
+        elif first_stop.type == 'M':
             self.bus_capacity =  constants.CAPACITY_MODIFIED_MAP[cap][1]
         else:
             self.bus_capacity =  constants.CAPACITY_MODIFIED_MAP[cap][2]
@@ -248,9 +269,9 @@ class Route:
     #to assign, then  middle, then high
     #Returns whether it is valid to assign the bus to the route
     def is_acceptable(self, cap):
-        if self.locations[0].type == 'E':
+        if self.stops[0].type == 'E':
             return constants.CAPACITY_MODIFIED_MAP[cap][0] >= self.occupants
-        elif self.locations[0].type == 'M':
+        elif self.stops[0].type == 'M':
             return constants.CAPACITY_MODIFIED_MAP[cap][1] >= self.occupants
         else:
             return constants.CAPACITY_MODIFIED_MAP[cap][2] >= self.occupants
