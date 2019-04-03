@@ -31,8 +31,30 @@ def determine_school_proximities(schools):
                 compatible_types(school1, school2)):
                 near_schools[school1].add(school2)
     return near_schools
+
+def apply_partial_route_plan(partial_route_plan, all_stops, new_route_plan):
+    for route in partial_route_plan:
+        new_route = Route()
+        new_route_plan.add(new_route)
+        for stop in route.stops:
+            isomorphic_stop = None
+            for search_stop in all_stops:
+                if (search_stop.type == stop.type and
+                    search_stop.school.school_name == stop.school.school_name and
+                    search_stop.tt_ind == stop.tt_ind):
+                    isomorphic_stop = search_stop
+                    break
+            if isomorphic_stop == None:
+                print("Stop not found")
+            new_route.add_stop(isomorphic_stop)
+            isomorphic_stop.school.unrouted_stops[isomorphic_stop.type].remove(isomorphic_stop)
+            all_stops.remove(isomorphic_stop)
+            for stop in isomorphic_stop.school.unrouted_stops[isomorphic_stop.type]:
+                stop.update_value(isomorphic_stop)
+    print("Done applying partial route plan")
+            
         
-def generate_routes(schools):
+def generate_routes(schools, partial_route_plan = None):
     all_stops = []
     for school in schools:
         all_stops.extend(school.unrouted_stops['E'])
@@ -54,6 +76,14 @@ def generate_routes(schools):
 #    #all_stops = sorted(all_stops, key = lambda s: (len(s.school.unrouted_stops['E'])+len(s.school.unrouted_stops['M'])+len(s.school.unrouted_stops['H'])))
     routes = set()
     near_schools = determine_school_proximities(schools)
+    if partial_route_plan != None:
+        apply_partial_route_plan(partial_route_plan, all_stops, routes)
+        #all_stops = sorted(all_stops, key = lambda s: trav_time(s, s.school))
+        #all_stops = sorted(all_stops, key = lambda s: s.value)
+        #for swap in range(20):
+        #    ind1 = randint(0, len(all_stops) - 1)
+        #    ind2 = randint(0, len(all_stops) - 1)
+        #    all_stops[ind1], all_stops[ind2] = all_stops[ind2], all_stops[ind1]
     while len(all_stops) > 0:
         if constants.VERBOSE:
             print(len(all_stops))
@@ -82,7 +112,7 @@ def generate_routes(schools):
                         #faraway stops.
                         time_cost = current_route.length - oldlength
                         value = stop.value
-                        score = value - 1.0*time_cost
+                        score = value - 0.8*time_cost
                         if score > best_score:
                             best_score = score
                             best_stop = stop
