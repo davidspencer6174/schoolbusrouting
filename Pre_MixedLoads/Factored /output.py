@@ -36,7 +36,6 @@ def printBeginStats(cluster_school_map, schoolcluster_students_map, cap_counts, 
     print("Bus Info: ")
     print(cap_counts)
 
-# TODO: ADD MORE STATISTICS 
 # Print statistics after routing complete
 def printFinalStats(routes_returned):
     studentCount = 0
