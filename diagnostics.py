@@ -18,62 +18,35 @@ def append_to_link(link, tt_ind, slash=True):
     return link
 
 def printout(route):
-    locs = route.locations
+    stops = route.stops
+    schools = route.schools
     print("Estimated time: " + str(route.length/60) + " minutes.")
-    if locs[0].type == "H":
+    if stops[0].type == "H":
         print("Picking up high school students")
-    if locs[0].type == "M":
+    if stops[0].type == "M":
         print("Picking up middle school students")
-    if locs[0].type == "E":
+    if stops[0].type == "E":
         print("Picking up elementary school students")
     print("Bus capacity: " + str(route.unmodified_bus_capacity))
     print("Bus capacity adjusted for student size: " + str(route.bus_capacity))
-    total_students = 0
-    for i in locs:
-        if isinstance(i, Student):
-            total_students += 1
-    print("Number of assigned students: " + str(total_students))
+    print("Number of assigned students: " + str(route.occupants))
     
-    tt_ind_current = -1
-    dropoffs = dict()
-    students_picked_up = dict()
-    #print out route
-    for loc in locs:
-        if loc.tt_ind != tt_ind_current:
-            if tt_ind_current in dropoffs:
-                for school in dropoffs[tt_ind_current]:
-                    print("Drop off student(s) who go to " + school)
-            tt_ind_current = loc.tt_ind
-            if len(students_picked_up) > 0:
-                for cost_cent in students_picked_up:
-                    if students_picked_up[cost_cent] > 1:
-                        print("Pick up " + str(students_picked_up[cost_cent]) +
-                              " students who go to " + str(cost_cent))
-                    else:
-                        print("Pick up 1 student who goes to " + str(cost_cent))
-            print(append_to_link("Go to latitude-longitude ", tt_ind_current, slash=False))
-            schools_visited = set()
-            students_picked_up = dict()
-        if isinstance(loc, Student):
-            if loc.fields[2] in students_picked_up:
-                students_picked_up[loc.fields[2]] += 1
-            else:
-                students_picked_up[loc.fields[2]] = 1
-            if loc.school.tt_ind not in dropoffs:
-                dropoffs[loc.school.tt_ind] = set()
-            dropoffs[loc.school.tt_ind].add(loc.fields[2])
+    for i in range(len(stops)):
+        if i == 0 or (i > 0 and stops[i].tt_ind != stops[i - 1].tt_ind):
+            print(append_to_link("Go to latitude-longitude ", stops[i].tt_ind,
+                                 slash=False))
+        if stops[i].occs > 1:
+            print("Pick up " + str(stops[i].occs) +
+                  " students who go to " + stops[i].school.school_name)
         else:
-            schools_visited.add(loc)
-    if tt_ind_current in dropoffs:
-        for school in dropoffs[tt_ind_current]:
-            print("Drop off student(s) who go to " + school)
-    if len(students_picked_up) > 0:
-        for cost_cent in students_picked_up:
-            if students_picked_up[cost_cent] > 1:
-                print("Pick up " + str(students_picked_up[cost_cent]) +
-                              " students who go to " + str(cost_cent))
-            else:
-                print("Pick up 1 student who goes to " + str(cost_cent))
+            print("Pick up " + str(stops[i].occs) +
+                  " student who goes to " + stops[i].school.school_name)
+    for i in range(len(schools)):
+        if i == 0 or (i > 0 and schools[i].tt_ind != schools[i - 1].tt_ind):
+            print(append_to_link("Go to latitude-longitude ", schools[i].tt_ind,
+                                 slash=False))
+        print("Drop off at " + schools[i].school_name)
+            
     print("Google maps link: ")        
     printout_google_maps(route)
     print("Ending printout of route.")
@@ -83,7 +56,7 @@ def printout(route):
         print()
             
 def printout_google_maps(route):
-    locs = route.locations
+    locs = route.stops + route.schools
     link = "https://www.google.com/maps/dir"
     appended = 0
     for i in range(len(locs)):
@@ -113,18 +86,11 @@ def diagnostics(route_iter):
     for route in route_iter:
         route_list.append(route)
         total_time += route.length
-        schools = 0
-        students = 0
-        for loc in route.locations:
-            if isinstance(loc, School):
-                schools += 1
-            if isinstance(loc, Student):
-                students += 1
-        if schools > 1:
+        if len(route.schools) > 1:
             num_mixedload += 1
         else:
             num_singleload += 1
-        num_students += students
+        num_students += route.occupants
         if route.unmodified_bus_capacity in buses_used:
             buses_used[route.unmodified_bus_capacity] += 1
         else:
@@ -147,65 +113,50 @@ def diagnostics(route_iter):
     #visits most schools
     most_schools = 0
     most_schools_route = None
-    for j in range(len(route_list)):
-        cur_schools = 0
-        locs = route_list[j].locations
-        for i in range(1, len(locs)):
-            if isinstance(locs[i], School):
-                if locs[i].tt_ind != locs[i-1].tt_ind:
-                    cur_schools += 1
+    for route in route_list:
+        cur_schools = len(route.schools)
         if cur_schools > most_schools:
             most_schools = cur_schools
-            most_schools_route = route_list[j]
+            most_schools_route = route
     print("Most schools on one route: " + str(most_schools))
     printout(most_schools_route)
     
     #visits most distinct locations
     most_locs = 0
     most_locs_route = None
-    for j in range(len(route_list)):
-        cur_locs = 1
-        locs = route_list[j].locations
-        for i in range(1, len(locs)):
-            if locs[i].tt_ind != locs[i-1].tt_ind:
-                cur_locs += 1
+    for route in route_list:
+        cur_locs = len(route.stops) + len(route.schools)
         if cur_locs > most_locs:
             most_locs = cur_locs
-            most_locs_route = route_list[j]
+            most_locs_route = route
     print("Most distinct locations on one route: " + str(most_locs))
     printout(most_locs_route)
     
     #most riders while having mixed loads
     most_occs = 0
-    for j in range(len(route_list)):
-        cur_occs = 0
-        cur_schools = 0
-        locs = route_iter[j].locations
-        for i in range(0, len(locs)):
-            if isinstance(locs[i], Student):
-                cur_occs += 1
-            if isinstance(locs[i], School):
-                cur_schools += 1
+    most_occs_route = None
+    for route in route_list:
+        cur_occs = route.occupants
+        cur_schools = len(route.schools)
         if cur_occs >= most_occs and cur_schools > 1:
             most_occs = cur_occs
-            most_occs_route = route_list[j]
+            most_occs_route = route
     print("Most occupants on a mixed-loads route: " + str(most_occs))
     printout(most_occs_route)
     
     #do all Taft routes
     for r in route_list:
         to_print = False
-        for loc in r.locations:
-            if isinstance(loc, Student):
-                if (loc.fields[2].strip() == "TAFT CHS" or
-                    loc.fields[2].strip() == "TAFT GIFTED STEAM MAG"):
-                    to_print = True
+        for school in r.schools:
+            if (school.school_name.strip() == "TAFT CHS" or
+                school.school_name.strip() == "TAFT GIFTED STEAM MAG"):
+                to_print = True
         if to_print:
             print("Route that goes to Taft")
             printout(r)
     
-loading = open("output//weightedcost602bused.obj", "rb")
-#loading = open("output//greedymlmove60bused.obj", "rb")
+#loading = open("output//stopdiscretizedub.obj", "rb")
+loading = open("output//stopdiscretizedb.obj", "rb")
 obj = pickle.load(loading)
 diagnostics(obj)
 #print_all(obj)

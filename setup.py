@@ -104,7 +104,7 @@ def setup_students(phonebooks, all_geocodes, geocoded_stops,
                 else:
                     if constants.VERBOSE:
                         print("No time given for " + school)                    
-                ind_school_dict[school_ind] = School(school_ind, belltime)
+                ind_school_dict[school_ind] = School(school_ind, belltime, fields[2])
                 all_schools.add(ind_school_dict[school_ind])
             this_student = Student(stop_ind, ind_school_dict[school_ind],
                                    age_type, fields)

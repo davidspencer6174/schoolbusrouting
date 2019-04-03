@@ -48,9 +48,9 @@ def main():
     
     #full_verification(all_routes, print_result = True)
     
-    #saving = open(("output//refactor"+str(int(constants.MAX_TIME/60))+"p8unbusedcloseschool.obj"), "wb")
-    #pickle.dump(all_routes, saving)
-    #saving.close()
+    saving = open(("output//stopdiscretizedub.obj"), "wb")
+    pickle.dump(routes, saving)
+    saving.close()
     
     #before_splitting = len(all_routes)
     
@@ -64,16 +64,13 @@ def main():
     #print("Original length: " + str(len(all_routes)))
     
     #return (out[1], before_splitting)
-    return routes
+    return (out[1], routes)
     
-num_routes = [[], []]
 routes_returned = None
-route_plan_sizes = []
-for i in range(500):
-    constants.SCH_DIST_WEIGHT = random.random()*1.0
-    constants.STOP_DIST_WEIGHT = random.random()*1.0
+for i in range(1):
+    #constants.SCH_DIST_WEIGHT = random.random()*1.0
+    #constants.STOP_DIST_WEIGHT = random.random()*1.0
     routes_returned = main()
-    route_plan_sizes.append(len(routes_returned))
     if constants.VERBOSE:
         lengths = np.array([r.length for r in routes_returned])
         print("Mean length: " + str(np.mean(lengths)))
@@ -81,14 +78,11 @@ for i in range(500):
         print("Total occupants: " + str(np.sum(occs)))
         numstops = np.array([len(r.stops) for r in routes_returned])
         print("Total number of stops visited: " + str(np.sum(numstops)))
-    print(str(constants.SCH_DIST_WEIGHT) + " " +
-          str(constants.STOP_DIST_WEIGHT) + " " + 
-          str(len(routes_returned)))
-    #[routes_returned, before_splitting] = main()
-    #saving = open(("output//greedymlmove"+str(mins)+"p8busedcloseschool"+".obj"), "wb")
-    #pickle.dump(routes_returned, saving)
-    #num_routes[0].append(before_splitting)
-    #num_routes[1].append(len(routes_returned))
-    #print(num_routes)
-    #saving.close()
-print(route_plan_sizes)
+    #print(str(constants.SCH_DIST_WEIGHT) + " " +
+    #      str(constants.STOP_DIST_WEIGHT) + " " + 
+    #      str(len(routes_returned)))
+    print(str(len(routes_returned)))
+    [bused, unbused] = main()
+    saving = open(("output//stopdiscretizedb.obj"), "wb")
+    pickle.dump(bused, saving)
+    saving.close()
