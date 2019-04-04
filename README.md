@@ -1,2 +1,2 @@
 # schoolbusrouting
-School bus routing program for collaboration with LAUSD
+pre-mixed-loads approach to the school bus routing problem
