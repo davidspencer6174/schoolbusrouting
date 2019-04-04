@@ -17,6 +17,7 @@ PROG_TYPES = ['P', 'X', 'M']
 SCHOOL_TYPE = 'elem'
 BREAK_NUM = 5
 OCCUPANTS_LIMIT = 10
+SCHOOL_CATEGORIES = ['elem', 'middle', 'high']
 
 # DBSCAN paramters
 # Radius (km)
