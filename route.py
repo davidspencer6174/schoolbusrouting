@@ -169,6 +169,9 @@ class Route:
                 time += school_mintime - maxtime
             mintime = max(school_mintime, mintime)
             maxtime = min(school_maxtime, max(maxtime, mintime))
+        #if time > constants.MAX_SCHOOL_DIST*1.5:
+        #    memoized_timechecks[tuple(school_perm)] = (False, 0)
+        #    return (False, 0)
         memoized_timechecks[tuple(school_perm)] = (True, time)
         return (True, time)
     

@@ -1,7 +1,8 @@
+import constants
+
 def make_greedy_moves(route_plan):
     improved = False
     for route1 in route_plan:
-        print("new route")
         route1.backup()
         tt_inds = set()
         for stop in route1.stops:
@@ -35,8 +36,8 @@ def make_greedy_moves(route_plan):
                         break
                 cost = route2.length - oldtime2
                 if savings > cost and feasible:
-                    print("Saved " + str(savings-cost))
-                    print(len(route1.stops))
+                    if constants.VERBOSE:
+                        print("Saved " + str(savings-cost))
                     improved = True
                     this_improved = True
                     route1.backup()

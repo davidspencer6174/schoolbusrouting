@@ -54,7 +54,7 @@ def apply_partial_route_plan(partial_route_plan, all_stops, new_route_plan):
     print("Done applying partial route plan")
             
         
-def generate_routes(schools, partial_route_plan = None):
+def generate_routes(schools, permutation = None, partial_route_plan = None):
     all_stops = []
     for school in schools:
         all_stops.extend(school.unrouted_stops['E'])
@@ -67,6 +67,8 @@ def generate_routes(schools, partial_route_plan = None):
     #from their schools - an "inward-out" approach.
     #683 unbused routes given 45 minutes
     all_stops = sorted(all_stops, key = lambda s: trav_time(s, s.school))
+    if permutation != None:
+        all_stops = [all_stops[i] for i in permutation]
     #Trying other things...
 #    all_stops = sorted(all_stops, key = lambda s: s.value)
 #    for swap in range(20):
@@ -112,7 +114,10 @@ def generate_routes(schools, partial_route_plan = None):
                         #faraway stops.
                         time_cost = current_route.length - oldlength
                         value = stop.value
-                        score = value - 0.8*time_cost
+                        time_proportion_left = 1 - (time_cost/(current_route.max_time - oldlength))
+                        #score = value/(time_cost**1.2)
+                        #score = value*(time_proportion_left+.4)
+                        score = value - time_cost
                         if score > best_score:
                             best_score = score
                             best_stop = stop
