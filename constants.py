@@ -19,7 +19,7 @@ TYPE_IND_MAP['E'] = 0
 TYPE_IND_MAP['M'] = 1
 TYPE_IND_MAP['H'] = 2
 
-MAX_SCHOOL_DIST = 1200
+MAX_SCHOOL_DIST = 1000
     
 #For a stated capacity, make it easy to access the
 #capacities for each age - elementary, middle, high

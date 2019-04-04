@@ -135,6 +135,11 @@ def existing_routes(phonebooks, all_geocodes, geocoded_stops,
             
     bus_col = 12
     
+    #track the number of non mxp pickups for each route
+    #for the sake of attributing portion of route which is
+    #non mxp
+    non_mxp_pickups = dict()
+    
     for record in student_records:
         fields = record.split(";")
         if len(fields) <= bus_col + 6:
@@ -190,8 +195,19 @@ def existing_routes(phonebooks, all_geocodes, geocoded_stops,
                 new_stop.add_student(this_student)
                 route.add_stop(new_stop)
         else:
+            if route_number not in non_mxp_pickups:
+                non_mxp_pickups[route_number] = set()
+            non_mxp_pickups[route_number].add(stop_ind)
             routes_map[route_number][1] += 1
-            
+    
+    total_routes = 0
+    for route_number in routes_map:
+        num_mxp_stops = len(routes_map[route_number][0].stops)
+        num_nonmxp_stops = 0
+        if route_number in non_mxp_pickups:
+            num_nonmxp_stops = len(non_mxp_pickups[route_number])
+        total_routes += num_mxp_stops / (num_mxp_stops+num_nonmxp_stops)
+    print("Number of routes when dividing up attribution: " + str(total_routes))
     return routes_map
 
 prefix = "data//"
