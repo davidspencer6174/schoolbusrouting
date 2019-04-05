@@ -159,7 +159,7 @@ def diagnostics(route_iter):
             print("Route that goes to Taft")
             printout(r)
     
-loading = open("output//42460m.obj", "rb")
+loading = open("output//fixedlastinsert55m.obj", "rb")
 obj = pickle.load(loading)
 diagnostics(obj)
 #print_all(obj)

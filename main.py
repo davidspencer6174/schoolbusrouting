@@ -41,14 +41,6 @@ def main(partial_route_plan = None, permutation = None):
     
     #make_greedy_moves(routes)
     
-    to_delete = set()
-    for route in routes:
-        if len(route.stops) == 0:
-            to_delete.add(route)
-    for route in to_delete:
-        print("Saved one")
-        routes.remove(route)
-    
     if constants.VERBOSE:
         print("Number of routes: " + str(len(routes)))
     
@@ -82,21 +74,30 @@ def main(partial_route_plan = None, permutation = None):
 routes_returned = None
 
 def permutation_approach():
-    routes_returned = main()
+    #Uncomment latter lines to use an existing permutation
+    best_perm = None
+    #loading_perm = open(("output//lastperm55m.obj"), "rb")
+    #best_perm = pickle.load(loading_perm)
+    #loading_perm.close()
+    routes_returned = main(permutation = best_perm)
     all_stops = set()
     for route in routes_returned:
         for stop in route.stops:
             all_stops.add(stop)
-    best_perm = list(range(len(all_stops)))
+    if best_perm == None:
+        best_perm = list(range(len(all_stops)))
     best_num_routes = len(routes_returned)
     best_time = np.sum(np.array([r.length for r in routes_returned]))
     best = routes_returned
+    print(best_num_routes + " " + str(best_time/best_num_routes/60))
     successes = []
     while True:
         new_perm = copy.copy(best_perm)
-        num_to_swap = random.randint(1, 25)
+        num_to_swap = random.randint(1, 3)
         for swap in range(num_to_swap):
-            ind1 = random.randint(0, len(new_perm) - 1)
+            ind1 = random.randint(0, 40)
+            if random.random() < .9:
+                ind1 = random.randint(0, len(new_perm) - 1)
             ind2 = random.randint(0, len(new_perm) - 1)
             new_perm[ind1], new_perm[ind2] = new_perm[ind2], new_perm[ind1]
         new_routes_returned = main(permutation = new_perm)
@@ -109,7 +110,7 @@ def permutation_approach():
                 best_num_routes = new_num_routes
                 best_time = new_time
                 best = new_routes_returned
-                saving = open(("output//workspace.obj"), "wb")
+                saving = open(("output//fixedlastinsert.obj"), "wb")
                 pickle.dump(best, saving)
                 saving.close()
                 saving = open(("output//lastperm.obj"), "wb")
@@ -117,7 +118,60 @@ def permutation_approach():
                 saving.close()
                 successes.append(num_to_swap)
                 print(successes)
-        print(new_num_routes)
+        print(str(new_num_routes) + " " + str(new_time/new_num_routes/60))
+        
+best_results = []
+
+def vary_params():
+    best = 10000
+    for i in range(500):
+        #interesting:
+        #.6168660904233182
+        #.11884540775695918
+        #-782.0102581987334
+        #417
+        #.4489310134175062
+        #.0466412252275971
+        #-956.9955655024021
+        #418 54.11
+        #.5178650537039641
+        #.00696192681486929
+        #-299.059132574243
+        #454 48.89
+        #.3945923017356171
+        #.06278120044940694
+        #-838.8683761471727
+        #424 52.86
+        constants.SCH_DIST_WEIGHT = random.random()*1.3
+        constants.STOP_DIST_WEIGHT = random.random()*.3 - .1
+        constants.EVALUATION_CUTOFF = random.random()*3000 - 2500
+        routes_returned = main()
+        if len(routes_returned) < best:
+            best = len(routes_returned)
+            #saving = open(("output/varyingparams.obj"), "wb")
+            #pickle.dump(routes_returned, saving)
+            #saving.close()
+        mean_time = np.mean(np.array([r.length for r in routes_returned]))
+        result = (len(routes_returned), mean_time/60, constants.SCH_DIST_WEIGHT,
+                  constants.STOP_DIST_WEIGHT, constants.EVALUATION_CUTOFF)
+        strictly_worse = False
+        to_remove = set()
+        for other_result in best_results:
+            if other_result[0] <= result[0] and other_result[1] <= result[1]:
+                strictly_worse = True
+                break
+            if result[0] <= other_result[0] and result[1] <= other_result[1]:
+                to_remove.add(other_result)
+        if not strictly_worse:
+            best_results.append(result)
+            for worse_one in to_remove:
+                best_results.remove(worse_one)
+            print(sorted([i[0:2] for i in best_results], key=lambda x:x[0]))
+        print(str(constants.SCH_DIST_WEIGHT) + " " +
+              str(constants.STOP_DIST_WEIGHT) + " " +
+              str(constants.EVALUATION_CUTOFF) + " " +
+              str(len(routes_returned)) + " " + 
+              str(mean_time/60))
         
     
 def subroutes_approach():
@@ -173,4 +227,5 @@ def subroutes_approach():
         pickle.dump(bused, saving)
         saving.close()
         
-permutation_approach()
+#permutation_approach()
+vary_params()

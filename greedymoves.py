@@ -48,3 +48,10 @@ def make_greedy_moves(route_plan):
                 route1.restore()
     if improved:
         make_greedy_moves(route_plan)
+    to_delete = set()
+    for route in route_plan:
+        if len(route.stops) == 0:
+            to_delete.add(route)
+    for route in to_delete:
+        print("Saved one")
+        route_plan.remove(route)

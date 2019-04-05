@@ -86,8 +86,6 @@ class Stop:
                 self.dependent = stop
         value = trav_time(self, self.school)*(constants.SCH_DIST_WEIGHT +
                                               constants.STOP_DIST_WEIGHT)
-        if self.value == -1000:
-            value *= 2
         if value > self.value:
             self.value = value
             self.dependent = self.school
