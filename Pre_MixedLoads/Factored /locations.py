@@ -1,6 +1,5 @@
 import constants
 import numpy as np
-from itertools import chain
 
 class School:
     #tt_ind denotes the index of the school in the travel time matrix
@@ -24,14 +23,19 @@ class Route:
         self.school_path = school_path
         self.schools_to_visit = set() 
         self.bus_size = None
-    
+        self.isCombinedRoute = None 
+
     def get_route_length(self):
         return sum([i for i, j in self.path_info])
 
     def add_student(self, student):
         self.students.append(student)
         self.occupants += 1
-    
+   
+    # Update status of combined route
+    def updateCombineRouteStatus(self):
+        self.isCombinedRoute = True 
+
     def updateBus(self, bus_cap):
         self.bus_size = bus_cap
     
@@ -40,21 +44,18 @@ class Route:
         
     # Obtain the "center" of the route
     def findRouteCenter(self):
-        
         lat = []
         long = []
-        
         route_coords = constants.GEOCODES[constants.GEOCODES.index.isin(self.path)]
         for row in route_coords.iterrows(): 
             lat.append(row[1]['Lat'])
             long.append(row[1]['Long'])
-        
         return (round(sum(lat)/float(len(lat)),6), round(sum(long)/float(len(long)),6))
     
     def schoollessPath(self):
         return list(filter(lambda x: x not in self.school_path, self.path))
-    
-    # Combine route
+   
+   # Combine route
     def combineRoute(self, new_route):
         
         # Add new_route students into this route

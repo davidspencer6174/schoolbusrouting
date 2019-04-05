@@ -224,6 +224,10 @@ def combineRoutes(routes):
        
         # Combine appropriate routes
         routes_to_return[ind].combineRoute(low_occ_routes[idx])
+        
+        # Update combined route status 
+        routes_to_return[ind].updateCombineRouteStatus()
+
         idx += 1
 
     if full_routes:

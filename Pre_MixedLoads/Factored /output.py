@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np 
 import pickle
-import math
 import constants
 
 # Print statistics of a school cluster
@@ -122,13 +121,20 @@ def outputRoutes(cluster_school_map, routes_returned, filename, title):
             for route in routes_returned[index][idx]:
                 if int(route.occupants) < 8:
                     file.write("LOW OCCUPANCY BUS \n")
-                    
+                
+                if route.isCombinedRoute == True:
+                    file.write("Combined Route == True\n")
+               
+                travel_time = 0 
+                for route_stat in route.path_info:
+                    travel_time += route_stat[0]
+
                 file.write("Route index: " + str(index) + "." + str(count) + "\n")
                 file.write("Route path: " + str(route.path) + "\n")
                 file.write("Route path information: " + str(route.path_info) + "\n")
                 file.write("Bus capacity: " + str(route.bus_size) + "\n")
-                file.write("Num. of occupants: " + str(route.occupants) + "\n\n")
-                
+                file.write("Num. of occupants: " + str(route.occupants) + "\n")
+                file.write("Travel Time: " + str(travel_time) + "\n") 
                 link = "https://www.google.com/maps/dir"
     
                 for point in route.path:
@@ -165,3 +171,20 @@ def outputDictionary(schools_students_attend, schoolcluster_students_map_df, stu
     schools_students_attend.to_csv(str(student_level) + '_clustered_schools_file.csv', sep=';', encoding='utf-8')
     with open(str(student_level) + '_clusteredschools_students_map' ,'wb') as handle:
         pickle.dump(schoolcluster_students_map_df, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+# TODO: Student time statistics 
+def obtainStudentStats(): 
+    pass 
+
+# TODO: How many routes exceeded max time
+def excessTimeStats(total_routes):
+    pass
+
+
+
+
+
+
+
+
+

@@ -51,9 +51,10 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     schools['tt_ind'] = school_index_list
     schools = editBellTimes(schools)
 
-    phonebook = pd.read_csv(phonebook, dtype={"RecordID": str, 'Prog': str, 'Grade': int, 'Cost_Center': str, "AM_Route": str, 'Lat': float, 'Long': float}, low_memory=False)
-    phonebook = phonebook[['RecordID', 'Prog', 'Cost_Center', 'Cost_Center_Name','Grade','AM_Stop_Address', 'AM_Route']]
+    phonebook = pd.read_csv(phonebook, dtype={"RecordID": str, 'Prog': str, 'Grade': int, 'Cost_Center': str, "AM_Trip": str, "AM_Route": str, 'Lat': float, 'Long': float}, low_memory=False)
+    phonebook = phonebook[['RecordID', 'Prog', 'Cost_Center', 'Cost_Center_Name','Grade','AM_Stop_Address', 'AM_Route', 'AM_Trip']]
     phonebook = phonebook[phonebook['AM_Route'] != str(9500)]
+    phonebook = phonebook[phonebook['AM_Trip'] == str(1)]
     phonebook = phonebook[phonebook['AM_Stop_Address'] != str(", , ")]
     phonebook = pd.merge(phonebook, stops[['AM_Stop_Address','Lat', 'Long']], on= 'AM_Stop_Address', how='inner')
     
