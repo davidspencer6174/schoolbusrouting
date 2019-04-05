@@ -118,7 +118,8 @@ class Route:
                     best_cost = cost
                     best_ind = i + 1
         final_cost = (trav_time(self.stops[-1], stop) +
-                      trav_time(stop, self.schools[0]))
+                      trav_time(stop, self.schools[0]) -
+                      trav_time(self.stops[-1], self.schools[0]))
         if final_cost < best_cost:
             self.stops.append(stop)
         else:
