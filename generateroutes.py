@@ -64,9 +64,12 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
     for stop in all_stops:
         stop.update_value(None)
     #We will process the stops in order of distance
-    #from their schools - an "inward-out" approach.
-    #683 unbused routes given 45 minutes
-    all_stops = sorted(all_stops, key = lambda s: trav_time(s, s.school))
+    #from their schools
+    #The second and third parts of the tuple improve
+    #determinizm of the sorting algorithm.
+    all_stops = sorted(all_stops, key = lambda s: (-trav_time(s, s.school),
+                                                   s.type,
+                                                   s.school.school_name))
     if permutation != None:
         all_stops = [all_stops[i] for i in permutation]
     #Trying other things...
@@ -102,7 +105,8 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
         while True:
             oldlength = current_route.length
             current_route.backup()
-            best_score = -100000
+            #best_score = -100000
+            best_score = constants.EVALUATION_CUTOFF
             best_stop = None
             for school in admissible_schools:
                 for stop in school.unrouted_stops[init_stop.type]:
@@ -114,7 +118,7 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
                         #faraway stops.
                         time_cost = current_route.length - oldlength
                         value = stop.value
-                        time_proportion_left = 1 - (time_cost/(current_route.max_time - oldlength))
+                        #time_proportion_left = 1 - (time_cost/(current_route.max_time - oldlength))
                         #score = value/(time_cost**1.2)
                         #score = value*(time_proportion_left+.4)
                         score = value - time_cost
