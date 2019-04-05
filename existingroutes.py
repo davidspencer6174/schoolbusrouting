@@ -256,3 +256,26 @@ plt.title("Route length estimates - existing routes")
 #plt.ylabel("Number of routes in plan")
 #plt.title("Number of routes for varying default max minutes parameter")
 #plt.savefig('output//timecomparison.eps')
+
+
+
+
+# =============================================================================
+# for r in mxp_routes:
+#     e = 0
+#     m = 0
+#     h = 0
+#     student_to_keep = None
+#     for s in r.stops:
+#         for student in s.students:
+#             if student.type == 'E':
+#                 e += 1
+#             if student.type == 'M':
+#                 m += 1
+#             if student.type == 'H':
+#                 h += 1
+#             student_to_keep = student
+#     if e*m+e*h+m*h > 0:
+#         print(str(e) + " " + str(m) + " " + str(h))
+#         print(student.fields[11])
+# =============================================================================
