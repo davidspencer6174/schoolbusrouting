@@ -65,9 +65,18 @@ TRAVEL_TIMES = np.load("data//travel_time_matrix.npy")*TT_MULT
 #MAX_TIME = 5500
 #MAX_TIME = 4100
 MAX_TIME = 3600
+#MAX_TIME = 3300
 
-SCH_DIST_WEIGHT = 0.4
-STOP_DIST_WEIGHT = 0.1
+#Cutoff below which a stop will not be accepted
+#Goal is to reduce mean travel time
+#EVALUATION_CUTOFF = -1000
+EVALUATION_CUTOFF = -374.424277
+
+#Weights to determine value of a stop
+#SCH_DIST_WEIGHT = 0.85
+#STOP_DIST_WEIGHT = 0.2
+SCH_DIST_WEIGHT = .580281238
+STOP_DIST_WEIGHT = -.063762433
 
 #Seconds before belltime to determine valid arrival
 #Valid arrival times are [belltime-EARLIEST, belltime-LATEST]
