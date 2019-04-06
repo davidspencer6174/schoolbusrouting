@@ -55,8 +55,7 @@ def getPossibleRoute(items, index, total_indexes):
 def makeRoutes(school_route_time, school_route, stud_route, students):
     
     time = sum(school_route_time)
-    path_info_list = list()
-    path_info = list()
+    path_info, path_info_list = list(), list()
     base = school_route[-1]
         
     students.sort(key=lambda x: x.tt_ind, reverse=False)
@@ -65,7 +64,6 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
 
     SCHOOL_TYPE_INDEX = constants.SCHOOL_CATEGORIES.index(constants.SCHOOL_TYPE)
     MODIFIED_LARGEST_BUS = (constants.CAPACITY_MODIFIED_MAP[constants.CAP_COUNTS[-1][0]])[SCHOOL_TYPE_INDEX]
-
 
     # Go through every stop and check if they meet the constants.MAX_TIME or bus constraints
     # Create new route (starting from the schools) if the constraints are not met 
@@ -137,6 +135,12 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
                 if current_route.occupants >= sum([j for i, j in current_route.path_info]):
                     break
 
+        # TODO: Remove schools that don't need to be visited
+        for idx, stud in enumerate(current_route.students):
+            pass
+
+        # TODO: STUDENT TIME ON BUS 
+
        # Assign buses to the routes according to num. of occupants
        # We have to use modified capacities mapping 
         for bus_ind in range(len(constants.CAP_COUNTS)):
@@ -151,9 +155,6 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
                  if bus[1] == 0:
                      constants.CAP_COUNTS.remove(bus)
                  break 
-
-        # TODO: REMOVE SCHOOLS THAT DON'T NEED TO BE VISITED 
-        # CLEANING CODE # CLEANING CODE # CLEANING CODE # CLEANING CODE 
 
         route_list.append(current_route)
         
@@ -182,9 +183,8 @@ def startRouting(cluster_school_map, schoolcluster_students_map):
             route_list.append(routes_returned)
         
         routes[key] = route_list    
-            
+
     return routes
-    
 
 # TODO: HAVE TO EDIT THIS TO TAKE INTO ACCOUNT BUS CAPACITIES 
 # Combine routes that have low occupancies 

@@ -1,19 +1,19 @@
 import constants
 import sys 
 from routing import startRouting
-from setup import setup_data, setup_cluster
-from output import outputRoutes, getRouteStats, getStudentStats
+from setup import setup_data, setup_clusters
+from output import output_routes_to_file, get_route_stats, get_student_stats
 
 def main():
    
-    # try:
+    # try: 
     #     if sys.argv[1] == "True": 
-    #         constants.REMOVE_LOW_OCC = True 
-    #     else: 
-    #         constants.REMOVE_LOW_OCC = False
-    # except:
+    #         constants.REMOVE_LOW_OCC = True
+    #     else:
+    #         constants.REMOVE_LOW_OCC = False 
+    # except: 
     #     pass
-    
+
     prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
     total_routes = list()
     
@@ -25,15 +25,15 @@ def main():
                                                                             prefix+'totalPhoneBook.csv',
                                                                             prefix+'bell_times.csv')
 
-        cluster_school_map, schoolcluster_students_map = setup_cluster(schools_students_attend, schoolcluster_students_map_df)
+        cluster_school_map, schoolcluster_students_map = setup_clusters(schools_students_attend, schoolcluster_students_map_df)
         routes_returned = startRouting(cluster_school_map, schoolcluster_students_map)
         total_routes.append(routes_returned) 
 
         if constants.VERBOSE:
-            finalStats = getRouteStats(routes_returned, schoolcluster_students_map, cluster_school_map)
-            getStudentStats(routes_returned)
+            final_stats = get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map)
+            get_student_stats(routes_returned)
 
-        outputRoutes(finalStats, routes_returned, (str(school_category)+"_school_routes"), (school_category.upper() + " SCHOOL ROUTES"))
+        output_routes_to_file(final_stats, routes_returned, (str(school_category)+"_school_routes"), (school_category.upper() + " SCHOOL ROUTES"))
 
     return routes_returned
 

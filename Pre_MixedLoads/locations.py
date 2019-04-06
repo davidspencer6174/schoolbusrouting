@@ -12,6 +12,10 @@ class Student:
     def __init__(self, tt_ind, school_ind):
         self.tt_ind = tt_ind
         self.school_ind = school_ind
+        self.time_on_bus = None
+
+    def updateTimeOnBus(self, newTime):
+        self.time_on_bus = newTime
 
 class Route:
     #For now, encapsulated as a list of student/stop index pairs in order
@@ -23,7 +27,7 @@ class Route:
         self.school_path = school_path
         self.schools_to_visit = set() 
         self.bus_size = None
-        self.isCombinedRoute = None 
+        self.is_combined_route = None 
 
     def get_route_length(self):
         return sum([i for i, j in self.path_info])
@@ -34,7 +38,7 @@ class Route:
    
     # Update status of combined route
     def updateCombineRouteStatus(self):
-        self.isCombinedRoute = True 
+        self.is_combined_route = True 
 
     def updateBus(self, bus_cap):
         self.bus_size = bus_cap

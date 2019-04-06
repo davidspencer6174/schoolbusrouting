@@ -6,7 +6,7 @@ from collections import Counter
 import constants
 
 # Reformat the outputs from DBSCAN
-def reformatClustersDBSCAN(clusters):
+def reformatCluster_DBSCAN(clusters):
     df = pd.DataFrame()
     for i in range(0, len(clusters)):
         temp = pd.DataFrame(np.array(clusters[i]), columns = ['Lat','Long'])
@@ -24,7 +24,7 @@ def obtainClust_DBSCAN(loc, dist, min_samples):
     cluster_labels = db.labels_
     num_clusters = len(set(cluster_labels))
     clusters = pd.Series([coordinates[cluster_labels == n] for n in range(num_clusters)])
-    return reformatClustersDBSCAN(clusters)
+    return reformatCluster_DBSCAN(clusters)
 
 # Use KMeans to perform clustering
 def obtainClust_KMEANS(loc, base_number):
@@ -41,7 +41,7 @@ def obtainClust_KMEANS(loc, base_number):
     return loc
 
 # Break relateively large clusters and use Kmeans to break
-def breakLargeClusters(data, break_num, limit):
+def break_large_clusters(data, break_num, limit):
     counts = Counter(data['label'])
     result = pd.DataFrame(np.random.randint(low=0, high=1, size=(1, 3)), columns=['Lat','Long','label'])    
     for row in counts.items():
@@ -58,7 +58,7 @@ def breakLargeClusters(data, break_num, limit):
     return result
 
 # Partition students based on the school clusters
-def partitionStudents(schools, phonebook):
+def partition_students(schools, phonebook):
     counts = Counter(schools['label'])
     schoolcluster_students_map = dict()
      

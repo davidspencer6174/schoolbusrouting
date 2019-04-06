@@ -2,7 +2,7 @@ import constants
 import pandas as pd
 import numpy as np
 from locations import School, Student
-from clustering import obtainClust_DBSCAN, partitionStudents 
+from clustering import obtainClust_DBSCAN, partition_students 
 
 def californiafy(address):
     return address[:-6] + " California," + address[-6:]
@@ -77,7 +77,7 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     schools_students_attend = pd.merge(schools_students_attend, clustered_schools, on=['Lat', 'Long'], how='inner').drop_duplicates()
     schools_students_attend = schools_students_attend.sort_values(['label', 'r1_start'], ascending=[True, False])
     
-    schoolcluster_students_map_df = partitionStudents(schools_students_attend, phonebook)
+    schoolcluster_students_map_df = partition_students(schools_students_attend, phonebook)
 
     return schools_students_attend, schoolcluster_students_map_df
 
@@ -101,7 +101,7 @@ def setup_buses(bus_capacities):
     return cap_counts_list
 
 # Setup clusters: input all required files 
-def setup_cluster(cluster_schools_df, schoolcluster_students_df):
+def setup_clusters(cluster_schools_df, schoolcluster_students_df):
     
     # Cluster to schools map
     cluster_school_map = dict()
