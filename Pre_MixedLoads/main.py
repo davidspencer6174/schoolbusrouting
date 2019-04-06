@@ -1,6 +1,6 @@
 import constants
 import sys 
-from routing import startRouting
+from routing import start_routing
 from setup import setup_data, setup_clusters
 from output import output_routes_to_file, get_route_stats, get_student_stats
 
@@ -26,12 +26,12 @@ def main():
                                                                             prefix+'bell_times.csv')
 
         cluster_school_map, schoolcluster_students_map = setup_clusters(schools_students_attend, schoolcluster_students_map_df)
-        routes_returned = startRouting(cluster_school_map, schoolcluster_students_map)
+        routes_returned = start_routing(cluster_school_map, schoolcluster_students_map)
         total_routes.append(routes_returned) 
 
         if constants.VERBOSE:
             final_stats = get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map)
-            get_student_stats(routes_returned)
+            # get_student_stats(routes_returned)
 
         output_routes_to_file(final_stats, routes_returned, (str(school_category)+"_school_routes"), (school_category.upper() + " SCHOOL ROUTES"))
 

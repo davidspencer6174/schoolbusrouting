@@ -10,7 +10,7 @@ from locations import Route
 # total_indexes: if routing sch., start with empty list. 
 #                if routing stud., start with array with last school visited
 # Returns: (route to go through all schools, time it takes to go through route)
-def getPossibleRoute(items, index, total_indexes):
+def get_possible_route(items, index, total_indexes):
     
     index_from_items = list()
     route = list()
@@ -52,7 +52,7 @@ def getPossibleRoute(items, index, total_indexes):
 
 # Make route objects with route information in them
 # Divide routes based on constraints 
-def makeRoutes(school_route_time, school_route, stud_route, students):
+def make_routes(school_route_time, school_route, stud_route, students):
     
     time = sum(school_route_time)
     path_info, path_info_list = list(), list()
@@ -130,16 +130,10 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
             for idx, stud in enumerate(students):
                 if stud.tt_ind == stop:
                     current_route.add_student(stud)
-                    current_route.updateSchoolsToVisit(stud)
+                    current_route.update_schools_to_visit(stud)
                     
                 if current_route.occupants >= sum([j for i, j in current_route.path_info]):
                     break
-
-        # TODO: Remove schools that don't need to be visited
-        for idx, stud in enumerate(current_route.students):
-            pass
-
-        # TODO: STUDENT TIME ON BUS 
 
        # Assign buses to the routes according to num. of occupants
        # We have to use modified capacities mapping 
@@ -149,7 +143,7 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
              if current_route.occupants <= constants.CAPACITY_MODIFIED_MAP[bus[0]][SCHOOL_TYPE_INDEX]:
                  #mark the bus as taken
                  bus[1] -= 1
-                 current_route.updateBus(bus[0])
+                 current_route.update_bus(bus[0])
                  #if all buses of this capacity are now taken, remove
                  #this capacity
                  if bus[1] == 0:
@@ -163,32 +157,39 @@ def makeRoutes(school_route_time, school_route, stud_route, students):
 # Perform routing 
 # cluster_school_map: maps clusters to schools
 # schoolcluster_students_map: maps schoolclusters to students
-def startRouting(cluster_school_map, schoolcluster_students_map):
+def start_routing(cluster_school_map, schoolcluster_students_map):
     
     routes = dict()
     # Loop through every cluster of schools and cluster of stops
     # Generate route(s) for each cluster_school and cluster_stops pair
     for key, schools in cluster_school_map.items():
-        school_route, school_route_time = getPossibleRoute(schools, 0, [])        
+        school_route, school_route_time = get_possible_route(schools, 0, [])        
         route_list = list()
 
         for students in schoolcluster_students_map[key]:
-            stud_route = getPossibleRoute(students, 0, [school_route[-1]])[0]
+            stud_route = get_possible_route(students, 0, [school_route[-1]])[0]
             stud_route.pop(0)
-            routes_returned = makeRoutes(school_route_time, school_route, stud_route, students)
+            routes_returned = make_routes(school_route_time, school_route, stud_route, students)
             
             if constants.REMOVE_LOW_OCC:
-                routes_returned = combineRoutes(routes_returned)
-                
+                routes_returned = combine_routes(routes_returned)
+
+            clean_routes(routes_returned)
             route_list.append(routes_returned)
         
         routes[key] = route_list    
 
     return routes
 
+# TODO: Implement this section 
+# Schools that don't have to be visited 
+# Update student's time_on_bus
+def clean_routes(routes):
+    pass
+
 # TODO: HAVE TO EDIT THIS TO TAKE INTO ACCOUNT BUS CAPACITIES 
 # Combine routes that have low occupancies 
-def combineRoutes(routes):
+def combine_routes(routes):
 
     # Categorize low occ. routes and non_full_routes(ones that have empty seats)
     low_occ_routes = list()
@@ -229,19 +230,18 @@ def combineRoutes(routes):
         
         # Choose which routes (low_occ_route and non_full_route) should be combined together
         # Choose using route 'center'
-        clust_dis = [geodesic(low_occ_routes[idx].findRouteCenter(), a.findRouteCenter()) for a in routes_to_compare]
+        clust_dis = [geodesic(low_occ_routes[idx].find_route_center(), a.find_route_center()) for a in routes_to_compare]
         clust_dis = [round(float(str(a).strip('km')),6) for a in clust_dis]
         ind = [i for i, v in enumerate(clust_dis) if v == min(clust_dis)][0]
        
         # Combine appropriate routes
-        routes_to_return[ind].combineRoute(low_occ_routes[idx])
+        routes_to_return[ind].combine_route(low_occ_routes[idx])
         
         # Update combined route status 
-        routes_to_return[ind].updateCombineRouteStatus()
+        routes_to_return[ind].update_combine_route_status()
         idx += 1
 
     if full_routes:
         routes_to_return.extend(full_routes)
        
     return routes_to_return
-

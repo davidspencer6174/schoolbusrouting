@@ -14,7 +14,7 @@ class Student:
         self.school_ind = school_ind
         self.time_on_bus = None
 
-    def updateTimeOnBus(self, newTime):
+    def update_time_on_bus(self, newTime):
         self.time_on_bus = newTime
 
 class Route:
@@ -37,17 +37,17 @@ class Route:
         self.occupants += 1
    
     # Update status of combined route
-    def updateCombineRouteStatus(self):
+    def update_combine_route_status(self):
         self.is_combined_route = True 
 
-    def updateBus(self, bus_cap):
+    def update_bus(self, bus_cap):
         self.bus_size = bus_cap
     
-    def updateSchoolsToVisit(self, student):
+    def update_schools_to_visit(self, student):
         self.schools_to_visit.add(student.school_ind)
         
     # Obtain the "center" of the route
-    def findRouteCenter(self):
+    def find_route_center(self):
         lat = []
         long = []
         route_coords = constants.GEOCODES[constants.GEOCODES.index.isin(self.path)]
@@ -56,11 +56,11 @@ class Route:
             long.append(row[1]['Long'])
         return (round(sum(lat)/float(len(lat)),6), round(sum(long)/float(len(long)),6))
     
-    def schoollessPath(self):
+    def schoolless_path(self):
         return list(filter(lambda x: x not in self.school_path, self.path))
    
    # Combine route
-    def combineRoute(self, new_route):
+    def combine_route(self, new_route):
         
         # Add new_route students into this route
         for new_stud in new_route.students:
@@ -71,7 +71,7 @@ class Route:
         visited = list()
         index = 0
                 
-        total_indexes = sum([[self.school_path[-1]], self.schoollessPath(), new_route.schoollessPath()], [])
+        total_indexes = sum([[self.school_path[-1]], self.schoolless_path(), new_route.schoolless_path()], [])
         route = [total_indexes[index]]
 
         # Create mini travel-time matrix and perform routing 
@@ -116,7 +116,7 @@ class Route:
              if self.occupants <= bus[0]:
                  #mark the bus as taken
                  bus[1] -= 1
-                 self.updateBus(bus[0])
+                 self.update_bus(bus[0])
                  #if all buses of this capacity are now taken, remove
                  #this capacity
                  if bus[1] == 0:
