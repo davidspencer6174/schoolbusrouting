@@ -1,4 +1,6 @@
 import constants
+import itertools
+import numpy as np
 
 #Used to get the data into a full address format        
 def californiafy(address):
@@ -14,6 +16,12 @@ def timesecs(time_string):
     if 'p' in pieces[1].lower():  #PM
         minutes += 12*60
     return minutes*60
+
+def stud_trav_time_array(route_plan):
+    stud_trav_times = [r.student_travel_times() for r in route_plan]
+    #Flatten this list and convert to an np array
+    stud_trav_times = np.array(list(itertools.chain(*stud_trav_times)))
+    return stud_trav_times
 
 #Determines a closest pair of locations in from_iter and to_iter
 #from_iter and to_iter should both be iterables of Students and/or Schools

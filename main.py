@@ -1,6 +1,7 @@
 import constants
 import copy
 from greedymoves import make_greedy_moves
+import itertools
 from locations import Student
 from mixedloads import mixed_loads
 import pickle
@@ -10,6 +11,7 @@ from generateroutes import generate_routes
 from validation import full_verification
 from busassignment import assign_buses
 import numpy as np
+from utils import stud_trav_time_array
 
 def main(partial_route_plan = None, permutation = None):
     #prefix = "C://Users//David//Documents//UCLA//SchoolBusResearch//data//csvs//"
@@ -76,9 +78,9 @@ routes_returned = None
 def permutation_approach():
     #Uncomment latter lines to use an existing permutation
     best_perm = None
-    #loading_perm = open(("output//lastperm55m.obj"), "rb")
-    #best_perm = pickle.load(loading_perm)
-    #loading_perm.close()
+    loading_perm = open(("output//lastperm55m.obj"), "rb")
+    best_perm = pickle.load(loading_perm)
+    loading_perm.close()
     routes_returned = main(permutation = best_perm)
     all_stops = set()
     for route in routes_returned:
@@ -88,72 +90,77 @@ def permutation_approach():
         best_perm = list(range(len(all_stops)))
     best_num_routes = len(routes_returned)
     best_time = np.sum(np.array([r.length for r in routes_returned]))
+    stud_trav_times = stud_trav_time_array(routes_returned)
+    mean_stud_trav_time = np.mean(stud_trav_times)
+    best_mstt = mean_stud_trav_time
+    best_score = best_num_routes + 40*best_mstt/60
+    
     best = routes_returned
-    print(best_num_routes + " " + str(best_time/best_num_routes/60))
+    print(str(best_num_routes) + " " + str(mean_stud_trav_time/60))
     successes = []
     while True:
+        #Try a few swaps
         new_perm = copy.copy(best_perm)
-        num_to_swap = random.randint(1, 3)
+        num_to_swap = random.randint(1, 10)
         for swap in range(num_to_swap):
+            #Bias toward early stops, since these are more important
             ind1 = random.randint(0, 40)
             if random.random() < .9:
                 ind1 = random.randint(0, len(new_perm) - 1)
             ind2 = random.randint(0, len(new_perm) - 1)
             new_perm[ind1], new_perm[ind2] = new_perm[ind2], new_perm[ind1]
+        #Test the route
         new_routes_returned = main(permutation = new_perm)
         new_num_routes = len(new_routes_returned)
         new_time = np.sum(np.array([r.length for r in new_routes_returned]))
-        if (new_num_routes < best_num_routes or
-            (new_num_routes == best_num_routes and new_time < best_time)):
-                print("New best")
-                best_perm = new_perm
-                best_num_routes = new_num_routes
-                best_time = new_time
-                best = new_routes_returned
-                saving = open(("output//fixedlastinsert.obj"), "wb")
-                pickle.dump(best, saving)
-                saving.close()
-                saving = open(("output//lastperm.obj"), "wb")
-                pickle.dump(best_perm, saving)
-                saving.close()
-                successes.append(num_to_swap)
-                print(successes)
-        print(str(new_num_routes) + " " + str(new_time/new_num_routes/60))
+        new_mstt = np.mean(stud_trav_time_array(new_routes_returned))
+        new_score = new_num_routes + 40*new_mstt/60
+        if (new_score < best_score):
+            print("New best")
+            print(new_score)
+            best_perm = new_perm
+            best_mstt = new_mstt
+            best_num_routes = new_num_routes
+            best_time = new_time
+            best_score = new_score
+            best = new_routes_returned
+            saving = open(("output//optmstt55m.obj"), "wb")
+            pickle.dump(best, saving)
+            saving.close()
+            saving = open(("output//lastperm55m.obj"), "wb")
+            pickle.dump(best_perm, saving)
+            saving.close()
+            successes.append(num_to_swap)
+            print(successes)
+        print(str(new_num_routes) + " " + str(new_mstt/60))
         
 best_results = []
 
 def vary_params():
     best = 10000
-    for i in range(500):
-        #interesting:
-        #.6168660904233182
-        #.11884540775695918
-        #-782.0102581987334
-        #417
-        #.4489310134175062
-        #.0466412252275971
-        #-956.9955655024021
-        #418 54.11
-        #.5178650537039641
-        #.00696192681486929
-        #-299.059132574243
-        #454 48.89
-        #.3945923017356171
-        #.06278120044940694
-        #-838.8683761471727
-        #424 52.86
-        constants.SCH_DIST_WEIGHT = random.random()*1.3
-        constants.STOP_DIST_WEIGHT = random.random()*.3 - .1
-        constants.EVALUATION_CUTOFF = random.random()*3000 - 2500
+    for i in range(2000):
+        #Set up parameters with some randomness
+        constants.SCH_DIST_WEIGHT = random.random()*.5 + .7
+        constants.STOP_DIST_WEIGHT = random.random()*.2
+        constants.EVALUATION_CUTOFF = random.random()*500 - 300
+        constants.MAX_SCHOOL_DIST = random.random()*600 + 800
+        
+        #Test these parameters
         routes_returned = main()
-        if len(routes_returned) < best:
-            best = len(routes_returned)
-            #saving = open(("output/varyingparams.obj"), "wb")
-            #pickle.dump(routes_returned, saving)
-            #saving.close()
+        
+        #Take measurements of the result
+        num_routes = len(routes_returned)
         mean_time = np.mean(np.array([r.length for r in routes_returned]))
-        result = (len(routes_returned), mean_time/60, constants.SCH_DIST_WEIGHT,
-                  constants.STOP_DIST_WEIGHT, constants.EVALUATION_CUTOFF)
+        stud_trav_times = stud_trav_time_array(routes_returned)
+        mean_stud_trav_time = np.mean(stud_trav_times)
+        
+        #Set up the result to store. If it is dominated by
+        #another result, we won't store it; if it dominates
+        #another result, we will delete that one.
+        result = (num_routes, mean_stud_trav_time/60,
+                  constants.SCH_DIST_WEIGHT,
+                  constants.STOP_DIST_WEIGHT, constants.EVALUATION_CUTOFF,
+                  constants.MAX_SCHOOL_DIST)
         strictly_worse = False
         to_remove = set()
         for other_result in best_results:
@@ -166,14 +173,16 @@ def vary_params():
             best_results.append(result)
             for worse_one in to_remove:
                 best_results.remove(worse_one)
-            print(sorted([i[0:2] for i in best_results], key=lambda x:x[0]))
+            print(sorted([i[:2] for i in best_results], key=lambda x:x[0]))
         print(str(constants.SCH_DIST_WEIGHT) + " " +
               str(constants.STOP_DIST_WEIGHT) + " " +
               str(constants.EVALUATION_CUTOFF) + " " +
+              str(constants.MAX_SCHOOL_DIST) + " " +
               str(len(routes_returned)) + " " + 
-              str(mean_time/60))
+              str(mean_stud_trav_time/60))
         
-    
+#Very deprecated - work on this if more improvements are
+#getting harder to come by
 def subroutes_approach():
     for i in range(1):
         #constants.SCH_DIST_WEIGHT = random.random()*1.0
@@ -227,5 +236,5 @@ def subroutes_approach():
         pickle.dump(bused, saving)
         saving.close()
         
-#permutation_approach()
-vary_params()
+permutation_approach()
+#vary_params()
