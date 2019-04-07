@@ -184,6 +184,8 @@ class Route:
                 self.valid_school_orderings.append([list(perm), result[1]])
         
     #If there is ever uncertainty about the length field, recompute length
+    #Important: This reorders the schools to minimize the length.
+    #As such, it may undo work by optimize_student_travel_times.
     def recompute_length(self):
         length = 0
         for i in range(len(self.stops) - 1):
@@ -244,15 +246,18 @@ class Route:
             print(self.length)
             print("Failed sanity check")
         #School not visited or mixed student types
-        student_type = None
+        e_found = False
+        h_found = False
         for s in self.stops:
             for student in s.students:
-                if student_type == None:
-                    student_type = student.type
-                if student_type != student.type:
+                if student.type == 'E':
+                    e_found = True
+                if student.type == 'H':
+                    h_found = True
+                if e_found and h_found:
                     if verbose:
-                        print("Student types differ")
-                    return False
+                        print("Elementary and high on same route")
+                        return False
                 if student.school not in self.schools:
                     if verbose:
                         print("School not visited")
@@ -261,6 +266,7 @@ class Route:
         #there are multiple stops (sometimes, a single stop
         #has too many students for any bus to take, so we
         #assume that stop is handled alone)
+        #TODO: Modify this for mixed-age buses
         if (self.bus_capacity > -1 and
             self.occupants > self.bus_capacity and
             len(self.stops) > 1):
@@ -306,3 +312,45 @@ class Route:
         out = self.is_acceptable(cap)
         self.occupants -= num_students
         return out
+    
+    #Returns a list of travel times from stop to
+    #school, one per student.
+    def student_travel_times(self):
+        out = []
+        for i in range(len(self.stops)):
+            this_stop_time = 0
+            for j in range(i, len(self.stops) - 1):
+                this_stop_time += trav_time(self.stops[j], self.stops[j+1])
+            this_stop_time += trav_time(self.stops[-1], self.schools[0])
+            j = 0
+            while self.stops[i].school != self.schools[j]:
+                this_stop_time += trav_time(self.schools[j], self.schools[j+1])
+                j += 1
+            for stud in range(self.stops[i].occs):
+                out.append(this_stop_time)
+        return out
+    
+    #Reorders the schools such that the mean student
+    #travel time is minimized while still keeping
+    #the total route length within allowable bounds.
+    def optimize_student_travel_times(self):
+        length = 0
+        for i in range(len(self.stops) - 1):
+            length += trav_time(self.stops[i], self.stops[i+1])
+        best_trav_time = np.sum(self.student_travel_times())
+        for possible_schools in self.valid_school_orderings:
+            #Length is stop travel time plus stop to first school
+            #plus school travel time
+            possible_length = (length +
+                               trav_time(self.stops[-1], possible_schools[0][0]) +
+                               possible_schools[1])
+            if possible_length <= self.max_time:
+                tot_time = np.sum(self.student_travel_times())
+                if tot_time < best_trav_time - .0000000001:
+                    if constants.VERBOSE:
+                        print("Saved " + str(best_trav_time-tot_time) +
+                              " student travel time.")
+                    best_trav_time = tot_time
+                    self.schools = possible_schools[0]
+        return best_trav_time
+        

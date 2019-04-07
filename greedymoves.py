@@ -4,12 +4,16 @@ def make_greedy_moves(route_plan):
     improved = False
     for route1 in route_plan:
         route1.backup()
+        #Figure out whether the route has elementary, high,
+        #or neither
+        route1_types = [s.type for s in route1.stops]
+        route1_has_e = ("E" in route1_types)
+        route1_has_h = ("H" in route1_types)
         tt_inds = set()
         for stop in route1.stops:
             tt_inds.add(stop.tt_ind)
         if len(route1.stops) == 0:
             continue
-        route1_type = route1.stops[0].type
         for tt_ind in tt_inds:
             oldtime1 = route1.length
             stops_to_move = set()
@@ -23,7 +27,11 @@ def make_greedy_moves(route_plan):
             for route2 in route_plan:
                 if len(route2.stops) == 0:
                     continue
-                if route2.stops[0].type != route1_type:
+                route2_types = [s.type for s in route1.stops]
+                route2_has_e = ("E" in route2_types)
+                route2_has_h = ("H" in route2_types)
+                if ((route1_has_e and route2_has_h) or
+                    (route1_has_h and route2_has_e)):
                     continue
                 if route2 == route1:
                     continue

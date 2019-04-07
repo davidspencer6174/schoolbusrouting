@@ -101,6 +101,11 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
         #Figure out which schools can be mixed with the stop
         admissible_schools = near_schools[root_school]
         current_route.add_stop(init_stop)
+        valid_stop_types = set(['E', 'M', 'H'])
+        if init_stop.type == 'E':
+            valid_stop_types.remove('H')
+        if init_stop.type == 'H':
+            valid_stop_types.remove('E')
         #Now we will try to add a stop
         while True:
             oldlength = current_route.length
@@ -109,31 +114,39 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
             best_score = constants.EVALUATION_CUTOFF
             best_stop = None
             for school in admissible_schools:
-                for stop in school.unrouted_stops[init_stop.type]:
-                    if current_route.insert_mincost(stop):
-                        #Stop was successfully inserted.
-                        #Determine the score of the stop
-                        #We want to penalize large time
-                        #increases while rewarding collecting
-                        #faraway stops.
-                        time_cost = current_route.length - oldlength
-                        value = stop.value
-                        #time_proportion_left = 1 - (time_cost/(current_route.max_time - oldlength))
-                        #score = value/(time_cost**1.2)
-                        #score = value*(time_proportion_left+.4)
-                        score = value - time_cost
-                        if score > best_score:
-                            best_score = score
-                            best_stop = stop
-                    current_route.restore()
+                for check_type in valid_stop_types:
+                    for stop in school.unrouted_stops[check_type]:
+                        if current_route.insert_mincost(stop):
+                            #Stop was successfully inserted.
+                            #Determine the score of the stop
+                            #We want to penalize large time
+                            #increases while rewarding collecting
+                            #faraway stops.
+                            time_cost = current_route.length - oldlength
+                            value = stop.value
+                            #time_proportion_left = 1 - (time_cost/(current_route.max_time - oldlength))
+                            #score = value/(time_cost**1.2)
+                            #score = value*(time_proportion_left+.4)
+                            score = value - time_cost
+                            #stop in the same place, but different age
+                            if time_cost == 0:
+                                score = 100000
+                            if score > best_score:
+                                best_score = score
+                                best_stop = stop
+                        current_route.restore()
             if best_stop == None:
                 break
             if not current_route.insert_mincost(best_stop):
                 print("Something went wrong")
-            best_stop.school.unrouted_stops[init_stop.type].remove(best_stop)
+            best_stop.school.unrouted_stops[best_stop.type].remove(best_stop)
             all_stops.remove(best_stop)
             for stop in best_stop.school.unrouted_stops[best_stop.type]:
                 stop.update_value(best_stop)
+            if best_stop.type == 'H':
+                valid_stop_types.discard('E')
+            if best_stop.type == 'E':
+                valid_stop_types.discard('H')
         #print(len(current_route.stops))
         routes.add(current_route)
     return routes
