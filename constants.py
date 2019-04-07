@@ -18,8 +18,6 @@ TYPE_IND_MAP = dict()
 TYPE_IND_MAP['E'] = 0
 TYPE_IND_MAP['M'] = 1
 TYPE_IND_MAP['H'] = 2
-
-MAX_SCHOOL_DIST = 1000
     
 #For a stated capacity, make it easy to access the
 #capacities for each age - elementary, middle, high
@@ -64,19 +62,25 @@ TRAVEL_TIMES = np.load("data//travel_time_matrix.npy")*TT_MULT
 #Max allowable travel time in seconds
 #MAX_TIME = 5500
 #MAX_TIME = 4100
-MAX_TIME = 3600
-#MAX_TIME = 3300
+#MAX_TIME = 3600
+MAX_TIME = 3300
+#MAX_TIME = 3000
+
+
+#Farthest away a school can be from another school and
+#still have its stops flagged as candidates to combine
+MAX_SCHOOL_DIST = 1343
 
 #Cutoff below which a stop will not be accepted
 #Goal is to reduce mean travel time
 #EVALUATION_CUTOFF = -1000
-EVALUATION_CUTOFF = -374.424277
+EVALUATION_CUTOFF = -276.79
 
 #Weights to determine value of a stop
 #SCH_DIST_WEIGHT = 0.85
 #STOP_DIST_WEIGHT = 0.2
-SCH_DIST_WEIGHT = .580281238
-STOP_DIST_WEIGHT = -.063762433
+SCH_DIST_WEIGHT = .7706947
+STOP_DIST_WEIGHT = .085767536
 
 #Seconds before belltime to determine valid arrival
 #Valid arrival times are [belltime-EARLIEST, belltime-LATEST]

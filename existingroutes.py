@@ -1,9 +1,10 @@
 from busassignment import assign_buses
 import constants
+import itertools
 from locations import School, Stop, Student
 from route import Route
 from setup import setup_buses
-from utils import californiafy, timesecs
+from utils import californiafy, timesecs, stud_trav_time_array
 import matplotlib.pyplot as plt
 
 #Method to translate the existing routes from the phonebook to the
@@ -244,6 +245,10 @@ plt.xlabel("Estimated length (minutes)")
 plt.ylabel("Number of routes")
 plt.title("Route length estimates - existing routes")
 #plt.savefig('output//existing_routes_unbinned.eps')
+
+stud_trav_times = stud_trav_time_array(mxp_routes)
+mean_stud_trav_time = np.mean(stud_trav_times)
+print("Mean student travel time is " + str(mean_stud_trav_time/60))
 
 
 
