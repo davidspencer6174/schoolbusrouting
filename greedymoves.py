@@ -6,9 +6,6 @@ def make_greedy_moves(route_plan):
         route1.backup()
         #Figure out whether the route has elementary, high,
         #or neither
-        route1_types = [s.type for s in route1.stops]
-        route1_has_e = ("E" in route1_types)
-        route1_has_h = ("H" in route1_types)
         tt_inds = set()
         for stop in route1.stops:
             tt_inds.add(stop.tt_ind)
@@ -27,19 +24,18 @@ def make_greedy_moves(route_plan):
             for route2 in route_plan:
                 if len(route2.stops) == 0:
                     continue
-                route2_types = [s.type for s in route1.stops]
+                route2_types = [s.type for s in route2.stops]
                 route2_has_e = ("E" in route2_types)
                 route2_has_h = ("H" in route2_types)
-                if ((route1_has_e and route2_has_h) or
-                    (route1_has_h and route2_has_e)):
-                    continue
                 if route2 == route1:
                     continue
                 route2.backup()
                 oldtime2 = route2.length
                 feasible = True
                 for stop in stops_to_move:
-                    if not route2.insert_mincost(stop):
+                    if ((route2_has_e and stop.type == "H") or
+                        (route2_has_h and stop.type == "E") or
+                        not route2.insert_mincost(stop)):
                         feasible = False
                         break
                 cost = route2.length - oldtime2
@@ -54,6 +50,10 @@ def make_greedy_moves(route_plan):
                     route2.restore()
             if not this_improved:
                 route1.restore()
+    print("Next time through")
+    for r in route_plan:
+        if len(r.stops) > 0:
+            r.feasibility_check(verbose = True)
     if improved:
         make_greedy_moves(route_plan)
     to_delete = set()
