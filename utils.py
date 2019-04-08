@@ -74,3 +74,24 @@ def closest_addition(locations, betw_iter, available_time, alpha, age_type = Non
         if opt_dist == 0:
             break
     return (opt_loc, opt_ind, opt_dist)
+
+#Checks if two stop objects are isomorphic, even if they are
+#not the same object in memory.
+def isomorphic(stop1, stop2):
+    return(stop1.type == stop2.type and
+           stop1.school.name == stop2.school.name and
+           stop1.tt_ind == stop2.tt_ind)
+
+#Checks to see which routes in the first route plan share at least
+#one stop with the passed-in route.
+#Does not require pointer equality for stops, only object value
+#equality.
+def overlapping_routes(route_plan, route):
+    out = set()
+    for compare_route in route_plan:
+        for stop1 in compare_route.stops:
+            for stop2 in route.stops:
+                if isomorphic(stop1, stop2):
+                    out.add(compare_route)
+    return out
+        

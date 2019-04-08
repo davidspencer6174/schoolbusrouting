@@ -1,11 +1,13 @@
 from busassignment import assign_buses
 import constants
 import itertools
+import pickle
 from locations import School, Stop, Student
 from route import Route
 from setup import setup_buses
 from utils import californiafy, timesecs, stud_trav_time_array
 import matplotlib.pyplot as plt
+import numpy as np
 
 #Method to translate the existing routes from the phonebook to the
 #Route object format
@@ -200,6 +202,11 @@ def existing_routes(phonebooks, all_geocodes, geocoded_stops,
                 non_mxp_pickups[route_number] = set()
             non_mxp_pickups[route_number].add(stop_ind)
             routes_map[route_number][1] += 1
+            
+    #Because we modified stops after route creation, occupants
+    #have not been maintained correctly.
+    for route_number in routes_map:
+        routes_map[route_number][0].recompute_occupants()
     
     total_routes = 0
     for route_number in routes_map:
@@ -250,6 +257,24 @@ stud_trav_times = stud_trav_time_array(mxp_routes)
 mean_stud_trav_time = np.mean(stud_trav_times)
 print("Mean student travel time is " + str(mean_stud_trav_time/60))
 
+cap_counts = setup_buses('data//dist_bus_capacities.csv')
+bused_mxp_routes = assign_buses(mxp_routes, cap_counts)[1]
+print("Number of bused mxp routes: " + str(len(bused_mxp_routes)))
+stud_trav_times_bused_mxp = stud_trav_time_array(bused_mxp_routes)
+print("Mean student travel time for bused mxp routes: " + str(np.mean(stud_trav_times_bused_mxp)/60))
+route_lengths_bused_mxp = np.array([r.length for r in bused_mxp_routes])
+print("Mean route length for bused mxp routes: " + str(np.mean(route_lengths_bused_mxp)/60))
+
+cap_counts = setup_buses('data//dist_bus_capacities.csv')
+loading = open('output//optmstt55m.obj', 'rb')
+my_routes = pickle.load(loading)
+loading.close()
+my_bused_routes = assign_buses(my_routes, cap_counts)[1]
+print("My number of bused routes: " + str(len(my_bused_routes)))
+stud_trav_times_my_bused = stud_trav_time_array(my_bused_routes)
+print("Mean student travel time for my bused routes: " + str(np.mean(stud_trav_times_my_bused)/60))
+my_route_lengths = np.array([r.length for r in my_bused_routes])
+print("Mean route length for my mxp routes: " + str(np.mean(my_route_lengths)/60))
 
 
 #bused, = plt.plot(x, lengths_bused, 'bo', label = 'Program routes - bused')
