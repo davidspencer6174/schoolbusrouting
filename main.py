@@ -124,10 +124,10 @@ def permutation_approach():
             best_time = new_time
             best_score = new_score
             best = new_routes_returned
-            saving = open(("output//optmstt55m.obj"), "wb")
+            saving = open(("output//optmstt55mfurther.obj"), "wb")
             pickle.dump(best, saving)
             saving.close()
-            saving = open(("output//lastperm55m.obj"), "wb")
+            saving = open(("output//lastperm55mfurther.obj"), "wb")
             pickle.dump(best_perm, saving)
             saving.close()
             successes.append(num_to_swap)

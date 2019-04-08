@@ -28,7 +28,6 @@ class Route:
         #Otherwise, this variable should be modified to reflect
         #the actual capacity.
         self.unmodified_bus_capacity = -1
-        self.bus_capacity = -1
         
     #This is a backup used during the mixed-load post improvement
     #procedure when it is determined that a bus cannot be deleted,
@@ -257,7 +256,7 @@ class Route:
                 if e_found and h_found:
                     if verbose:
                         print("Elementary and high on same route")
-                        return False
+                    return False
                 if student.school not in self.schools:
                     if verbose:
                         print("School not visited")
@@ -267,8 +266,8 @@ class Route:
         #has too many students for any bus to take, so we
         #assume that stop is handled alone)
         #TODO: Modify this for mixed-age buses
-        if (self.bus_capacity > -1 and
-            self.occupants > self.bus_capacity and
+        if (self.unmodified_bus_capacity > -1 and
+            not self.is_acceptable(self.unmodified_bus_capacity) and
             len(self.stops) > 1):
             if verbose:
                 print("Too full")
@@ -285,33 +284,34 @@ class Route:
     #stores the corresponding capacity
     def set_capacity(self, cap):
         self.unmodified_bus_capacity = cap
-        first_stop = self.stops[0]
-        if first_stop.type == 'E':
-            self.bus_capacity =  constants.CAPACITY_MODIFIED_MAP[cap][0]
-        elif first_stop.type == 'M':
-            self.bus_capacity =  constants.CAPACITY_MODIFIED_MAP[cap][1]
-        else:
-            self.bus_capacity =  constants.CAPACITY_MODIFIED_MAP[cap][2]
     
     #Accepts a bus array of length 3
     #The first number is the allowable number of elementary students
     #to assign, then  middle, then high
     #Returns whether it is valid to assign the bus to the route
-    def is_acceptable(self, cap):
-        if self.stops[0].type == 'E':
-            return constants.CAPACITY_MODIFIED_MAP[cap][0] >= self.occupants
-        elif self.stops[0].type == 'M':
-            return constants.CAPACITY_MODIFIED_MAP[cap][1] >= self.occupants
-        else:
-            return constants.CAPACITY_MODIFIED_MAP[cap][2] >= self.occupants
+    #to_add field allows checking whether it would be acceptable in
+    #the presence of an addition.
+    def is_acceptable(self, cap, to_add = [0, 0, 0]):
+        e = to_add[0]
+        m = to_add[1]
+        h = to_add[2]
+        for stop in self.stops:
+            if stop.type == "E":
+                e += stop.occs
+            if stop.type == "M":
+                m += stop.occs
+            if stop.type == "H":
+                h += stop.occs
+        mod_caps = constants.CAPACITY_MODIFIED_MAP[cap]
+        return ((e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2]) <= 1)
     
-    #Check whether it is feasible to add more students to the route
-    #given the bus capacity
-    def can_add(self, cap, num_students = 1):
-        self.occupants += num_students
-        out = self.is_acceptable(cap)
-        self.occupants -= num_students
-        return out
+    #Check whether it is feasible to add more students of type
+    #stud_type to the route given the bus capacity
+    def can_add(self, cap, stud_type, num_students = 1):
+        to_add = [(stud_type == "E")*num_students,
+                  (stud_type == "M")*num_students,
+                  (stud_type == "H")*num_students]
+        return self.is_acceptable(cap, to_add)
     
     #Returns a list of travel times from stop to
     #school, one per student.

@@ -28,7 +28,7 @@ def assign_buses(routes, buses):
             bus_used = None
             adding_route = None
             for b in buses:
-                if cap_map[b[0]][type_ind] >= occs:
+                if r.is_acceptable(b[0]):
                     #get rid of unvisited schools
                     student_schools = set()
                     visited_schools = set()
@@ -49,7 +49,7 @@ def assign_buses(routes, buses):
                     resulting_routes.append(r)
                     adding_route = r
                     r.set_capacity(b[0])
-                    if not r.feasibility_check():
+                    if not r.feasibility_check(verbose = True):
                         print("Bad")
                     break
             #Nothing large enough for all - take as many as possible
@@ -60,14 +60,14 @@ def assign_buses(routes, buses):
                     #taken - in some cases, there are too many
                     #students at a stop to be feasibly picked up
                     #by a single bus.
-                    if ((cap_map[buses[-1][0]][type_ind] >=
-                        stop.occs + new_route.occupants) or
-                        len(new_route.stops) == 0):
+                    if (len(new_route.stops) == 0 or
+                        new_route.can_add(buses[-1][0], stop.type,
+                                          num_students = stop.occs)):
                         new_route.add_stop(stop)
                 for b in buses:
                     #Need a clause to handle the case where too many
                     #students are at one stop.
-                    if (cap_map[b[0]][type_ind] >= new_route.occupants or
+                    if (new_route.is_acceptable(b[0]) or
                         b == buses[-1]):
                         occs -= new_route.occupants
                         b[1] -= 1
@@ -76,15 +76,14 @@ def assign_buses(routes, buses):
                         resulting_routes.append(new_route)
                         adding_route = new_route
                         new_route.set_capacity(b[0])
-                        if not r.feasibility_check():
-                            print("Bad")
+                        if not r.feasibility_check(verbose = True):
+                            print("Bad2")
                         break
                 for stop in new_route.stops:
                     r.remove_stop(stop)
             if constants.VERBOSE:
-                print(str(bus_used[0]) + " " + str(adding_route.bus_capacity))
+                print(str(bus_used[0]) + " " + str(adding_route.unmodified_bus_capacity))
             #if we've used the last bus, get it out of the list
             if bus_used[1] == 0:
                 buses.remove(bus_used)
     return (consumed, resulting_routes)
-        
