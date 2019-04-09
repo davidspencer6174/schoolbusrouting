@@ -19,6 +19,8 @@ def main():
     
     for school_category in constants.SCHOOL_CATEGORIES: 
         constants.SCHOOL_TYPE = school_category
+        constants.SCHOOL_TYPE_INDEX = constants.SCHOOL_CATEGORIES.index(constants.SCHOOL_TYPE)
+
         schools_students_attend, schoolcluster_students_map_df = setup_data(prefix+'stop_geocodes_fixed.csv', 
                                                                             prefix+'zipData.csv', 
                                                                             prefix+'school_geocodes_fixed.csv', 
@@ -38,6 +40,3 @@ def main():
     return routes_returned
 
 total_routes = main()
-
-
-

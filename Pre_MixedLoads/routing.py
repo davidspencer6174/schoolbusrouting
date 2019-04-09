@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from geopy.distance import geodesic
 import constants
 from collections import Counter
@@ -62,8 +63,7 @@ def make_routes(school_route_time, school_route, stud_route, students):
     stop_counts =[stud.tt_ind for stud in students]
     stop_counts = dict(Counter(stop_counts))
 
-    SCHOOL_TYPE_INDEX = constants.SCHOOL_CATEGORIES.index(constants.SCHOOL_TYPE)
-    MODIFIED_LARGEST_BUS = (constants.CAPACITY_MODIFIED_MAP[constants.CAP_COUNTS[-1][0]])[SCHOOL_TYPE_INDEX]
+    MODIFIED_LARGEST_BUS = (constants.CAPACITY_MODIFIED_MAP[constants.CAP_COUNTS[-1][0]])[constants.SCHOOL_TYPE_INDEX]
 
     # Go through every stop and check if they meet the constants.MAX_TIME or bus constraints
     # Create new route (starting from the schools) if the constraints are not met 
@@ -135,21 +135,13 @@ def make_routes(school_route_time, school_route, stud_route, students):
                 if current_route.occupants >= sum([j for i, j in current_route.path_info]):
                     break
 
-       # Assign buses to the routes according to num. of occupants
-       # We have to use modified capacities mapping 
-        for bus_ind in range(len(constants.CAP_COUNTS)):
-             bus = constants.CAP_COUNTS[bus_ind]
-             #found the smallest suitable bus
-             if current_route.occupants <= constants.CAPACITY_MODIFIED_MAP[bus[0]][SCHOOL_TYPE_INDEX]:
-                 #mark the bus as taken
-                 bus[1] -= 1
-                 current_route.update_bus(bus[0])
-                 #if all buses of this capacity are now taken, remove
-                 #this capacity
-                 if bus[1] == 0:
-                     constants.CAP_COUNTS.remove(bus)
-                 break 
+        # Assign bus to current route
+        current_route.assign_bus_to_route()
 
+        # If there are no buses big enough to fit passengers, we have to split the route and use additional buses
+        if current_route.bus_size == None and constants.CAP_COUNTS: 
+            split_route = current_route.split_route()
+            route_list.append(split_route)
         route_list.append(current_route)
         
     return route_list
@@ -187,61 +179,48 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
 def clean_routes(routes):
     pass
 
-# TODO: HAVE TO EDIT THIS TO TAKE INTO ACCOUNT BUS CAPACITIES 
+# TODO: FIX BUGS AND TAKE INTO ACCOUNT BUS CAPACITIES
 # Combine routes that have low occupancies 
 def combine_routes(routes):
 
-    # Categorize low occ. routes and non_full_routes(ones that have empty seats)
+    # If only one route, then no comparsion and combining needed 
+    if len(routes) == 1: 
+        return routes 
+
+    # Categorize low occ. routes
     low_occ_routes = list()
-    routes_to_return = list()
-    full_routes = list()
 
     for route in routes:
         if route.occupants < constants.OCCUPANTS_LIMIT: 
             low_occ_routes.append(route)
-        else:
-            if route.occupants < route.bus_size:
-                routes_to_return.append(route)
-            else:
-                full_routes.append(route) 
 
-    # If only one route, then no comparison and combining needed or 
-    # If all routes are already filled to capacity and low_occ_route can't be merged with other 
-    # existing routes
-    if not routes_to_return or len(routes) ==1:
-        return routes
-
-    # Iterate through the low occ. routes list 
+    # Iterate through the low occ. routes list and compare with all the other routes (excluding current route)
     idx = 0
     while idx < len(low_occ_routes):
+
+        for temp_route in routes:
+            if low_occ_routes[idx] == temp_route:
+                routes.remove(temp_route)
         
-        routes_to_compare = list()
+        possible_routes = list()
+        for pos_route in routes:
+            if (low_occ_routes[idx].occupants + pos_route.occupants <= (constants.CAPACITY_MODIFIED_MAP[constants.CAP_COUNTS[-1][0]])[constants.SCHOOL_TYPE_INDEX]) and \
+                pos_route.get_possible_combined_route_time(low_occ_routes[idx]) <= constants.COMBINE_ROUTES_TIME_LIMIT:
+                    possible_routes.append(pos_route)
+
+        if not possible_routes:
+            routes.append(low_occ_routes[idx])
         
-        # Check if there are routes with available seats that could fit the students of the low_occ_route
-        # Add these routes to pos_routes list
-        for pos_route in routes_to_return:
-            if (pos_route.bus_size - pos_route.occupants) >= low_occ_routes[idx].occupants:
-                routes_to_compare.append(pos_route)
-         
-        # If there aren't any routes that can fit the this low_occ_route's students
-        # We have to compare with all routes solely based on distance
-        if not routes_to_compare:
-            routes_to_compare.extend(routes_to_return)
-        
-        # Choose which routes (low_occ_route and non_full_route) should be combined together
-        # Choose using route 'center'
-        clust_dis = [geodesic(low_occ_routes[idx].find_route_center(), a.find_route_center()) for a in routes_to_compare]
-        clust_dis = [round(float(str(a).strip('km')),6) for a in clust_dis]
-        ind = [i for i, v in enumerate(clust_dis) if v == min(clust_dis)][0]
-       
-        # Combine appropriate routes
-        routes_to_return[ind].combine_route(low_occ_routes[idx])
-        
-        # Update combined route status 
-        routes_to_return[ind].update_combine_route_status()
+        else:
+            clust_dis = [geodesic(low_occ_routes[idx].find_route_center(), a.find_route_center()) for a in possible_routes]
+            clust_dis = [round(float(str(a).strip('km')),6) for a in clust_dis]
+            ind = [i for i, v in enumerate(clust_dis) if v == min(clust_dis)][0]
+            
+            routes.remove(possible_routes[ind])
+            possible_routes[ind].combine_route(low_occ_routes[idx])
+            possible_routes[ind].update_combine_route_status()
+            routes.append(possible_routes[ind])
+
         idx += 1
 
-    if full_routes:
-        routes_to_return.extend(full_routes)
-       
-    return routes_to_return
+    return routes 

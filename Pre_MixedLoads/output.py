@@ -51,14 +51,14 @@ def print_begin_stats(cluster_school_map, schoolcluster_students_map, cap_counts
     print("Bus Info: ")
     print(cap_counts)
 
+
 # Print statistics after routing complete
 def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map):
     
     # Initialization
     buses_used = dict({16: 0, 17: 0, 24: 0, 33: 0, 34: 0, 41: 0, 62: 0, 65: 0, 71: 0, 84: 0})
     route_travel_info, utility_rate, exceeded_routes = list(), list(), list()
-    student_count, routes_count = 0, 0
-    num_students, num_schools, num_combined_routes = 0, 0, 0
+    student_count, routes_count, num_students, num_schools, num_combined_routes= 0, 0, 0, 0, 0
     
     for i in routes_returned:
         for j in routes_returned[i]:
@@ -77,13 +77,13 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
                 if route.is_combined_route == True:
                     num_combined_routes +=1 
 
-                utility_rate.append(route.occupants/route.bus_size)
+                # utility_rate.append(route.occupants/route.bus_size)
                     
                 for x in route.path_info:
                     route_travel_info.append(x)
                 
     total_travel_time = round((sum([i for i, j in route_travel_info])/3600), 2)
-    utility_rate = round(np.average(utility_rate), 2)
+    # utility_rate = round(np.average(utility_rate), 2)
     average_travel_time = round(total_travel_time*60/routes_count)
 
     for value in schoolcluster_students_map.values():
@@ -102,10 +102,11 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
     print("Num. of School Clusters: " +str(len(cluster_school_map)))
     print("Total travel time: " + str(total_travel_time) + " hours" )
     print("Average travel time / route: " + str(average_travel_time) + " minutes")
-    print("Utility rate: " + str(utility_rate*100) + "%")
-    print("Buses Used: " + str(sum(buses_used.values())))
-    print("Bus Info: ") 
+    # print("Utility rate: " + str(utility_rate*100) + "%")
+    print("Buses used: " + str(sum(buses_used.values())))
     print(buses_used)
+    print("Buses left: ") 
+    print(dict(constants.CAP_COUNTS))
 
     if exceeded_routes:
         print(' - - - - - - - - - - - - - - - - -')
@@ -140,7 +141,7 @@ def output_routes_to_file(output, routes_returned, filename, title):
     file.write("Num. of Routes Generated: " + str(output[1]) + '\n')
     file.write("Total travel time: " + str(output[2]) + " hours" + '\n')
     file.write("Average travel time / route: " + str(output[3]) + " minutes" + '\n')
-    file.write("Utility rate: " + str(round(output[4]*100, 2)) + '%\n')
+    # file.write("Utility rate: " + str(round(output[4]*100, 2)) + '%\n')
 
     for index in range(0, len(routes_returned)):   
         

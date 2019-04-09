@@ -5,7 +5,7 @@ from setup import setup_buses
 
 #If true, informational lines will be printed
 VERBOSE = True
-REMOVE_LOW_OCC = False 
+REMOVE_LOW_OCC = False  
 
 #Max allowable travel time in seconds
 MAX_TIME = 2700
@@ -14,10 +14,14 @@ MAX_TIME = 2700
 PROG_TYPES = ['P', 'X', 'M']
 
 # School_type: 'elem', 'middle', 'high
-BREAK_NUM = 5
+BREAK_NUM = 4
 OCCUPANTS_LIMIT = 10
 SCHOOL_TYPE = 'elem'
 SCHOOL_CATEGORIES = ['elem', 'middle', 'high']
+SCHOOL_TYPE_INDEX = 0
+
+# COMBINE_ROUTE PARAMETERS 
+COMBINE_ROUTES_TIME_LIMIT = MAX_TIME + 900
 
 # DBSCAN paramters
 # Radius (km)

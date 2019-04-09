@@ -1,5 +1,6 @@
 import constants
 import numpy as np
+import copy 
 
 class School:
     #tt_ind denotes the index of the school in the travel time matrix
@@ -29,6 +30,12 @@ class Route:
         self.bus_size = None
         self.is_combined_route = None 
 
+    def __eq__(self, other): 
+        if self.path == other.path and self.path_info == other.path_info and self.occupants == other.occupants:
+            return True
+        else:
+            return False
+            
     def get_route_length(self):
         return sum([i for i, j in self.path_info])
 
@@ -36,6 +43,9 @@ class Route:
         self.students.append(student)
         self.occupants += 1
    
+    def update_occupants(self):
+        self.occupants = len(self.students)
+
     # Update status of combined route
     def update_combine_route_status(self):
         self.is_combined_route = True 
@@ -45,7 +55,27 @@ class Route:
     
     def update_schools_to_visit(self, student):
         self.schools_to_visit.add(student.school_ind)
+    
+    # Split route
+    def split_route(self):
+        split_route = copy.deepcopy(self)
+
+        for i, stop_info in enumerate(self.path_info):
+            
+            self.path_info[i] = (stop_info[0], int(stop_info[1]/2))
+            split_route.path_info[i] = (stop_info[0], stop_info[1] - self.path_info[i][1])
+
+            del self.students[self.path_info[i][1]:]
+            del split_route.students[:split_route.path_info[i][1]]
+
+        self.update_occupants()
+        split_route.update_occupants()
+    
+        self.assign_bus_to_route()
+        split_route.assign_bus_to_route()
         
+        return split_route
+
     # Obtain the "center" of the route
     def find_route_center(self):
         lat = []
@@ -55,9 +85,34 @@ class Route:
             lat.append(row[1]['Lat'])
             long.append(row[1]['Long'])
         return (round(sum(lat)/float(len(lat)),6), round(sum(long)/float(len(long)),6))
-    
+
+   # Obtain the schoolless path 
     def schoolless_path(self):
         return list(filter(lambda x: x not in self.school_path, self.path))
+   
+   # Obtain route time 
+    def get_possible_combined_route_time(self, new_route):
+
+        temp_route = copy.deepcopy(self)
+        temp_route.combine_route(new_route)
+
+        return sum([i for i, j in temp_route.path_info])
+
+    def assign_bus_to_route(self):
+        # Assign buses to the routes according to num. of occupants
+        # We have to use modified capacities mapping 
+        for bus_ind in range(len(constants.CAP_COUNTS)):
+             bus = constants.CAP_COUNTS[bus_ind]
+             #found the smallest suitable bus
+             if self.occupants <= constants.CAPACITY_MODIFIED_MAP[bus[0]][constants.SCHOOL_TYPE_INDEX]:
+                 #mark the bus as taken
+                 bus[1] -= 1
+                 self.update_bus(bus[0])
+                 #if all buses of this capacity are now taken, remove
+                 #this capacity
+                 if bus[1] == 0:
+                     constants.CAP_COUNTS.remove(bus)
+                 break 
    
    # Combine route
     def combine_route(self, new_route):
@@ -122,8 +177,3 @@ class Route:
                  if bus[1] == 0:
                      constants.CAP_COUNTS.remove(bus)
                  break 
-
-
-       
-
-
