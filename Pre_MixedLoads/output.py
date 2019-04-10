@@ -77,13 +77,13 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
                 if route.is_combined_route == True:
                     num_combined_routes +=1 
 
-                # utility_rate.append(route.occupants/route.bus_size)
-                    
+                utility_rate.append(route.occupants/constants.CAPACITY_MODIFIED_MAP[route.bus_size][constants.SCHOOL_TYPE_INDEX])
+                        
                 for x in route.path_info:
                     route_travel_info.append(x)
                 
     total_travel_time = round((sum([i for i, j in route_travel_info])/3600), 2)
-    # utility_rate = round(np.average(utility_rate), 2)
+    utility_rate = round(np.average(utility_rate), 2)
     average_travel_time = round(total_travel_time*60/routes_count)
 
     for value in schoolcluster_students_map.values():
@@ -102,7 +102,7 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
     print("Num. of School Clusters: " +str(len(cluster_school_map)))
     print("Total travel time: " + str(total_travel_time) + " hours" )
     print("Average travel time / route: " + str(average_travel_time) + " minutes")
-    # print("Utility rate: " + str(utility_rate*100) + "%")
+    print("Utility rate: " + str(utility_rate*100) + "%")
     print("Buses used: " + str(sum(buses_used.values())))
     print(buses_used)
     print("Buses left: ") 
@@ -131,7 +131,7 @@ def output_routes_to_file(output, routes_returned, filename, title):
     if constants.REMOVE_LOW_OCC:
         file = open("remove_low_occ_" + str(filename) + ".txt", "w")   
     else:
-        file = open(str(filename) + ".txt", "w")   
+        file = open("normal_" + str(filename) + ".txt", "w")   
     
     file.write('---------------------------------\n')
     file.write('ROUTE STATS: ' + str(title) + '\n')
@@ -141,7 +141,7 @@ def output_routes_to_file(output, routes_returned, filename, title):
     file.write("Num. of Routes Generated: " + str(output[1]) + '\n')
     file.write("Total travel time: " + str(output[2]) + " hours" + '\n')
     file.write("Average travel time / route: " + str(output[3]) + " minutes" + '\n')
-    # file.write("Utility rate: " + str(round(output[4]*100, 2)) + '%\n')
+    file.write("Utility rate: " + str(round(output[4]*100, 2)) + '%\n')
 
     for index in range(0, len(routes_returned)):   
         
@@ -196,7 +196,8 @@ def output_routes_to_file(output, routes_returned, filename, title):
         file.write("###################################################\n")
 
     file.close()
-   
+
+# Print out student statistics
 def get_student_stats(total_routes): 
     student_travel_times = list()
 

@@ -129,6 +129,7 @@ def make_routes(school_route_time, school_route, stud_route, students):
         for stop in current_route.path:
             for idx, stud in enumerate(students):
                 if stud.tt_ind == stop:
+                    stud.update_time_on_bus(stop, current_route)
                     current_route.add_student(stud)
                     current_route.update_schools_to_visit(stud)
                     
@@ -142,6 +143,9 @@ def make_routes(school_route_time, school_route, stud_route, students):
         if current_route.bus_size == None and constants.CAP_COUNTS: 
             split_route = current_route.split_route()
             route_list.append(split_route)
+        else: 
+            current_route.assign_contract_bus_to_route()
+
         route_list.append(current_route)
         
     return route_list
@@ -166,26 +170,14 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
             if constants.REMOVE_LOW_OCC:
                 routes_returned = combine_routes(routes_returned)
 
-            clean_routes(routes_returned)
             route_list.append(routes_returned)
         
         routes[key] = route_list    
 
     return routes
 
-# TODO: Implement this section 
-# Schools that don't have to be visited 
-# Update student's time_on_bus
-def clean_routes(routes):
-    pass
-
-# TODO: FIX BUGS AND TAKE INTO ACCOUNT BUS CAPACITIES
 # Combine routes that have low occupancies 
 def combine_routes(routes):
-
-    # If only one route, then no comparsion and combining needed 
-    if len(routes) == 1: 
-        return routes 
 
     # Categorize low occ. routes
     low_occ_routes = list()
@@ -193,6 +185,10 @@ def combine_routes(routes):
     for route in routes:
         if route.occupants < constants.OCCUPANTS_LIMIT: 
             low_occ_routes.append(route)
+
+    # If there are no low_occ_routes or only one route, just return
+    if not low_occ_routes or len(routes) == 1: 
+        return routes
 
     # Iterate through the low occ. routes list and compare with all the other routes (excluding current route)
     idx = 0
@@ -216,11 +212,10 @@ def combine_routes(routes):
             clust_dis = [round(float(str(a).strip('km')),6) for a in clust_dis]
             ind = [i for i, v in enumerate(clust_dis) if v == min(clust_dis)][0]
             
-            routes.remove(possible_routes[ind])
+            routes.remove(possible_routes[ind]) 
             possible_routes[ind].combine_route(low_occ_routes[idx])
-            possible_routes[ind].update_combine_route_status()
             routes.append(possible_routes[ind])
 
         idx += 1
 
-    return routes 
+    return routes

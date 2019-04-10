@@ -5,7 +5,7 @@ from setup import setup_buses
 
 #If true, informational lines will be printed
 VERBOSE = True
-REMOVE_LOW_OCC = False  
+REMOVE_LOW_OCC = False   
 
 #Max allowable travel time in seconds
 MAX_TIME = 2700
