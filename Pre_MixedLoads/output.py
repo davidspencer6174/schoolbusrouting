@@ -62,14 +62,13 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
     
     for i in routes_returned:
         for j in routes_returned[i]:
-            
-            routes_count += len(j)
-            
             for route in j:
+
+                routes_count += 1
                 student_count += route.occupants
                 
                 if route.get_route_length() >= constants.MAX_TIME: 
-                    exceeded_routes.append(route.get_route_length())
+                    exceeded_routes.append(round(route.get_route_length()/60, 2))
 
                 if route.bus_size in buses_used: 
                     buses_used[route.bus_size] += 1
@@ -111,10 +110,12 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
     if exceeded_routes:
         print(' - - - - - - - - - - - - - - - - -')
         print("COMBINED ROUTE STATS: ") 
-        print("Number of combined routes: " + str(num_combined_routes))
-        print("Number of routes that exceed time limit: " + str(len(exceeded_routes)))
-        print("Average time of exceeded routes: " + str(round((statistics.mean(exceeded_routes)-constants.MAX_TIME)/60, 2)) + " minutes")
-        print('----------------------------------\n') 
+        print("Num. of combined routes: " + str(num_combined_routes))
+        print("Num. of low occ routes before combine: " + str(constants.INITIAL_LOW_OCC_ROUTES_COUNTS))
+        print("Num. of routes that exceed time limit: " + str(len(exceeded_routes)))
+        print("Average time of exceeded routes: " + str(round((statistics.mean(exceeded_routes)-(constants.MAX_TIME/60)), 2)) + " minutes")
+        print("Exceeded route times (minutes): " + str(exceeded_routes))
+        print('----------------------------------') 
     
     output = [student_count, routes_count, total_travel_time, average_travel_time, utility_rate, buses_used, cluster_school_map, schoolcluster_students_map]
     return output
@@ -205,8 +206,9 @@ def get_student_stats(total_routes):
         for j in total_routes[i]:
             for route in j: 
                 for stud in route.students:
-                    student_travel_times.append(stud.time_on_bus)
+                    student_travel_times.append(round(stud.time_on_bus/60, 2))
 
     student_travel_times.sort() 
-    print("Average student travel time: " + str(statistics.mean(student_travel_times)))
-    pass
+    print("Average student travel time: " + str(round(statistics.mean(student_travel_times),2)) + " minutes")
+    print(" ")
+    return student_travel_times

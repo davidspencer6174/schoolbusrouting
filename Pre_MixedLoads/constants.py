@@ -2,10 +2,11 @@ import pickle
 import numpy as np
 import pandas as pd
 from setup import setup_buses 
+import constants
 
 #If true, informational lines will be printed
 VERBOSE = True
-REMOVE_LOW_OCC = False   
+REMOVE_LOW_OCC = True    
 
 #Max allowable travel time in seconds
 MAX_TIME = 2700
@@ -16,6 +17,7 @@ PROG_TYPES = ['P', 'X', 'M']
 # School_type: 'elem', 'middle', 'high
 BREAK_NUM = 4
 OCCUPANTS_LIMIT = 10
+INITIAL_LOW_OCC_ROUTES_COUNTS = 0 
 SCHOOL_TYPE = 'elem'
 SCHOOL_CATEGORIES = ['elem', 'middle', 'high']
 SCHOOL_TYPE_INDEX = 0
@@ -44,6 +46,9 @@ CAPACITY_MODIFIED_MAP[33] = [33, 21, 21]
 CAPACITY_MODIFIED_MAP[24] = [24, 17, 17]
 CAPACITY_MODIFIED_MAP[17] = [17, 12, 12]
 CAPACITY_MODIFIED_MAP[16] = [16, 11, 11]
+
+def REFRESH_STATS():
+    constants.INITIAL_LOW_OCC_ROUTES_COUNTS = 0 
 
 PREFIX = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
 TRAVEL_TIMES = np.load(PREFIX + "travel_times.npy")

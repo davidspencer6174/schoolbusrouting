@@ -179,15 +179,18 @@ class Route:
         # Remove school_path from route
         route = [x for x in route if x not in self.school_path]
         
-        # Update path and path_info
+        # Update path, path_info, and students time on bus
         new_path_info = list()
         base = self.school_path[-1]
+        self.path = self.school_path + route
 
         for index, stop in enumerate(route):
             new_path_info.append((constants.TRAVEL_TIMES[base][stop], len([x for x in self.students if x.tt_ind==stop])))
             base = stop
 
-        self.path = self.school_path + route
+            for stud in self.students:
+                stud.update_time_on_bus(stop, self)
+
         self.path_info = new_path_info
         
         # Update bus information - increment bus of discarded route back to cap_counts
@@ -197,4 +200,5 @@ class Route:
 
         self.assign_bus_to_route() 
         self.update_combine_route_status()
+
 

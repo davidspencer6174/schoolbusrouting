@@ -185,6 +185,7 @@ def combine_routes(routes):
     for route in routes:
         if route.occupants < constants.OCCUPANTS_LIMIT: 
             low_occ_routes.append(route)
+            constants.INITIAL_LOW_OCC_ROUTES_COUNTS += 1 
 
     # If there are no low_occ_routes or only one route, just return
     if not low_occ_routes or len(routes) == 1: 

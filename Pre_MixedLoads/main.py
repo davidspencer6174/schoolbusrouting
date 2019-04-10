@@ -18,6 +18,8 @@ def main():
     total_routes = list()
     
     for school_category in constants.SCHOOL_CATEGORIES: 
+
+        constants.REFRESH_STATS()
         constants.SCHOOL_TYPE = school_category
         constants.SCHOOL_TYPE_INDEX = constants.SCHOOL_CATEGORIES.index(constants.SCHOOL_TYPE)
 
@@ -31,12 +33,11 @@ def main():
         routes_returned = start_routing(cluster_school_map, schoolcluster_students_map)
         total_routes.append(routes_returned) 
 
-        if constants.VERBOSE:
-            final_stats = get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map)
-            # get_student_stats(routes_returned)
+        final_stats = get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map)
+        students_travel_times = get_student_stats(routes_returned)
 
         output_routes_to_file(final_stats, routes_returned, (str(school_category)+"_school_routes"), (school_category.upper() + " SCHOOL ROUTES"))
 
-    return routes_returned
+    return routes_returned, students_travel_times
 
-total_routes = main()
+total_routes, students_travel_times = main()
