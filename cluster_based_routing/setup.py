@@ -75,12 +75,14 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
     clustered_schools = obtainClust_DBSCAN_custom(schools_students_attend)
     
-    schools_students_attend = pd.merge(schools_students_attend, clustered_schools, on=['Lat', 'Long'], how='inner').drop_duplicates()
-    schools_students_attend = schools_students_attend.sort_values(['label', 'r1_start'], ascending=[True, False])
+#    # Geolocation based-approach
+#    clustered_schools = obtainClust_DBSCAN(schools_students_attend, constants.RADIUS, constants.MIN_PER_CLUSTER)
+#    schools_students_attend = pd.merge(schools_students_attend, clustered_schools, on=['Lat', 'Long'], how='inner').drop_duplicates()
+#    schools_students_attend = schools_students_attend.sort_values(['label', 'r1_start'], ascending=[True, False])
     
-    schoolcluster_students_map_df = partition_students(schools_students_attend, phonebook)
+    schoolcluster_students_map_df = partition_students(clustered_schools, phonebook)
 
-    return schools_students_attend, schoolcluster_students_map_df
+    return clustered_schools, schoolcluster_students_map_df
 
 # Set up the buses
 def setup_buses(bus_capacities):

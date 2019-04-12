@@ -1,2 +1,2 @@
 # schoolbusrouting
-pre-mixed-loads approach to the school bus routing problem
+cluster based routing approach to the school bus routing problem

@@ -6,7 +6,7 @@ import constants
 
 #If true, informational lines will be printed
 VERBOSE = True
-REMOVE_LOW_OCC = False    
+REMOVE_LOW_OCC = True    
 
 #Max allowable travel time in seconds
 MAX_TIME = 2700

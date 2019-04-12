@@ -27,6 +27,7 @@ def obtainClust_DBSCAN_custom(schools_students_attend):
     
     db = DBSCAN(eps=constants.RADIUS, min_samples=constants.MIN_SAMPLES).fit(sub_travel_times)
     clustered_schools = schools_students_attend.assign(label = db.labels_)
+    
     return clustered_schools
 
 # Use DBSCAN to perform clustering
@@ -73,13 +74,13 @@ def break_large_clusters(data, break_num, limit):
     return result
 
 # Partition students based on the school clusters
-def partition_students(schools, phonebook):
-    counts = Counter(schools['label'])
+def partition_students(clustered_schools, phonebook):
+    counts = Counter(clustered_schools['label'])
     schoolcluster_students_map = dict()
      
     for row in counts.items():
         
-        temp = schools.loc[schools['label'] == row[0]].copy()  
+        temp = clustered_schools.loc[clustered_schools['label'] == row[0]].copy()  
         schools_in_cluster = list(temp['Cost_Center'].astype(str))
         students = phonebook[phonebook['Cost_Center'].isin(schools_in_cluster)].copy()
         students.loc[:,'School_Group'] = row[0]
