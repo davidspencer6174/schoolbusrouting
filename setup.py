@@ -34,6 +34,14 @@ bell_times = prefix+'bell_times.csv'
 # Filter and wrangle through data 
 def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
+    prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
+
+    stops = prefix+'stop_geocodes_fixed.csv'
+    zipdata =prefix+'zipData.csv'
+    schools = prefix+'school_geocodes_fixed.csv'
+    phonebook = prefix+'totalPhoneBook.csv'
+    bell_times = prefix+'bell_times.csv'
+
     stops = pd.read_csv(stops, low_memory=False)
     zipdata = pd.read_csv(zipdata, low_memory=False)
     
@@ -65,24 +73,28 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     mask = (phonebook['Mod_Grade'] >= 9) & (phonebook['Mod_Grade'] <=13)
     phonebook['School_type'] = phonebook['School_type'].mask(mask, "high")
     
+    phonebook = phonebook[phonebook.Prog.isin(constants.PROG_TYPES)]
     phonebook = phonebook.rename(index=str, columns={"Lat": "Lat", "Long": "Long"})
 
     schools_students_attend = phonebook["Cost_Center"].drop_duplicates().dropna()
     schools_students_attend = schools.loc[schools['Cost_Center'].isin(schools_students_attend)]
     schools_students_attend = pd.merge(schools_students_attend, phonebook[['Cost_Center', 'School_type']], on=['Cost_Center'], how='inner')
     
+    # Cluster schools and merge back into list of schools_students_attend
     clustered_schools = obtainClust_DBSCAN_custom(schools_students_attend)
+    schools_students_attend = pd.merge(schools_students_attend, clustered_schools[['label', 'tt_ind']], on=['tt_ind'], how='inner').drop_duplicates()
+    schools_students_attend = schools_students_attend.sort_values(['label'], ascending=[True])
     
 #    # Geolocation based-approach
 #    clustered_schools = obtainClust_DBSCAN(schools_students_attend, constants.RADIUS, constants.MIN_PER_CLUSTER)
 #    schools_students_attend = pd.merge(schools_students_attend, clustered_schools, on=['Lat', 'Long'], how='inner').drop_duplicates()
 #    schools_students_attend = schools_students_attend.sort_values(['label', 'r1_start'], ascending=[True, False])
     
-    schoolcluster_students_map_df = partition_students(clustered_schools, phonebook)
+    schoolcluster_students_map_df = partition_students(schools_students_attend, phonebook)
 
-    return clustered_schools, schoolcluster_students_map_df
+    return schools_students_attend, schoolcluster_students_map_df
 
-# Set up the buses
+# Setup the buses
 def setup_buses(bus_capacities):
     cap_counts_dict = dict()  #map from capacities to # of buses of that capacity
     caps = open(bus_capacities, 'r')
@@ -93,6 +105,26 @@ def setup_buses(bus_capacities):
             cap_counts_dict[cap] = 0
         cap_counts_dict[cap] += 1
     caps.close()
+    #now turn into a list sorted by capacity
+    cap_counts_list = list(cap_counts_dict.items())
+    cap_counts_list = sorted(cap_counts_list, key = lambda x:x[0])
+    for i in range(len(cap_counts_list)):
+        cap_counts_list[i] = list(cap_counts_list[i])
+        
+    return cap_counts_list
+
+# Setup contract buses
+def setup_contract_buses(bus_capacities):
+    
+    cap_counts_dict = dict()  #map from capacities to # of buses of that capacity
+    caps = open(bus_capacities, 'r')
+    for bus in caps.readlines():
+        fields = bus.split(";")
+        cap = int(fields[1])
+        if cap not in cap_counts_dict:
+            cap_counts_dict[cap] = 0
+    caps.close()
+    
     #now turn into a list sorted by capacity
     cap_counts_list = list(cap_counts_dict.items())
     cap_counts_list = sorted(cap_counts_list, key = lambda x:x[0])

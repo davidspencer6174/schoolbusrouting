@@ -142,12 +142,14 @@ def make_routes(school_route_time, school_route, stud_route, students):
         # If there are no buses big enough to fit passengers, we have to split the route and use additional buses
         if current_route.bus_size == None and constants.CAP_COUNTS: 
             split_route = current_route.split_route()
+            split_route.check_mixed_load_status()
             route_list.append(split_route)
         else: 
             current_route.assign_contract_bus_to_route()
-
-        route_list.append(current_route)
         
+        current_route.check_mixed_load_status()
+        route_list.append(current_route)
+       
     return route_list
 
 # Perform routing 
@@ -160,7 +162,6 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
     # Generate route(s) for each cluster_school and cluster_stops pair
     for key, schools in cluster_school_map.items():
         
-        # TODO: MAKE ADAPTIVE SCHOOL ROUTE BASED ON DISTANCE OF SCHOOL_CLUSTER
         school_route, school_route_time = get_possible_route(schools, 0, [])        
         route_list = list()
 

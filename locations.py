@@ -33,6 +33,7 @@ class Route:
         self.bus_size = None
         self.is_combined_route = None 
         self.is_contract_route = None 
+        self.is_mixed_loads = None
 
     def __eq__(self, other): 
         if self.path == other.path and self.path_info == other.path_info and self.occupants == other.occupants:
@@ -57,6 +58,9 @@ class Route:
     def update_contract_route_status(self):
         self.is_contract_route = True 
 
+    def update_mixed_loads_status(self):
+        self.is_mixed_loads = True 
+
     def update_bus(self, bus_cap):
         self.bus_size = bus_cap
     
@@ -66,6 +70,10 @@ class Route:
     # Obtain the schoolless path 
     def schoolless_path(self):
         return list(filter(lambda x: x not in self.school_path, self.path))
+
+    def check_mixed_load_status(self):
+        for school in self.schools_to_visit:
+            pass
 
     # assign a bus to a given route
     def assign_bus_to_route(self):

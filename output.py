@@ -98,13 +98,13 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
         num_schools = num_schools + len(value)
  
     print('---------------------------------')
-    print(constants.SCHOOL_TYPE.upper() + '-schools routing statistics')
+    print('Schools routing statistics')
     print('---------------------------------')
     print("Num. of Students Routed: " + str(student_count))
     print("Num. of Routes Generated: " + str(routes_count))
     print("Num. of Schools: " + str(num_schools))
     print("Num. of School Clusters: " +str(len(cluster_school_map)))
-    print("Total travel time: " + str(total_travel_time) + " hours" )
+    print("Total travel - time: " + str(total_travel_time) + " hours" )
     print("Average travel time / route: " + str(average_travel_time) + " minutes")
     print("Utility rate: " + str(utility_rate*100) + "%")
     print("Buses used: " + str(sum(buses_used.values())))
@@ -121,8 +121,16 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
         print("Average time of exceeded routes: " + str(round((statistics.mean(exceeded_routes)-(constants.MAX_TIME/60)), 2)) + " minutes")
         print("Exceeded route times (minutes): " + str(exceeded_routes))
     
-    output = [student_count, routes_count, total_travel_time, average_travel_time, utility_rate, buses_used, cluster_school_map, schoolcluster_students_map]
-    return output
+    output = [student_count, routes_count, total_travel_time, average_travel_time, utility_rate, 
+              buses_used, cluster_school_map, schoolcluster_students_map, num_combined_routes, exceeded_routes, num_schools]
+
+    output_routes_to_file(output, routes_returned, ("school_routes"), ("SCHOOL ROUTES"))
+    
+    final_stats = [student_count, routes_count, total_travel_time, average_travel_time, utility_rate, 
+                   buses_used, len(cluster_school_map), len(schoolcluster_students_map), num_combined_routes, exceeded_routes, num_schools]
+
+    
+    return final_stats
     
 # write routes into .txt file
 # cluster_school_map: maps clusters to schools
@@ -142,12 +150,24 @@ def output_routes_to_file(output, routes_returned, filename, title):
     file.write('ROUTE STATS: ' + str(title) + '\n')
     file.write('---------------------------------\n')
     file.write("LOW OCCUPANCY REMOVAL: " + str(constants.REMOVE_LOW_OCC) + '\n')
-    file.write("Num. of Students Routed: " + str(output[0]) + '\n')
-    file.write("Num. of Routes Generated: " + str(output[1]) + '\n')
+    file.write("Num. of students routed: " + str(output[0]) + '\n')
+    file.write("Num. of routes generated: " + str(output[1]) + '\n')
+    file.write("Num. of schools: " + str(output[10]) + '\n')
+    file.write("Num. of school clusters: " + str(len(output[6])) + '\n')
     file.write("Total travel time: " + str(output[2]) + " hours" + '\n')
     file.write("Average travel time / route: " + str(output[3]) + " minutes" + '\n')
     file.write("Utility rate: " + str(round(output[4]*100, 2)) + '%\n')
 
+    if output[9]:
+        file.write(' - - - - - - - - - - - - - - - - -\n')
+        file.write("COMBINED ROUTE STATS: \n") 
+        file.write("Num. of combined routes: " + str(output[8]) + '\n')
+        file.write("Num. of low occ routes before combine: " + str(constants.INITIAL_LOW_OCC_ROUTES_COUNTS) + '\n')
+        file.write("Num. of routes that exceed time limit: " + str(len(output[9])) + '\n')
+        file.write("Average time of exceeded routes: " + str(round((statistics.mean(output[9])-(constants.MAX_TIME/60)), 2)) + " minutes \n")
+        file.write("Exceeded route times (minutes): " + str(output[9])+ '\n')
+
+    # Start outputting route information 
     for index in range(0, len(routes_returned)):   
         
         file.write("----------------------\n")
@@ -169,7 +189,10 @@ def output_routes_to_file(output, routes_returned, filename, title):
                 
                 if route.is_combined_route == True:
                     file.write("Combined Route == True\n")
-               
+                
+                if route.is_mixed_loads == True:
+                    file.write("Mixed Loads == True\n")
+
                 travel_time = 0 
                 for route_stat in route.path_info:
                     travel_time += route_stat[0]

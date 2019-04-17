@@ -1,3 +1,4 @@
+import pandas as pd
 import constants
 import sys 
 from routing import start_routing
@@ -15,8 +16,6 @@ def main():
     #     pass
 
     prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
-    total_routes = list()
-    total_students_travel_times = list()
     
     schools_students_attend, schoolcluster_students_map_df = setup_data(prefix+'stop_geocodes_fixed.csv', 
                                                                         prefix+'zipData.csv', 
@@ -26,15 +25,23 @@ def main():
 
     cluster_school_map, schoolcluster_students_map = setup_clusters(schools_students_attend, schoolcluster_students_map_df)
     routes_returned = start_routing(cluster_school_map, schoolcluster_students_map)
-
     final_stats = get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map)
     students_travel_times = get_student_stats(routes_returned)
-    output_routes_to_file(final_stats, routes_returned, ("school_routes"), ("SCHOOL ROUTES"))
+    return final_stats, routes_returned, students_travel_times
 
-    total_routes.append(routes_returned)
-    total_students_travel_times.append(students_travel_times)
 
-    return total_routes, total_students_travel_times
+final_stats_df = pd.DataFrame()
 
-total_routes, student_travel_times = main()
+for rad in range(600, 900, 60):
+    constants.RADIUS = rad
+    constants.REFRESH_STATS()
+    final_stats, routes_returned, students_travel_times = main()
+    final_stats = final_stats.insert(0, rad)
+    final_stats_df = final_stats_df.append(pd.Series(final_stats, index =['radius','student_count','routes_count','total_travel_time', 'average_travel_time',
+                                                                          'utility_rate','buses_used','cluster_school_map','schoolclsuter_students_map',
+                                                                          'num_combined_routes','exceeded_routes','num_schools']), ignore_index=True)
+
+
+
+
 

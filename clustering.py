@@ -23,11 +23,14 @@ def obtain_sub_travel_times(new_df):
     sub_travel_times = constants.DF_TRAVEL_TIMES.iloc[indexes,:]
     sub_travel_times = sub_travel_times.iloc[:,indexes]
 
-    mid_start_index = temp_df["School_type"].searchsorted(1)
+#    mid_start_index = temp_df["School_type"].searchsorted(1)
     high_start_index = temp_df["School_type"].searchsorted(2)
     
-    sub_travel_times.iloc[0:mid_start_index,high_start_index:] = 9999999999
-    sub_travel_times.iloc[high_start_index:,0:mid_start_index] = 9999999999
+    sub_travel_times.iloc[0:high_start_index, high_start_index:] = 0
+    sub_travel_times.iloc[high_start_index:,0:high_start_index] = 0
+
+#    sub_travel_times.iloc[0:mid_start_index,high_start_index:] = 0
+#    sub_travel_times.iloc[high_start_index:,0:mid_start_index] = 0
 
     return sub_travel_times 
 
@@ -60,19 +63,19 @@ def obtainClust_DBSCAN_custom(schools_students_attend):
     new_df.loc[new_df['School_type'] == 'middle', 'School_type'] = 1
     new_df.loc[new_df['School_type'] == 'high', 'School_type'] = 2
 
-    test_df = new_df[:250]
+    test_df = new_df
 
     # Create subset of travel times and modify distances 
     sub_travel_times = obtain_sub_travel_times(test_df)
     
     # Perform clustering
     db = DBSCAN(eps=constants.RADIUS, min_samples=constants.MIN_SAMPLES).fit(sub_travel_times)
+
     sub_tt_ind = list(sub_travel_times.columns.values)
-        
-    test_df['tt_ind_cat'] = pd.Categorical(test_df['tt_ind'], categories=sub_tt_ind, ordered=True)
+    
+    test_df = test_df.assign(tt_ind_cat=pd.Categorical(test_df['tt_ind'], categories=sub_tt_ind, ordered=True))
     test_df = test_df.sort_values('tt_ind_cat')
     clustered_schools = test_df.assign(label = db.labels_)
-    output_geo_with_labels(clustered_schools)
     
     return clustered_schools
 
@@ -120,13 +123,14 @@ def break_large_clusters(data, break_num, limit):
     return result
 
 # Partition students based on the school clusters
-def partition_students(clustered_schools, phonebook):
-    counts = Counter(clustered_schools['label'])
+def partition_students(schools_students_attend, phonebook):
+    
+    counts = Counter(schools_students_attend['label'])
     schoolcluster_students_map = dict()
      
     for row in counts.items():
         
-        temp = clustered_schools.loc[clustered_schools['label'] == row[0]].copy()  
+        temp = schools_students_attend.loc[schools_students_attend['label'] == row[0]].copy()  
         schools_in_cluster = list(temp['Cost_Center'].astype(str))
         students = phonebook[phonebook['Cost_Center'].isin(schools_in_cluster)].copy()
         students.loc[:,'School_Group'] = row[0]
@@ -136,5 +140,6 @@ def partition_students(clustered_schools, phonebook):
         students = students.sort_values(by=['label'])
         
         schoolcluster_students_map[row[0]] = students
+        
     return schoolcluster_students_map
 
