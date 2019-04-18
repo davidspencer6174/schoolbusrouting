@@ -25,21 +25,25 @@ def main():
 
     cluster_school_map, schoolcluster_students_map = setup_clusters(schools_students_attend, schoolcluster_students_map_df)
     routes_returned = start_routing(cluster_school_map, schoolcluster_students_map)
+    
+    # Get statistics 
     final_stats = get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map)
     students_travel_times = get_student_stats(routes_returned)
+    
     return final_stats, routes_returned, students_travel_times
-
 
 final_stats_df = pd.DataFrame()
 
-for rad in range(600, 900, 60):
-    constants.RADIUS = rad
-    constants.REFRESH_STATS()
-    final_stats, routes_returned, students_travel_times = main()
-    final_stats = final_stats.insert(0, rad)
-    final_stats_df = final_stats_df.append(pd.Series(final_stats, index =['radius','student_count','routes_count','total_travel_time', 'average_travel_time',
-                                                                          'utility_rate','buses_used','cluster_school_map','schoolclsuter_students_map',
-                                                                          'num_combined_routes','exceeded_routes','num_schools']), ignore_index=True)
+#for rad in range(600, 1080, 60):
+
+constants.RADIUS = 960
+rad = constants.RADIUS
+constants.REFRESH_STATS()
+final_stats, routes_returned, students_travel_times = main()
+final_stats = [constants.RADIUS] + final_stats + [students_travel_times]
+# final_stats_df = final_stats_df.append(pd.Series(final_stats, index =['radius','student_count','routes_count','total_travel_time', 'average_travel_time',
+#                                                                       'utility_rate','buses_used','cluster_school_map','schoolclsuter_students_map',
+#                                                                       'num_combined_routes','exceeded_routes','num_schools', 'students_travel_times']), ignore_index=True)
 
 
 

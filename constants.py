@@ -6,7 +6,8 @@ import constants
 
 #If true, informational lines will be printed
 VERBOSE = True
-REMOVE_LOW_OCC = False    
+REMOVE_LOW_OCC = True    
+OUTPUT_TO_FILE = True 
 
 #Max allowable travel time in seconds
 MAX_TIME = 2700
@@ -28,6 +29,7 @@ COMBINE_ROUTES_TIME_LIMIT = MAX_TIME + 900
 # DBSCAN paramters
 # Radius (km)
 RADIUS = 600
+RADIUS_STUDENT = 1400
 MIN_SAMPLES = 1
 
 # MODIFIED BUS CAPACITES 
@@ -55,6 +57,7 @@ PREFIX = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Researc
 TRAVEL_TIMES = np.load(PREFIX + "travel_times.npy")
 CAP_COUNTS = setup_buses(PREFIX+'dist_bus_capacities.csv')
 GEOCODES = pd.read_csv(PREFIX+'all_geocodes.csv')
+SCHOOLTYPE_MAP= None
 
 DF_TRAVEL_TIMES = pd.DataFrame(data=np.transpose(constants.TRAVEL_TIMES))
 
@@ -64,3 +67,4 @@ with open(PREFIX+'stops_codes_map', 'rb') as handle:
     STOPS_CODES_MAP = pickle.load(handle)
 with open(PREFIX+'codes_inds_map', 'rb') as handle:
     CODES_INDS_MAP = pickle.load(handle)
+

@@ -24,13 +24,10 @@ def get_possible_route(items, index, total_indexes):
     total_indexes.extend(list(dict.fromkeys(index_from_items)))
     route.append(total_indexes[index])
     
-    # Create the mini travel-time matrix and fill with correct info.
-    dropoff_mat = [[0 for x in range(len(total_indexes))] for y in range(len(total_indexes))]
+    dropoff_mat = constants.DF_TRAVEL_TIMES.iloc[total_indexes,:]
+    dropoff_mat = dropoff_mat.iloc[:,total_indexes]
+    dropoff_mat = dropoff_mat.values
 
-    for i in range(0, len(dropoff_mat)):
-        for j in range(0, len(dropoff_mat[i])):
-            dropoff_mat[i][j] = constants.TRAVEL_TIMES[total_indexes[i]][total_indexes[j]]  
-    
     # Find shorest path through all the stops
     while len(route) < len(dropoff_mat):
         visited.append(index)
@@ -121,7 +118,7 @@ def make_routes(school_route_time, school_route, stud_route, students):
     # Make the route objects and put them into a list 
     route_list = list()
     for index, route in enumerate(result_list):
-        current_route = Route(route, path_info_list[index], school_route)
+        current_route = Route(copy.deepcopy(route), copy.deepcopy(path_info_list[index]), copy.deepcopy(school_route))
         
         # Pick up students at each stop, but if the number of students exceeds 
         # the number of students that should be picked up according to path_info_list 
@@ -131,7 +128,6 @@ def make_routes(school_route_time, school_route, stud_route, students):
                 if stud.tt_ind == stop:
                     stud.update_time_on_bus(stop, current_route)
                     current_route.add_student(stud)
-                    current_route.update_schools_to_visit(stud)
                     
                 if current_route.occupants >= sum([j for i, j in current_route.path_info]):
                     break
@@ -142,12 +138,10 @@ def make_routes(school_route_time, school_route, stud_route, students):
         # If there are no buses big enough to fit passengers, we have to split the route and use additional buses
         if current_route.bus_size == None and constants.CAP_COUNTS: 
             split_route = current_route.split_route()
-            split_route.check_mixed_load_status()
             route_list.append(split_route)
-        else: 
+        elif current_route.bus_size : 
             current_route.assign_contract_bus_to_route()
         
-        current_route.check_mixed_load_status()
         route_list.append(current_route)
        
     return route_list
@@ -173,11 +167,19 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
             if constants.REMOVE_LOW_OCC:
                 routes_returned = combine_routes(routes_returned)
 
+            routes_returned = check_routes(routes_returned)
             route_list.append(routes_returned)
         
         routes[key] = route_list    
 
     return routes
+
+# Check routes before adding to final list
+def check_routes(route_list):
+    for route in route_list:
+        route.clean_route()
+        route.check_mixedload_status()
+    return route_list
 
 # Combine routes that have low occupancies 
 def combine_routes(routes):
@@ -220,7 +222,7 @@ def combine_routes(routes):
             routes.remove(possible_routes[ind]) 
             possible_routes[ind].combine_route(low_occ_routes[idx])
             routes.append(possible_routes[ind])
-
+            
         idx += 1
 
     return routes

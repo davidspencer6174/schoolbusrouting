@@ -17,7 +17,7 @@ class Student:
 
     # Calculate how much time a student spends on the bus
     def update_time_on_bus(self, stop, current_route):
-        ind = current_route.schoolless_path().index(stop)
+        ind = current_route.get_schoolless_path().index(stop)
         newTime = sum([i for i,j in current_route.path_info[:ind+1]])
         self.time_on_bus = newTime 
 
@@ -31,9 +31,9 @@ class Route:
         self.school_path = school_path
         self.schools_to_visit = set() 
         self.bus_size = None
-        self.is_combined_route = None 
+        self.is_combined_route = False 
         self.is_contract_route = None 
-        self.is_mixed_loads = None
+        self.is_mixed_loads = False
 
     def __eq__(self, other): 
         if self.path == other.path and self.path_info == other.path_info and self.occupants == other.occupants:
@@ -46,12 +46,16 @@ class Route:
 
     def add_student(self, student):
         self.students.append(student)
+        self.update_schools_to_visit(student)
         self.occupants += 1
    
+    def update_schools_to_visit(self, student):
+        self.schools_to_visit.add(student.school_ind)
+
+    # Update different route status 
     def update_occupants(self):
         self.occupants = len(self.students)
 
-    # Update status of combined route
     def update_combine_route_status(self):
         self.is_combined_route = True 
 
@@ -64,17 +68,43 @@ class Route:
     def update_bus(self, bus_cap):
         self.bus_size = bus_cap
     
-    def update_schools_to_visit(self, student):
-        self.schools_to_visit.add(student.school_ind)
-    
-    # Obtain the schoolless path 
-    def schoolless_path(self):
+    # Obtain path without schools 
+    def get_schoolless_path(self):
         return list(filter(lambda x: x not in self.school_path, self.path))
-
-    def check_mixed_load_status(self):
+    
+    # Check for mixed loads and update it on the object itself 
+    def check_mixedload_status(self):
+        school_set = set()
         for school in self.schools_to_visit:
-            pass
+            school_set.add(constants.SCHOOLTYPE_MAP[school])
 
+        if len(school_set) != 1: 
+            self.update_mixed_loads_status()
+
+    # Clean routes and remove schools from path and path_info that will not be visited
+    def clean_route(self):
+    
+        new_school_path_info = list()
+        if self.schools_to_visit == set(self.school_path):
+            return 
+        
+        ori_school_path = copy.deepcopy(self.school_path)
+        
+        # Delete schools that do not need to be visited
+        for index, school in enumerate(ori_school_path):
+            if school not in self.schools_to_visit: 
+                self.school_path.remove(school)
+                self.path.remove(school)
+        del self.path_info[0:len(ori_school_path)-1]
+        
+        for ind, school in enumerate(self.school_path):
+            if ind == len(self.school_path)-1:
+                new_school_path_info.append((constants.TRAVEL_TIMES[self.school_path[-1]][self.get_schoolless_path()[0]], self.path_info[0][1]))
+            else:
+                new_school_path_info.append((constants.TRAVEL_TIMES[school][self.school_path[ind+1]], 0))
+
+        self.path_info = new_school_path_info + self.path_info[1::]
+                
     # assign a bus to a given route
     def assign_bus_to_route(self):
         # Assign buses to the routes according to num. of occupants
@@ -116,7 +146,7 @@ class Route:
         split_route = copy.deepcopy(self)
 
         # Iterate through stops
-        for i, stop in enumerate(self.schoolless_path()[::-1]):
+        for i, stop in enumerate(self.get_schoolless_path()[::-1]):
 
             curr_idx = (i+1)*-1
             self.path_info[curr_idx] = (self.path_info[::-1][i][0], int((self.path_info[::-1][i][1])/2))
@@ -157,7 +187,7 @@ class Route:
         visited = list()
         index = 0
                 
-        total_indexes = sum([[self.school_path[-1]], self.schoolless_path(), new_route.schoolless_path()], [])
+        total_indexes = sum([[self.school_path[-1]], self.get_schoolless_path(), new_route.get_schoolless_path()], [])
         route = [total_indexes[index]]
 
         # Create mini travel-time matrix and perform routing 
@@ -166,7 +196,7 @@ class Route:
         for i in range(0, len(dropoff_mat)):
             for j in range(0, len(dropoff_mat[i])):
                 dropoff_mat[i][j] = constants.TRAVEL_TIMES[total_indexes[i]][total_indexes[j]]  
-                
+
         # Find shortest path through all the stops
         while len(route) < len(dropoff_mat):
             visited.append(index)
@@ -199,7 +229,7 @@ class Route:
             for stud in self.students:
                 stud.update_time_on_bus(stop, self)
 
-        self.path_info = new_path_info
+        self.path_info = self.path_info[0:len(self.school_path)-1] + new_path_info
         
         # Update bus information - increment bus of discarded route back to cap_counts
         for bus in constants.CAP_COUNTS:
@@ -208,5 +238,3 @@ class Route:
 
         self.assign_bus_to_route() 
         self.update_combine_route_status()
-
-
