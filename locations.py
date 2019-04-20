@@ -84,6 +84,7 @@ class Route:
     # Clean routes and remove schools from path and path_info that will not be visited
     def clean_route(self):
     
+        # If no cleaning needed
         new_school_path_info = list()
         if self.schools_to_visit == set(self.school_path):
             return 
@@ -99,9 +100,9 @@ class Route:
         
         for ind, school in enumerate(self.school_path):
             if ind == len(self.school_path)-1:
-                new_school_path_info.append((constants.TRAVEL_TIMES[self.school_path[-1]][self.get_schoolless_path()[0]], self.path_info[0][1]))
+                new_school_path_info.append((round(constants.TRAVEL_TIMES[self.school_path[-1]][self.get_schoolless_path()[0]],2), self.path_info[0][1]))
             else:
-                new_school_path_info.append((constants.TRAVEL_TIMES[school][self.school_path[ind+1]], 0))
+                new_school_path_info.append((round(constants.TRAVEL_TIMES[school][self.school_path[ind+1]], 2), 0))
 
         self.path_info = new_school_path_info + self.path_info[1::]
                 

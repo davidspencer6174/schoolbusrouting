@@ -3,7 +3,6 @@ import numpy as np
 import pickle
 import constants
 import statistics
-import inspect
 
 # Output the clustered objects (schools/stops) with
 # their respective geolocations
@@ -115,7 +114,7 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
     print("Num. of School Clusters: " +str(len(cluster_school_map)))
     print("Total travel-time: " + str(total_travel_time) + " hours" )
     print("Average travel time / route: " + str(average_travel_time) + " mins")
-#    print("Utility rate: " + str(utility_rate*100) + "%")
+    print("Utility rate: " + str(utility_rate*100) + "%")
     print("Buses used: " + str(sum(buses_used.values())))
     print(buses_used)
     print("Buses left: ") 
@@ -125,7 +124,6 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
         print(' - - - - - - - - - - - - - - - - -')
         print('[COMBINED ROUTE STATS]') 
         print("Num. of combined routes: " + str(num_combined_routes))
-        print("Num. of low occ routes before combine: " + str(constants.INITIAL_LOW_OCC_ROUTES_COUNTS))
         print("Num. of routes that exceed time limit: " + str(len(exceeded_routes)))
         print("Average time of exceeded routes: " + str(round((statistics.mean(exceeded_routes_times)-(constants.MAX_TIME/60)), 2)) + " minutes")
         print("Max exceeded route time: " + str(max(exceeded_routes_times)))
@@ -139,8 +137,7 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
         output_routes_to_file(output, routes_returned, ("school_routes"), ("SCHOOL ROUTES"))
     
     final_stats = [student_count, routes_count, total_travel_time, average_travel_time, utility_rate, buses_used, 
-                   len(cluster_school_map), len(schoolcluster_students_map), num_combined_routes, exceeded_routes, num_schools, num_mixed_routes]
-    
+                   len(cluster_school_map), len(schoolcluster_students_map), num_combined_routes, exceeded_routes, num_schools, num_mixed_routes]    
     
     return final_stats
     
@@ -179,17 +176,16 @@ def output_routes_to_file(output, routes_returned, filename, title):
     file.write("Num. of school clusters: " + str(len(output[6])) + '\n')
     file.write("Total travel time: " + str(output[2]) + " hours" + '\n')
     file.write("Average travel time / route: " + str(output[3]) + " mins" + '\n')
-#    file.write("Utility rate: " + str(round(output[4]*100, 2)) + '%\n')
+    file.write("Utility rate: " + str(round(output[4]*100, 2)) + '%\n')
 
     if output[9]:
         file.write(' - - - - - - - - - - - - - - - - -\n')
         file.write('[COMBINED ROUTE STATS] \n') 
         file.write("Num. of combined routes: " + str(output[8]) + '\n')
         file.write("Num. of low occ routes before combine: " + str(constants.INITIAL_LOW_OCC_ROUTES_COUNTS) + '\n')
-        file.write("Num. of routes that exceed time limit: " + str(len(output[9])) + '\n')
         file.write("Average time of exceeded routes: " + str(round((statistics.mean(output[10])-(constants.MAX_TIME/60)), 2)) + " mins \n")
         file.write("Max exceeded route time: " + str(max(output[10])) + ' mins \n')
-        file.write("Exceeded route times (mins): " + str(output[10])+ '\n\n')
+        file.write("Exceeded route times (mins): " + str(output[10].sort())+ '\n\n')
         
     file.write("----------------------\n")
     file.write("[OUTPUT ROUTES] \n" )

@@ -8,27 +8,28 @@ import constants
 VERBOSE = True
 REMOVE_LOW_OCC = True    
 OUTPUT_TO_FILE = True 
+CLEAN_ROUTE = True
 
 #Max allowable travel time in seconds
-MAX_TIME = 2700
+MAX_TIME = 3600
 
 # Program types
 PROG_TYPES = ['P', 'X', 'M']
 
 # School_type: 'elem', 'middle', 'high
 BREAK_NUM = 4
-OCCUPANTS_LIMIT = 10
-INITIAL_LOW_OCC_ROUTES_COUNTS = 0 
+OCCUPANTS_LIMIT = 25 
 SCHOOL_TYPE = 'elem'
 SCHOOL_CATEGORIES = ['elem', 'middle', 'high']
 SCHOOL_TYPE_INDEX = 0
+ISOLATE = 'elem'
 
 # COMBINE_ROUTE PARAMETERS 
-COMBINE_ROUTES_TIME_LIMIT = MAX_TIME + 900
+COMBINE_ROUTES_TIME_LIMIT = MAX_TIME + 600
+INITIAL_LOW_OCC_ROUTES_COUNTS = 0
 
 # DBSCAN paramters
-# Radius (km)
-RADIUS = 600
+RADIUS = 1200
 RADIUS_STUDENT = 1400
 MIN_SAMPLES = 1
 
@@ -54,7 +55,7 @@ def REFRESH_STATS():
     constants.CAP_COUNTS = setup_buses(PREFIX+"dist_bus_capacities.csv")
 
 PREFIX = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
-TRAVEL_TIMES = np.load(PREFIX + "travel_times.npy")
+TRAVEL_TIMES = (np.load(PREFIX + "travel_times.npy")*1.5)
 CAP_COUNTS = setup_buses(PREFIX+'dist_bus_capacities.csv')
 GEOCODES = pd.read_csv(PREFIX+'all_geocodes.csv')
 SCHOOLTYPE_MAP= None

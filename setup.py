@@ -84,7 +84,8 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     clustered_schools = obtainClust_DBSCAN_custom(schools_students_attend)
     schools_students_attend = pd.merge(schools_students_attend, clustered_schools[['label', 'tt_ind']], on=['tt_ind'], how='inner').drop_duplicates()
     schools_students_attend = schools_students_attend.sort_values(['label'], ascending=[True])
-
+#    output_geo_with_labels(schools_students_attend)
+    
     setup_schooltype_map(schools_students_attend) 
 
 #    # Geolocation based-approach
