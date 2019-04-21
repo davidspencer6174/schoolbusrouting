@@ -224,7 +224,7 @@ class Route:
         self.path = self.school_path + route
 
         for index, stop in enumerate(route):
-            new_path_info.append((constants.TRAVEL_TIMES[base][stop], len([x for x in self.students if x.tt_ind==stop])))
+            new_path_info.append((round(constants.TRAVEL_TIMES[base][stop], 2), len([x for x in self.students if x.tt_ind==stop])))
             base = stop
 
             for stud in self.students:

@@ -91,7 +91,7 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
                 
     total_travel_time = round((sum([i for i, j in route_travel_info])/3600), 2)
     utility_rate = round(np.average(utility_rate), 2)
-    average_travel_time = round(total_travel_time*60/routes_count)
+    average_travel_time = round(total_travel_time*60/routes_count, 2)
 
     for value in schoolcluster_students_map.values():
         for j in range(0, len(value)):
@@ -106,12 +106,14 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
     print('[PARAMETERS USED]')
     print('Radius: ' + str(constants.RADIUS))
     print('Max time constraint: ' + str(round(constants.MAX_TIME/60, 2)) + ' mins')
+    print('Combine route time limit: ' + str(round(constants.COMBINE_ROUTES_TIME_LIMIT/60, 2)) + ' mins')
     print(' - - - - - - - - - - - - - - - - -')
     print('[ROUTE STATS]')
-    print("Num. of Students Routed: " + str(student_count))
-    print("Num. of Routes Generated: " + str(routes_count))
-    print("Num. of Schools: " + str(num_schools))
-    print("Num. of School Clusters: " +str(len(cluster_school_map)))
+    print("Num. of students routed: " + str(student_count))
+    print("Num. of routes generated: " + str(routes_count))
+    print("Num. of mixed-load routes: " + str(num_mixed_routes))
+    print("Num. of schools: " + str(num_schools))
+    print("Num. of school clusters: " +str(len(cluster_school_map)))
     print("Total travel-time: " + str(total_travel_time) + " hours" )
     print("Average travel time / route: " + str(average_travel_time) + " mins")
     print("Utility rate: " + str(utility_rate*100) + "%")
@@ -120,7 +122,7 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
     print("Buses left: ") 
     print(dict(constants.CAP_COUNTS))
 
-    if constants.REMOVE_LOW_OCC:
+    if constants.COMBINE_ROUTES:
         print(' - - - - - - - - - - - - - - - - -')
         print('[COMBINED ROUTE STATS]') 
         print("Num. of combined routes: " + str(num_combined_routes))
@@ -150,8 +152,8 @@ def output_routes_to_file(output, routes_returned, filename, title):
     all_geocodesFile = prefix+'all_geocodes.csv'
     geocodes = pd.read_csv(all_geocodesFile)
 
-    if constants.REMOVE_LOW_OCC:
-        file = open("remove_low_occ_" + str(filename) + ".txt", "w")   
+    if constants.COMBINE_ROUTES:
+        file = open("combine_route_" + str(filename) + ".txt", "w")   
     else:
         file = open("normal_" + str(filename) + ".txt", "w")   
     
@@ -161,10 +163,9 @@ def output_routes_to_file(output, routes_returned, filename, title):
     file.write('[PARAMETERS USED] \n')
     file.write('Radius: ' + str(constants.RADIUS) + '\n')
     file.write('Max time constraint: ' + str(round(constants.MAX_TIME/60, 2)) + ' mins \n')
-    file.write("Low occupancy removal: " + str(constants.REMOVE_LOW_OCC) + '\n')
+    file.write("Low occupancy removal: " + str(constants.COMBINE_ROUTES) + '\n')
 
-    if constants.REMOVE_LOW_OCC:
-        file.write('Low occupancy limit: ' + str(constants.OCCUPANTS_LIMIT) + '\n')
+    if constants.COMBINE_ROUTES:
         file.write('Combine route time limit: ' + str(round(constants.COMBINE_ROUTES_TIME_LIMIT/60, 2)) + ' mins \n')
 
     file.write(' - - - - - - - - - - - - - - - - -\n')
@@ -182,10 +183,9 @@ def output_routes_to_file(output, routes_returned, filename, title):
         file.write(' - - - - - - - - - - - - - - - - -\n')
         file.write('[COMBINED ROUTE STATS] \n') 
         file.write("Num. of combined routes: " + str(output[8]) + '\n')
-        file.write("Num. of low occ routes before combine: " + str(constants.INITIAL_LOW_OCC_ROUTES_COUNTS) + '\n')
         file.write("Average time of exceeded routes: " + str(round((statistics.mean(output[10])-(constants.MAX_TIME/60)), 2)) + " mins \n")
         file.write("Max exceeded route time: " + str(max(output[10])) + ' mins \n')
-        file.write("Exceeded route times (mins): " + str(output[10].sort())+ '\n\n')
+        file.write("Exceeded route times (mins): " + str(output[10])+ '\n\n')
         
     file.write("----------------------\n")
     file.write("[OUTPUT ROUTES] \n" )

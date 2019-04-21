@@ -1,10 +1,10 @@
-
 import pandas as pd
 import constants
 import sys 
 from routing import start_routing
 from setup import setup_data, setup_clusters
 from output import output_routes_to_file, get_route_stats, get_student_stats
+import statistics 
 
 def main():
    
@@ -40,11 +40,14 @@ final_stats_df = pd.DataFrame()
 rad = constants.RADIUS
 constants.REFRESH_STATS()
 final_stats, routes_returned, students_travel_times = main()
-final_stats = [constants.RADIUS] + final_stats + [students_travel_times]
-final_stats_df = final_stats_df.append(pd.Series(final_stats, index =['radius,', 'student_count', 'routes_count', 'total_travel_time', 'average_travel_time', 'utility_rate', 'buses_used', 
-               'len(cluster_school_map)', 'len(schoolcluster_students_map)', 'num_combined_routes', 'exceeded_routes', 'num_schools', 'num_mixed_routes', 'student_travel_times']), ignore_index=True)
+#final_stats = [constants.RADIUS] + final_stats + [students_travel_times]
+#final_stats_df = final_stats_df.append(pd.Series(final_stats, index =['radius,', 'student_count', 'routes_count', 'total_travel_time', 'average_travel_time', 'utility_rate', 'buses_used', 
+#               'len(cluster_school_map)', 'len(schoolcluster_students_map)', 'num_combined_routes', 'exceeded_routes', 'num_schools', 'num_mixed_routes', 'student_travel_times']), ignore_index=True)
+#
 
-
+    
+    
+    
 
 
 

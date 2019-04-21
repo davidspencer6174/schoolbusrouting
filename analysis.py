@@ -1,17 +1,24 @@
-import main 
+import numpy as np 
+import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
+import statistics
 
 
-all_schools = list()
 
-for x in range(0, 3):
-    for i in range(0, len(total_routes[x])):
-        for j in total_routes[x][i]:
-            for k in j:
-                all_schools.extend(k.school_path)
-            
-            
-all_schools = list(dict.fromkeys(all_schools))
-            
-plt.hist(test, normed=True, bins=30)
+stud_times = list()
+for i in routes_returned:
+    for j in routes_returned[i]:
+        for k in j:
+            for k in k.students:
+                stud_times.append(k.time_on_bus)
+stud_times.sort()
+
+stud_times = [round(x/60,2) for x in stud_times]
+
+
+
+statistics.mean(stud_times)
+plt.hist(stud_times, normed=False, bins=15)
+plt.ylabel('Number of Students')
+plt.xlabel('Estimated Travel Times (minutes)')
+

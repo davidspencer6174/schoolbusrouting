@@ -129,25 +129,18 @@ def get_shortest_pair(schools, students):
         
     return shortest_pair
 
-
-def get_possible_route(items, start_index, total_indexes, item_type):
+# Precompute possible route based on shortest path
+def get_possible_route(items, index, total_indexes):
     
     index_from_items = list()
     route = list()
     time_taken = list()
     visited = list()
-    index = 0
     
     # Extract indexes from items (schools/students)
     # Add these extracted indexes and append them into total_indexes
     [index_from_items.append(it.tt_ind) for it in items]
     total_indexes.extend(list(dict.fromkeys(index_from_items)))
-    
-    # if dealing with schools
-    if item_type == 'school':
-        switch_index = total_indexes.index(start_index)
-        total_indexes[0], total_indexes[switch_index] = total_indexes[switch_index], total_indexes[0]
-        
     route.append(total_indexes[index])
     
     dropoff_mat = constants.DF_TRAVEL_TIMES.iloc[total_indexes,:]
@@ -179,6 +172,7 @@ def get_possible_route(items, start_index, total_indexes, item_type):
 # cluster_school_map: maps clusters to schools
 # schoolcluster_students_map: maps schoolclusters to students
 def start_routing(cluster_school_map, schoolcluster_students_map):
+    
     routes = dict()
     # Loop through every cluster of schools and cluster of stops
     # Generate route(s) for each cluster_school and cluster_stops pair
@@ -188,99 +182,25 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
 
         for students in schoolcluster_students_map[key]:
             
-            shortest_pair = get_shortest_pair(schools, students)
-            school_route, school_route_time = get_possible_route(schools, shortest_pair[0][0], [], "school")  
-            school_route, school_route_time = school_route[::-1], school_route_time[::-1]
-                  
-            stud_route = get_possible_route(students, shortest_pair[0][1], [school_route[-1]], "student")[0]
+            school_route, school_route_time = get_possible_route(schools, 0, [])        
+            stud_route = get_possible_route(students, 0, [school_route[-1]])[0]
             stud_route.pop(0)
-            
             routes_returned = make_routes(school_route_time, school_route, stud_route, students)
             
-            if constants.REMOVE_LOW_OCC:
+            if constants.COMBINE_ROUTES:
                 routes_returned = combine_routes(routes_returned)
 
-#            routes_returned = check_routes(routes_returned)
+            routes_returned = check_routes(routes_returned)
             route_list.append(routes_returned)
         
         routes[key] = route_list    
 
     return routes
-    
 
 
-#def get_possible_route(items, index, total_indexes):
-    
-#    index_from_items = list()
-#    route = list()
-#    time_taken = list()
-#    visited = list()
-#    
-#    # Extract indexes from items (schools/students)
-#    # Add these extracted indexes and append them into total_indexes
-#    [index_from_items.append(it.tt_ind) for it in items]
-#    total_indexes.extend(list(dict.fromkeys(index_from_items)))
-#    route.append(total_indexes[index])
-#    
-#    dropoff_mat = constants.DF_TRAVEL_TIMES.iloc[total_indexes,:]
-#    dropoff_mat = dropoff_mat.iloc[:,total_indexes]
-#    dropoff_mat = dropoff_mat.values
-#
-#    # Find shorest path through all the stops
-#    while len(route) < len(dropoff_mat):
-#        visited.append(index)
-#        temp = np.array(dropoff_mat[index])
-#        
-#        for ind in range(0, len(temp)):
-#            if ind in visited: 
-#                temp[ind]=np.nan
-#            if ind == index:
-#                temp[ind] = np.nan
-#        
-#        # Append the time taken to go from one stop to another in 
-#        # time taken and stop in route
-#        time_to_add = np.nanmin(temp)
-#        index = list(temp).index(time_to_add)
-#        time_taken.append(time_to_add)
-#        route.append(total_indexes[index])
-#        
-#    return route, time_taken
-#
-#def start_routing(cluster_school_map, schoolcluster_students_map):
-#    
-#    routes = dict()
-#    # Loop through every cluster of schools and cluster of stops
-#    # Generate route(s) for each cluster_school and cluster_stops pair
-#    for key, schools in cluster_school_map.items():
-#        
-#        school_route, school_route_time = get_possible_route(schools, 0, [])        
-#        route_list = list()
-#
-#        for students in schoolcluster_students_map[key]:
-#            stud_route = get_possible_route(students, 0, [school_route[-1]])[0]
-#            stud_route.pop(0)
-#            routes_returned = make_routes(school_route_time, school_route, stud_route, students)
-#            
-#            if constants.REMOVE_LOW_OCC:
-#                routes_returned = combine_routes(routes_returned)
-#
-#            routes_returned = check_routes(routes_returned)
-#            route_list.append(routes_returned)
-#        
-#        routes[key] = route_list    
-#
-#    return routes
-
-
-
-
-
-
-
-
+# Combine routes
 def combine_routes(routes):
 
-    # Categorize low occ. routes
     routes_to_check = list()
 
     for route in routes:

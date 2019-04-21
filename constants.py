@@ -6,7 +6,7 @@ import constants
 
 #If true, informational lines will be printed
 VERBOSE = True
-REMOVE_LOW_OCC = True    
+COMBINE_ROUTES = True    
 OUTPUT_TO_FILE = True 
 CLEAN_ROUTE = True
 
@@ -32,6 +32,9 @@ INITIAL_LOW_OCC_ROUTES_COUNTS = 0
 RADIUS = 1200
 RADIUS_STUDENT = 1400
 MIN_SAMPLES = 1
+
+# Agglo parameters 
+NUM_AGGLO_CLUSTERS = 100
 
 # MODIFIED BUS CAPACITES 
 CAPACITY_MODIFIED_MAP = dict()

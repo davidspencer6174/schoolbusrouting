@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np 
 from sklearn.cluster import DBSCAN
 from sklearn.cluster import KMeans
+from sklearn.cluster import AgglomerativeClustering 
 from collections import Counter
 import constants
-import copy
 
 # Reformat the outputs from DBSCAN
 def reformatCluster_DBSCAN(clusters):
@@ -27,18 +27,22 @@ def obtain_sub_travel_times(new_df):
     mid_start_index = temp_df["School_type"].searchsorted(1)
     high_start_index = temp_df["School_type"].searchsorted(2)
         
-    if constants.ISOLATE == None:
+    if constants.ISOLATE == 'None':
         pass
     
     # Isolate elementary schools
     elif constants.ISOLATE == 'elem':
-        sub_travel_times.iloc[mid_start_index:, 0:mid_start_index] = 0
-        sub_travel_times.iloc[0:mid_start_index, mid_start_index:] = 0
+        sub_travel_times.iloc[mid_start_index:, 0:mid_start_index] = 99999999
+        sub_travel_times.iloc[0:mid_start_index, mid_start_index:] = 99999999
         
     # Isolate high schools
     elif constants.ISOLATE == 'high':
-        sub_travel_times.iloc[high_start_index:,0:high_start_index:] = 0
-        sub_travel_times.iloc[0:high_start_index, high_start_index:] = 0
+        sub_travel_times.iloc[high_start_index:,0:high_start_index] = 99999999
+        sub_travel_times.iloc[0:high_start_index, high_start_index:] = 99999999
+        
+    elif constants.ISOLATE == 'remove_elem_high':
+        sub_travel_times.iloc[high_start_index:, 0:mid_start_index] = 99999999
+        sub_travel_times.iloc[0:mid_start_index, high_start_index:] = 99999999
         
     return sub_travel_times 
 
@@ -73,53 +77,25 @@ def obtainClust_DBSCAN_custom(schools_students_attend):
 
     test_df = new_df
 
-    # Create subset of travel times and modify distances 
-    iso_elem_sub_travel_times = obtain_sub_travel_times(test_df)
-    db = DBSCAN(eps=constants.RADIUS, min_samples=constants.MIN_SAMPLES).fit(iso_elem_sub_travel_times)
-    sub_tt_ind = list(iso_elem_sub_travel_times.columns.values)
+    # Use DBSCAN to estimate the number of clusters 
+    constants.ISOLATE = 'None'
+    sub_travel_times = obtain_sub_travel_times(test_df)
+    db = DBSCAN(eps=constants.RADIUS, min_samples=constants.MIN_SAMPLES).fit(sub_travel_times)
+    num_clus_DBSCAN = max(Counter(db.labels_)) 
+    constants.NUM_AGGLO_CLUSTERS = num_clus_DBSCAN - 10
+    
+    # Use agglo to perform clustering
+    constants.ISOLATE = 'remove_elem_high'
+    agglo_sub_travel_times = obtain_sub_travel_times(test_df)
+    agglo_sub_travel_times = np.maximum(agglo_sub_travel_times, agglo_sub_travel_times.transpose() )
+    
+    model = AgglomerativeClustering(affinity='precomputed', n_clusters=constants.NUM_AGGLO_CLUSTERS, linkage='average').fit(agglo_sub_travel_times)
+    sub_tt_ind = list(agglo_sub_travel_times.columns.values)
     test_df = test_df.assign(tt_ind_cat=pd.Categorical(test_df['tt_ind'], categories=sub_tt_ind, ordered=True))
     test_df = test_df.sort_values('tt_ind_cat')
-    test_df = test_df.assign(label = db.labels_)
-    
-#    iso_high_sub_travel_times = obtain_sub_travel_times(test_df, 3)
-#    db = DBSCAN(eps=constants.RADIUS, min_samples=constants.MIN_SAMPLES).fit(iso_high_sub_travel_times)
-#    sub_tt_ind = list(iso_high_sub_travel_times.columns.values)
-#    test_df = test_df.assign(tt_ind_cat=pd.Categorical(test_df['tt_ind'], categories=sub_tt_ind, ordered=True))
-#    test_df = test_df.sort_values('tt_ind_cat')
-#    test_df = test_df.assign(iso_high_label = db.labels_)
-#
-#    ori_sub_travel_times = obtain_sub_travel_times(test_df, 1)
-#    db = DBSCAN(eps=constants.RADIUS, min_samples=constants.MIN_SAMPLES).fit(ori_sub_travel_times)
-#    sub_tt_ind = list(ori_sub_travel_times.columns.values)
-#    test_df = test_df.assign(tt_ind_cat=pd.Categorical(test_df['tt_ind'], categories=sub_tt_ind, ordered=True))
-#    test_df = test_df.sort_values('tt_ind_cat')
-#    test_df = test_df.assign(label = db.labels_)
+    test_df = test_df.assign(label = model.labels_)
 
     return test_df
-
-
-# Combine cluse
-# def combine_clustered_schools(first, second):
-    
-#     first = iso_elem_clust
-#     second = iso_high_clust
-    
-#     first 
-#     first = first.sort_values(by=['label'])
-#     second = second.sort_values(by=['label'])
-#     final_clust_sch = pd.DataFrame()
-    
-#     for lab in set(first['label']):
-
-#         tt_indexes = list(first[first['label'] == lab].tt_ind)
-#         temp = second[second['label'].isin(set(second[second['tt_ind'].isin(tt_indexes)]['label']))]
-        
-#         if len(set(temp['label'])) == 1: 
-#             final_clust_sch = final_clust_sch.append(temp)
-#             first = first[~first['tt_ind'].isin(final_clust_sch['tt_ind'])]
-#             second = second[~second['tt_ind'].isin(final_clust_sch['tt_ind'])]
-
-#     return final_clustered_schools
 
 
 # Use DBSCAN to perform clustering
