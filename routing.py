@@ -127,20 +127,29 @@ def get_shortest_pair(schools, students):
     s, v = np.where(pair_distances == np.min(pair_distances.min()))
     shortest_pair = list(zip(pair_distances.index[s], pair_distances.columns[v]))
         
-    return shortest_pair
+    return shortest_pair[0]
 
 # Precompute possible route based on shortest path
-def get_possible_route(items, index, total_indexes):
+def get_possible_route(items, shortest_pair_index, total_indexes, item_type):
     
     index_from_items = list()
-    route = list()
-    time_taken = list()
+    route, time_taken = list(), list()
     visited = list()
+    index = 0
     
+    if shortest_pair_index == 10376:
+        print('testing')
+        pass
+
     # Extract indexes from items (schools/students)
     # Add these extracted indexes and append them into total_indexes
     [index_from_items.append(it.tt_ind) for it in items]
     total_indexes.extend(list(dict.fromkeys(index_from_items)))
+
+    if item_type == 'school' and total_indexes[0] != shortest_pair_index:
+        temp = total_indexes.index(shortest_pair_index)
+        total_indexes[0], total_indexes[temp] = total_indexes[temp], total_indexes[0]
+
     route.append(total_indexes[index])
     
     dropoff_mat = constants.DF_TRAVEL_TIMES.iloc[total_indexes,:]
@@ -164,9 +173,11 @@ def get_possible_route(items, index, total_indexes):
         index = list(temp).index(time_to_add)
         time_taken.append(round(time_to_add, 2))
         route.append(total_indexes[index])
-        
-    return route, time_taken
+   
+    if item_type == "school":
+         route = route[::-1]
 
+    return route, time_taken
 
 # Perform routing 
 # cluster_school_map: maps clusters to schools
@@ -182,21 +193,22 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
 
         for students in schoolcluster_students_map[key]:
             
-            school_route, school_route_time = get_possible_route(schools, 0, [])        
-            stud_route = get_possible_route(students, 0, [school_route[-1]])[0]
+            shortest_pair = get_shortest_pair(schools, students)
+            print(shortest_pair)
+            school_route, school_route_time = get_possible_route(schools, shortest_pair[0], [], "school")        
+            stud_route = get_possible_route(students, shortest_pair[1], [school_route[-1]], "student")[0]
             stud_route.pop(0)
             routes_returned = make_routes(school_route_time, school_route, stud_route, students)
             
             if constants.COMBINE_ROUTES:
                 routes_returned = combine_routes(routes_returned)
 
-            routes_returned = check_routes(routes_returned)
+            # routes_returned = check_routes(routes_returned)
             route_list.append(routes_returned)
         
         routes[key] = route_list    
 
     return routes
-
 
 # Combine routes
 def combine_routes(routes):
