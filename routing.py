@@ -17,10 +17,11 @@ def check_routes(route_list):
 # Divide routes based on constraints 
 def make_routes(school_route_time, school_route, stud_route, students):
     
-    time = sum(school_route_time)
-    path_info, path_info_list = list(), list()
-    base = school_route[-1]
-        
+    total_school_route_time = sum(school_route_time)
+    path_info = list()
+    path_info_list = list()
+    last_stop = school_route[-1] 
+    
     students.sort(key=lambda x: x.tt_ind, reverse=False)
     stop_counts =[stud.tt_ind for stud in students]
     stop_counts = dict(Counter(stop_counts))
@@ -30,12 +31,13 @@ def make_routes(school_route_time, school_route, stud_route, students):
     # Go through every stop and check if they meet the constants.MAX_TIME or bus constraints
     # Create new route (starting from the schools) if the constraints are not met 
     for index, stop in enumerate(stud_route):
-        path_info.append((round(constants.TRAVEL_TIMES[base][stop],2), stop_counts[stop]))
+        path_info.append((round(constants.TRAVEL_TIMES[last_stop][stop],2), stop_counts[stop]))
         
         # If the travel time or the bus capacity doesn't work, then break the routes
-        if (time + sum([i for i, j in path_info]) > constants.MAX_TIME) or (sum([j for i, j in path_info]) > MODIFIED_LARGEST_BUS):
+        if (total_school_route_time + sum([i for i, j in path_info]) > constants.MAX_TIME) or \
+            (sum([j for i, j in path_info]) > MODIFIED_LARGEST_BUS):
 
-            base = school_route[-1]
+            last_stop = school_route[-1]
             if len(path_info) == 1:
                 path_info_list.append(path_info)
                 path_info = list()
@@ -43,13 +45,17 @@ def make_routes(school_route_time, school_route, stud_route, students):
             else:
                 path_info_list.append(path_info[:-1])
                 path_info = list()
-                path_info.append((round(constants.TRAVEL_TIMES[base][stop],2), stop_counts[stop]))
-        base = stop
+                path_info.append((round(constants.TRAVEL_TIMES[last_stop][stop], 2), stop_counts[stop]))
+        
+        else:
+            last_stop = stop
     
     # Add the 'leftover' routes back in to the list
     if path_info:
         path_info_list.append(path_info)
             
+        
+    
     # Get the indexs of the schools/stops using path_info_list
     result_list = list()
     ind = 0 

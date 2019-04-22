@@ -130,6 +130,14 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
         print("Average time of exceeded routes: " + str(round((statistics.mean(exceeded_routes_times)-(constants.MAX_TIME/60)), 2)) + " minutes")
         print("Max exceeded route time: " + str(max(exceeded_routes_times)))
         print("Exceeded route times (mins): " + str(exceeded_routes_times))
+        
+    else: 
+        print(' - - - - - - - - - - - - - - - - -\n')
+        print('[OTHER STATS] \n') 
+        print("Average time of exceeded routes: " + str(round((statistics.mean(exceeded_routes_times)-(constants.MAX_TIME/60)), 2)) + " mins")
+        print("Max exceeded route time: " + str(max(exceeded_routes_times)) + ' mins')
+        print("Exceeded route times (mins): " + str(exceeded_routes_times))
+
     
     output = [student_count, routes_count, total_travel_time, average_travel_time, utility_rate, buses_used, 
               cluster_school_map, schoolcluster_students_map, num_combined_routes, exceeded_routes, exceeded_routes_times, 
@@ -163,7 +171,7 @@ def output_routes_to_file(output, routes_returned, filename, title):
     file.write('[PARAMETERS USED] \n')
     file.write('Radius: ' + str(constants.RADIUS) + '\n')
     file.write('Max time constraint: ' + str(round(constants.MAX_TIME/60, 2)) + ' mins \n')
-    file.write("Low occupancy removal: " + str(constants.COMBINE_ROUTES) + '\n')
+    file.write("Combine route: " + str(constants.COMBINE_ROUTES) + '\n')
 
     if constants.COMBINE_ROUTES:
         file.write('Combine route time limit: ' + str(round(constants.COMBINE_ROUTES_TIME_LIMIT/60, 2)) + ' mins \n')
@@ -186,7 +194,15 @@ def output_routes_to_file(output, routes_returned, filename, title):
         file.write("Average time of exceeded routes: " + str(round((statistics.mean(output[10])-(constants.MAX_TIME/60)), 2)) + " mins \n")
         file.write("Max exceeded route time: " + str(max(output[10])) + ' mins \n')
         file.write("Exceeded route times (mins): " + str(output[10])+ '\n\n')
-        
+    
+    else: 
+        file.write(' - - - - - - - - - - - - - - - - -\n')
+        file.write('[OTHER STATS] \n') 
+        file.write("Average time of exceeded routes: " + str(round((statistics.mean(output[10])-(constants.MAX_TIME/60)), 2)) + " mins \n")
+        file.write("Max exceeded route time: " + str(max(output[10])) + ' mins \n')
+        file.write("Exceeded route times (mins): " + str(output[10])+ '\n\n')
+
+
     file.write("----------------------\n")
     file.write("[OUTPUT ROUTES] \n" )
 
@@ -207,8 +223,8 @@ def output_routes_to_file(output, routes_returned, filename, title):
         for idx in range(0, len(routes_returned[index])):
             
             for route in routes_returned[index][idx]:
-                if int(route.occupants) < constants.OCCUPANTS_LIMIT:
-                    file.write("LOW OCCUPANCY BUS \n")
+                if int(route.occupants) < constants.UNDER_UTILIZED_COUNT:
+                    file.write("UNDER UTILIZED BUS \n")
                 
                 if route.is_combined_route == True:
                     file.write("Combined Route == True\n")

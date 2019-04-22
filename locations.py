@@ -191,12 +191,9 @@ class Route:
         total_indexes = sum([[self.school_path[-1]], self.get_schoolless_path(), new_route.get_schoolless_path()], [])
         route = [total_indexes[index]]
 
-        # Create mini travel-time matrix and perform routing 
-        dropoff_mat = [[0 for x in range(len(total_indexes))] for y in range(len(total_indexes))]
-                
-        for i in range(0, len(dropoff_mat)):
-            for j in range(0, len(dropoff_mat[i])):
-                dropoff_mat[i][j] = constants.TRAVEL_TIMES[total_indexes[i]][total_indexes[j]]  
+        dropoff_mat = constants.DF_TRAVEL_TIMES.iloc[total_indexes,:]
+        dropoff_mat = dropoff_mat.iloc[:,total_indexes]
+        dropoff_mat = dropoff_mat.values
 
         # Find shortest path through all the stops
         while len(route) < len(dropoff_mat):

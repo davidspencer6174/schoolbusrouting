@@ -18,7 +18,7 @@ PROG_TYPES = ['P', 'X', 'M']
 
 # School_type: 'elem', 'middle', 'high
 BREAK_NUM = 4
-OCCUPANTS_LIMIT = 10 
+UNDER_UTILIZED_COUNT = 10 
 SCHOOL_TYPE = 'elem'
 SCHOOL_CATEGORIES = ['elem', 'middle', 'high']
 SCHOOL_TYPE_INDEX = 0
