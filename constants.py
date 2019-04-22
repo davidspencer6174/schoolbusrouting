@@ -6,7 +6,7 @@ import constants
 
 #If true, informational lines will be printed
 VERBOSE = True
-COMBINE_ROUTES = True    
+COMBINE_ROUTES = True
 OUTPUT_TO_FILE = True 
 CLEAN_ROUTE = True
 
@@ -18,14 +18,13 @@ PROG_TYPES = ['P', 'X', 'M']
 
 # School_type: 'elem', 'middle', 'high
 BREAK_NUM = 4
-OCCUPANTS_LIMIT = 25 
+OCCUPANTS_LIMIT = 10 
 SCHOOL_TYPE = 'elem'
 SCHOOL_CATEGORIES = ['elem', 'middle', 'high']
 SCHOOL_TYPE_INDEX = 0
-ISOLATE = 'elem'
 
 # COMBINE_ROUTE PARAMETERS 
-COMBINE_ROUTES_TIME_LIMIT = MAX_TIME + 300 
+COMBINE_ROUTES_TIME_LIMIT = MAX_TIME + 600 
 INITIAL_LOW_OCC_ROUTES_COUNTS = 0
 
 # DBSCAN paramters

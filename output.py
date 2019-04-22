@@ -179,7 +179,7 @@ def output_routes_to_file(output, routes_returned, filename, title):
     file.write("Average travel time / route: " + str(output[3]) + " mins" + '\n')
     file.write("Utility rate: " + str(round(output[4]*100, 2)) + '%\n')
 
-    if output[9]:
+    if constants.COMBINE_ROUTES:
         file.write(' - - - - - - - - - - - - - - - - -\n')
         file.write('[COMBINED ROUTE STATS] \n') 
         file.write("Num. of combined routes: " + str(output[8]) + '\n')
@@ -207,7 +207,7 @@ def output_routes_to_file(output, routes_returned, filename, title):
         for idx in range(0, len(routes_returned[index])):
             
             for route in routes_returned[index][idx]:
-                if int(route.occupants) < 8:
+                if int(route.occupants) < constants.OCCUPANTS_LIMIT:
                     file.write("LOW OCCUPANCY BUS \n")
                 
                 if route.is_combined_route == True:

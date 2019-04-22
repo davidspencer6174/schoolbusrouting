@@ -5,6 +5,7 @@ from sklearn.cluster import KMeans
 from sklearn.cluster import AgglomerativeClustering 
 from collections import Counter
 import constants
+import copy 
 
 # Reformat the outputs from DBSCAN
 def reformatCluster_DBSCAN(clusters):
@@ -17,7 +18,7 @@ def reformatCluster_DBSCAN(clusters):
 
 # Obtain the modified subset of the total travel times
 # This is used to perform clustering:
-def obtain_sub_travel_times(new_df):
+def obtain_sub_travel_times(new_df, isolate_option):
     
     temp_df = new_df.sort_values(by=['School_type'])
     indexes = list(temp_df['tt_ind'])
@@ -27,31 +28,31 @@ def obtain_sub_travel_times(new_df):
     mid_start_index = temp_df["School_type"].searchsorted(1)
     high_start_index = temp_df["School_type"].searchsorted(2)
         
-    if constants.ISOLATE == 'None':
+    if isolate_option == 'None':
         pass
     
     # Isolate elementary schools
-    elif constants.ISOLATE == 'elem':
+    elif isolate_option == 'elem':
         sub_travel_times.iloc[mid_start_index:, 0:mid_start_index] = 99999999
         sub_travel_times.iloc[0:mid_start_index, mid_start_index:] = 99999999
         
     # Isolate high schools
-    elif constants.ISOLATE == 'high':
+    elif isolate_option == 'high':
         sub_travel_times.iloc[high_start_index:,0:high_start_index] = 99999999
         sub_travel_times.iloc[0:high_start_index, high_start_index:] = 99999999
         
-    elif constants.ISOLATE == 'remove_elem_high':
+    elif isolate_option == 'remove_elem_high':
         sub_travel_times.iloc[high_start_index:, 0:mid_start_index] = 99999999
         sub_travel_times.iloc[0:mid_start_index, high_start_index:] = 99999999
         
     return sub_travel_times 
 
 # DBSCAN using custom distance 
-def obtainClust_DBSCAN_custom(schools_students_attend):
+def obtainClust_DBSCAN_AGGO_combined(schools_students_attend):
     
     schools_students_attend = schools_students_attend.drop_duplicates()
     loc_codes = list(dict.fromkeys(schools_students_attend["tt_ind"].drop_duplicates().tolist()))
-    new_df = pd.DataFrame()
+    original_df = pd.DataFrame()
     
     # School serving multiple levels, we pick middle 
     for ind in loc_codes:
@@ -59,45 +60,80 @@ def obtainClust_DBSCAN_custom(schools_students_attend):
         school_type_temp = set(temp_group['School_type'])
         
         if len(school_type_temp) == 1: 
-            new_df = new_df.append(temp_group)
+            original_df = original_df.append(temp_group)
         
         # if there is middle, pick middle
-        elif 'middle' in school_type_temp: 
-            new_df = new_df.append(temp_group[temp_group['School_type'] == 'middle'])
+        elif 1 in school_type_temp: 
+            original_df = original_df.append(temp_group[temp_group['School_type'] == 1])
           
         # If elem and high, we just pick high 
         else: 
-            new_df = new_df.append(temp_group[temp_group['School_type'] == 'high'])
+            original_df = original_df.append(temp_group[temp_group['School_type'] == 2])
     
-    new_df = new_df.drop_duplicates('tt_ind')
+    # Drop duplicates of original df 
+    original_df = original_df.drop_duplicates('tt_ind')
     
-    new_df.loc[new_df['School_type'] == 'elem', 'School_type'] = 0
-    new_df.loc[new_df['School_type'] == 'middle', 'School_type'] = 1
-    new_df.loc[new_df['School_type'] == 'high', 'School_type'] = 2
-
-    test_df = new_df
+    clus_DBSCAN_df = original_df
 
     # Use DBSCAN to estimate the number of clusters 
-    constants.ISOLATE = 'None'
-    sub_travel_times = obtain_sub_travel_times(test_df)
+    sub_travel_times = obtain_sub_travel_times(clus_DBSCAN_df, 'None')
     db = DBSCAN(eps=constants.RADIUS, min_samples=constants.MIN_SAMPLES).fit(sub_travel_times)
-    num_clus_DBSCAN = max(Counter(db.labels_)) 
-    constants.NUM_AGGLO_CLUSTERS = num_clus_DBSCAN - 10
+    tt_ind = list(sub_travel_times.columns.values)
+    clus_DBSCAN_df = clus_DBSCAN_df.assign(tt_ind_cat=pd.Categorical(clus_DBSCAN_df['tt_ind'], categories=tt_ind, ordered=True))
+    clus_DBSCAN_df = clus_DBSCAN_df.sort_values('tt_ind_cat')
+    clus_DBSCAN_df = clus_DBSCAN_df.assign(label = db.labels_)
     
     # Use agglo to perform clustering
-    constants.ISOLATE = 'remove_elem_high'
-    agglo_sub_travel_times = obtain_sub_travel_times(test_df)
-    agglo_sub_travel_times = np.maximum(agglo_sub_travel_times, agglo_sub_travel_times.transpose() )
+    agglo_sub_travel_times = obtain_sub_travel_times(original_df, 'remove_elem_high')
+    agglo_sub_travel_times = np.maximum(agglo_sub_travel_times, agglo_sub_travel_times.transpose())
     
-    model = AgglomerativeClustering(affinity='precomputed', n_clusters=constants.NUM_AGGLO_CLUSTERS, linkage='average').fit(agglo_sub_travel_times)
+    # Copy original df into final df based on agglo clustering 
+    final_agglo_df = original_df
+
+    # find number of clusters using agglo clustering
+    num_clusters_agglo = find_num_clusters_aggo(clus_DBSCAN_df, agglo_sub_travel_times) 
+
+    # push back agglo clustering labels into df
+    model = AgglomerativeClustering(affinity='precomputed', n_clusters=num_clusters_agglo, linkage='average').fit(agglo_sub_travel_times)
     sub_tt_ind = list(agglo_sub_travel_times.columns.values)
-    test_df = test_df.assign(tt_ind_cat=pd.Categorical(test_df['tt_ind'], categories=sub_tt_ind, ordered=True))
-    test_df = test_df.sort_values('tt_ind_cat')
-    test_df = test_df.assign(label = model.labels_)
+    final_agglo_df = final_agglo_df.assign(tt_ind_cat=pd.Categorical(final_agglo_df['tt_ind'], categories=sub_tt_ind, ordered=True))
+    final_agglo_df = final_agglo_df.sort_values('tt_ind_cat')
+    final_agglo_df = final_agglo_df.assign(label = model.labels_)
 
-    return test_df
+    return final_agglo_df
 
 
+# find the appropriate number of clusters to be used in agglomerative clustering
+def find_num_clusters_aggo(clus_DBSCAN_df, travel_times):
+    
+    num_clus_DBSCAN = max(clus_DBSCAN_df['label'])
+    agglo_df = copy.deepcopy(clus_DBSCAN_df.drop(['label'], axis = 1))
+    
+    # Iterate down 
+    for num_clus in range(num_clus_DBSCAN-10, num_clus_DBSCAN-20, -1):
+        model = AgglomerativeClustering(affinity='precomputed', n_clusters=num_clus, linkage='average').fit(travel_times)
+        agglo_tt_ind = list(travel_times.columns.values)
+        agglo_df = agglo_df.assign(tt_ind_cat=pd.Categorical(agglo_df['tt_ind'], categories=agglo_tt_ind, ordered=True))
+        agglo_df = agglo_df.sort_values('tt_ind_cat')
+        agglo_df = agglo_df.assign(label = model.labels_)
+        
+        total_tt = np.zeros((len(travel_times), len(travel_times)))
+
+        # Make the new travel time index 
+        count = 0 
+        for i in range(0, max(agglo_df['label'])):
+            subset_agglo_df = agglo_df[agglo_df['label'] == i]
+            subset_travel_time = obtain_sub_travel_times(subset_agglo_df, 'remove_elem_high')
+            total_tt[count:count+len(subset_travel_time), count:count+len(subset_travel_time)] = subset_travel_time
+            count += len(subset_travel_time)
+    
+        dist_within_clust = [round(sum(total_tt[i]),2) for i in range(0, len(total_tt))]
+        dist_within_clust = list(filter(lambda a: a!=0, dist_within_clust))
+#        print(str(num_clus) + ' -- ' + str(max(dist_within_clust)))
+        
+        if max(dist_within_clust) > constants.RADIUS:
+            return num_clus+1
+        
 # Use DBSCAN to perform clustering
 def obtainClust_DBSCAN(loc, dist, min_samples):
     coordinates = loc[['Lat', 'Long']].values

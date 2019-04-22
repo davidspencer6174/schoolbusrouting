@@ -2,7 +2,7 @@ import constants
 import pandas as pd
 import numpy as np
 from locations import School, Student
-from clustering import obtainClust_DBSCAN_custom, partition_students,obtainClust_DBSCAN
+from clustering import obtainClust_DBSCAN_AGGO_combined, partition_students
 
 def californiafy(address):
     return address[:-6] + " California," + address[-6:]
@@ -73,6 +73,10 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     mask = (phonebook['Mod_Grade'] >= 9) & (phonebook['Mod_Grade'] <=13)
     phonebook['School_type'] = phonebook['School_type'].mask(mask, "high")
     
+    phonebook.loc[phonebook['School_type'] == 'elem', 'School_type'] = 0
+    phonebook.loc[phonebook['School_type'] == 'middle', 'School_type'] = 1
+    phonebook.loc[phonebook['School_type'] == 'high', 'School_type'] = 2
+
     phonebook = phonebook[phonebook.Prog.isin(constants.PROG_TYPES)]
     phonebook = phonebook.rename(index=str, columns={"Lat": "Lat", "Long": "Long"})
 
@@ -81,7 +85,7 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     schools_students_attend = pd.merge(schools_students_attend, phonebook[['Cost_Center', 'School_type']], on=['Cost_Center'], how='inner')
     
     # Cluster schools and merge back into list of schools_students_attend
-    clustered_schools = obtainClust_DBSCAN_custom(schools_students_attend)
+    clustered_schools = obtainClust_DBSCAN_AGGO_combined(schools_students_attend)
     schools_students_attend = pd.merge(schools_students_attend, clustered_schools[['label', 'tt_ind']], on=['tt_ind'], how='inner').drop_duplicates()
     schools_students_attend = schools_students_attend.sort_values(['label'], ascending=[True])
     

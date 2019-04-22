@@ -137,10 +137,6 @@ def get_possible_route(items, shortest_pair_index, total_indexes, item_type):
     visited = list()
     index = 0
     
-    if shortest_pair_index == 10376:
-        print('testing')
-        pass
-
     # Extract indexes from items (schools/students)
     # Add these extracted indexes and append them into total_indexes
     [index_from_items.append(it.tt_ind) for it in items]
@@ -194,7 +190,6 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
         for students in schoolcluster_students_map[key]:
             
             shortest_pair = get_shortest_pair(schools, students)
-            print(shortest_pair)
             school_route, school_route_time = get_possible_route(schools, shortest_pair[0], [], "school")        
             stud_route = get_possible_route(students, shortest_pair[1], [school_route[-1]], "student")[0]
             stud_route.pop(0)
@@ -203,7 +198,7 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
             if constants.COMBINE_ROUTES:
                 routes_returned = combine_routes(routes_returned)
 
-            # routes_returned = check_routes(routes_returned)
+            routes_returned = check_routes(routes_returned)
             route_list.append(routes_returned)
         
         routes[key] = route_list    
@@ -226,6 +221,9 @@ def combine_routes(routes):
     # Check if routes can be combined based on size of bus 
     idx = 0
     while idx < len(routes_to_check):
+
+        if routes_to_check[idx].path_info[0] == (3667.2, 1):
+            print('willy is here')
 
         for temp_route in routes:
             if routes_to_check[idx] == temp_route:
