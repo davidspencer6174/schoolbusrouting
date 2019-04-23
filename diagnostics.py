@@ -1,4 +1,5 @@
 from locations import School, Student
+import numpy as np
 import pickle
 
 geocodes = open("data//all_geocodes.csv", "r")
@@ -21,14 +22,17 @@ def printout(route):
     stops = route.stops
     schools = route.schools
     print("Estimated time: " + str(route.length/60) + " minutes.")
-    if stops[0].type == "H":
-        print("Picking up high school students")
-    if stops[0].type == "M":
-        print("Picking up middle school students")
-    if stops[0].type == "E":
-        print("Picking up elementary school students")
+    stop_types = [s.type for s in stops]
+    type_printout = "Types of stops picked up: "
+    if "E" in stop_types:
+        type_printout += "elementary, "
+    if "M" in stop_types:
+        type_printout += "middle, "
+    if "H" in stop_types:
+        type_printout += "high, "
+    type_printout = type_printout[:-2]
+    print(type_printout)
     print("Bus capacity: " + str(route.unmodified_bus_capacity))
-    print("Bus capacity adjusted for student size: " + str(route.bus_capacity))
     print("Number of assigned students: " + str(route.occupants))
     
     for i in range(len(stops)):
@@ -83,7 +87,9 @@ def diagnostics(route_iter):
     num_mixedload = 0
     num_singleload = 0
     buses_used = dict()
+    trav_times = []
     for route in route_iter:
+        trav_times.extend(route.student_travel_times())
         route_list.append(route)
         total_time += route.length
         if len(route.schools) > 1:
@@ -103,6 +109,7 @@ def diagnostics(route_iter):
     print("Number of single-load routes: " + str(num_singleload))
     print("Average estimated time per route: " +
           str(total_time/len(route_list)/60) + " minutes.")
+    print("Mean student travel time: " + str(np.mean(np.array(trav_times))/60) + " minutes.")
     print("Ending printout of summary statistics.")
     print("*********************************************************")
     print("*********************************************************")
@@ -145,6 +152,9 @@ def diagnostics(route_iter):
         if cur_occs >= most_occs and cur_schools > 1:
             most_occs = cur_occs
             most_occs_route = route
+            for j in range(len(route_list)):
+                if route == route_list[j]:
+                    print(j)
     print("Most occupants on a mixed-loads route: " + str(most_occs))
     printout(most_occs_route)
     
@@ -152,14 +162,15 @@ def diagnostics(route_iter):
     for r in route_list:
         to_print = False
         for school in r.schools:
-            if (school.school_name.strip() == "TAFT CHS" or
-                school.school_name.strip() == "TAFT GIFTED STEAM MAG"):
+            if ("VINTAGE" in school.school_name or
+                ("BALBOA" in school.school_name and "LAKE" not in school.school_name)):
                 to_print = True
         if to_print:
-            print("Route that goes to Taft")
+            print("Route that goes to Vintage/Balboa")
             printout(r)
     
-loading = open("output//381len484tt292.obj", "rb")
+loading = open("output//routesforpresentationb.obj", "rb")
+#loading = open("output//optmstt55mfurthergreedyb.obj", "rb")
 obj = pickle.load(loading)
 diagnostics(obj)
 #print_all(obj)
