@@ -2,4 +2,5 @@
 *.npy
 *.obj
 *.txt
+*.spydata
 tags
