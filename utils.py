@@ -79,7 +79,7 @@ def closest_addition(locations, betw_iter, available_time, alpha, age_type = Non
 #not the same object in memory.
 def isomorphic(stop1, stop2):
     return(stop1.type == stop2.type and
-           stop1.school.name == stop2.school.name and
+           stop1.school.tt_ind == stop2.school.tt_ind and
            stop1.tt_ind == stop2.tt_ind)
 
 #Checks to see which routes in the first route plan share at least
@@ -94,4 +94,3 @@ def overlapping_routes(route_plan, route):
                 if isomorphic(stop1, stop2):
                     out.add(compare_route)
     return out
-        

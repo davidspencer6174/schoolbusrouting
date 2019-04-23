@@ -247,10 +247,10 @@ minute_lengths = sorted([int(route.length/60) for route in mxp_routes])
 shortest = minute_lengths[0]
 longest = minute_lengths[-1]
 #plt.hist(minute_lengths, bins = range(shortest, longest))
-plt.hist(minute_lengths, bins = range(shortest//5*5, longest+5, 5))
-plt.xlabel("Estimated length (minutes)")
-plt.ylabel("Number of routes")
-plt.title("Route length estimates - existing routes")
+#plt.hist(minute_lengths, bins = range(shortest//5*5, longest+5, 5))
+#plt.xlabel("Estimated length (minutes)")
+#plt.ylabel("Number of routes")
+#plt.title("Route length estimates - existing routes")
 #plt.savefig('output//existing_routes_unbinned.eps')
 
 stud_trav_times = stud_trav_time_array(mxp_routes)
@@ -262,19 +262,51 @@ bused_mxp_routes = assign_buses(mxp_routes, cap_counts)[1]
 print("Number of bused mxp routes: " + str(len(bused_mxp_routes)))
 stud_trav_times_bused_mxp = stud_trav_time_array(bused_mxp_routes)
 print("Mean student travel time for bused mxp routes: " + str(np.mean(stud_trav_times_bused_mxp)/60))
+print("Standard deviation of student travel time: " + str(np.std(stud_trav_times_bused_mxp)/60))
 route_lengths_bused_mxp = np.array([r.length for r in bused_mxp_routes])
 print("Mean route length for bused mxp routes: " + str(np.mean(route_lengths_bused_mxp)/60))
+print("Standard deviation of route length: " + str(np.std(route_lengths_bused_mxp)/60))
 
 cap_counts = setup_buses('data//dist_bus_capacities.csv')
-loading = open('output//optmstt55m.obj', 'rb')
+loading = open('output//routesforpresentationub.obj', 'rb')
 my_routes = pickle.load(loading)
 loading.close()
 my_bused_routes = assign_buses(my_routes, cap_counts)[1]
 print("My number of bused routes: " + str(len(my_bused_routes)))
 stud_trav_times_my_bused = stud_trav_time_array(my_bused_routes)
 print("Mean student travel time for my bused routes: " + str(np.mean(stud_trav_times_my_bused)/60))
+print("Standard deviation of student travel time: " + str(np.std(stud_trav_times_my_bused)/60))
 my_route_lengths = np.array([r.length for r in my_bused_routes])
 print("Mean route length for my mxp routes: " + str(np.mean(my_route_lengths)/60))
+print("Standard deviation of route length: " + str(np.std(my_route_lengths)/60))
+
+
+
+
+#minute_stt_mine = sorted([int(x/60) for x in stud_trav_times_my_bused])
+#shortest = minute_stt_mine[0]
+#longest = minute_stt_mine[-1]
+#plt.hist(minute_stt_mine, bins = range(0, 85, 5))
+#axes = plt.gca()
+#axes.set_ylim([0, 6000])
+#plt.xlabel("Estimated travel time (minutes)")
+#plt.ylabel("Number of students")
+#plt.title("Estimated travel times for generated routes")
+#plt.savefig("output//estimated_travel_times_mine.eps")
+
+#minute_stt_mxp = sorted([int(x/60) for x in stud_trav_times_bused_mxp])
+#shortest = minute_stt_mxp[0]
+#longest = minute_stt_mxp[-1]
+#plt.hist(minute_stt_mxp, bins = range(0, 85, 5))
+#plt.xlabel("Estimated travel time (minutes)")
+#plt.ylabel("Number of students")
+#axes = plt.gca()
+#axes.set_ylim([0, 6000])
+#plt.title("Estimated travel times for existing routes")
+#plt.savefig("output//estimated_travel_times_existing.eps")
+
+
+
 
 
 #bused, = plt.plot(x, lengths_bused, 'bo', label = 'Program routes - bused')

@@ -102,27 +102,33 @@ class Route:
     #Performs an insertion of a stop such that the cost is minimized.
     #TODO: Allow for addition to the end to interface with
     #reorderings of the schools
+    #Returns true if the insertion is valid w.r.t. route length.
     def insert_mincost(self, stop):
         if not self.add_school(stop.school):
             return False
-        best_cost = 100000
-        best_ind = 0
         if len(self.stops) > 0:
-            best_cost = trav_time(stop, self.stops[0])
-            for i in range(len(self.stops) - 1):
-                cost = (trav_time(self.stops[i], stop)
-                        + trav_time(stop, self.stops[i + 1])
-                        - trav_time(self.stops[i], self.stops[i + 1]))
-                if cost < best_cost:
-                    best_cost = cost
-                    best_ind = i + 1
-        final_cost = (trav_time(self.stops[-1], stop) +
-                      trav_time(stop, self.schools[0]) -
-                      trav_time(self.stops[-1], self.schools[0]))
-        if final_cost < best_cost:
-            self.stops.append(stop)
+            best_cost = 100000
+            best_ind = 0
+            if len(self.stops) > 0:
+                best_cost = trav_time(stop, self.stops[0])
+                for i in range(len(self.stops) - 1):
+                    cost = (trav_time(self.stops[i], stop)
+                            + trav_time(stop, self.stops[i + 1])
+                            - trav_time(self.stops[i], self.stops[i + 1]))
+                    if cost < best_cost:
+                        best_cost = cost
+                        best_ind = i + 1
+            final_cost = (trav_time(self.stops[-1], stop) +
+                          trav_time(stop, self.schools[0]) -
+                          trav_time(self.stops[-1], self.schools[0]))
+            if final_cost < best_cost:
+                self.stops.append(stop)
+            else:
+                self.stops.insert(best_ind, stop)
         else:
-            self.stops.insert(best_ind, stop)
+            self.stops = [stop]
+            if len(self.schools) == 0:
+                print("why")
         self.recompute_length()
         self.occupants += stop.occs
         self.max_time = max(self.max_time,
@@ -194,6 +200,8 @@ class Route:
             #Length is stop travel time plus stop to first school
             #plus school travel time
             if len(self.stops) == 0 or len(possible_schools[0]) == 0:
+                print(self.stops)
+                print(possible_schools[0])
                 print("hmmmmmmmm")
             possible_length = (length +
                                trav_time(self.stops[-1], possible_schools[0][0]) +
