@@ -215,7 +215,8 @@ def output_routes_to_file(output, routes_returned, filename, title):
         
         count = 0
         for clus_school in output[6][index]:            
-            file.write(str(clus_school.school_name) +  " (" + str(clus_school.cost_center) + ")"+"\n")
+            file.write(str(clus_school.school_name) +  " (" + str(clus_school.cost_center) + ") -- " + str(constants.CODES_INDS_MAP[constants.SCHOOLS_CODES_MAP[clus_school.cost_center]]) + "\n")
+                       
         
         file.write('\n')
         googlemap_routes = list()

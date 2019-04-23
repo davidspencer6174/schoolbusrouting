@@ -129,7 +129,6 @@ def find_num_clusters_aggo(clus_DBSCAN_df, travel_times):
     
         dist_within_clust = [round(sum(total_tt[i]),2) for i in range(0, len(total_tt))]
         dist_within_clust = list(filter(lambda a: a!=0, dist_within_clust))
-#        print(str(num_clus) + ' -- ' + str(max(dist_within_clust)))
         
         if max(dist_within_clust) > constants.RADIUS:
             return num_clus+1

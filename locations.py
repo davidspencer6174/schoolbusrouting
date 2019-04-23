@@ -29,7 +29,7 @@ class Route:
         self.path_info = path_info
         self.occupants = 0
         self.school_path = school_path
-        self.schools_to_visit = set() 
+        self.schools_to_visit = set()
         self.bus_size = None
         self.is_combined_route = False 
         self.is_contract_route = None 

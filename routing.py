@@ -54,8 +54,6 @@ def make_routes(school_route_time, school_route, stud_route, students):
     if path_info:
         path_info_list.append(path_info)
             
-        
-    
     # Get the indexs of the schools/stops using path_info_list
     result_list = list()
     ind = 0 
