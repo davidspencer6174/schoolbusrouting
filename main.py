@@ -78,7 +78,8 @@ routes_returned = None
 def permutation_approach():
     #Uncomment latter lines to use an existing permutation
     best_perm = None
-    loading_perm = open(("output//lastperm55m.obj"), "rb")
+    #loading_perm = open(("output//lastperm55m.obj"), "rb")
+    loading_perm = open(("output//lastperm55mfurther.obj"), "rb")
     best_perm = pickle.load(loading_perm)
     loading_perm.close()
     routes_returned = main(permutation = best_perm)
