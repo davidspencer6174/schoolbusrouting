@@ -1,6 +1,6 @@
-import constants
 import pandas as pd
 import numpy as np
+import constants
 from locations import School, Student
 from clustering import obtainClust_DBSCAN_AGGO_combined, partition_students
 
@@ -34,13 +34,13 @@ def editBellTimes(schools):
 # Filter and wrangle through data 
 def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
-    prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
-
-    stops = prefix+'stop_geocodes_fixed.csv'
-    zipdata =prefix+'zipData.csv'
-    schools = prefix+'school_geocodes_fixed.csv'
-    phonebook = prefix+'totalPhoneBook.csv'
-    bell_times = prefix+'bell_times.csv'
+#    prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
+#
+#    stops = prefix+'stop_geocodes_fixed.csv'
+#    zipdata =prefix+'zipData.csv'
+#    schools = prefix+'school_geocodes_fixed.csv'
+#    phonebook = prefix+'totalPhoneBook.csv'
+#    bell_times = prefix+'bell_times.csv'
 
     stops = pd.read_csv(stops, low_memory=False)
     zipdata = pd.read_csv(zipdata, low_memory=False)
@@ -89,8 +89,6 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     schools_students_attend = pd.merge(schools_students_attend, clustered_schools[['label', 'tt_ind']], on=['tt_ind'], how='inner').drop_duplicates()
     schools_students_attend = schools_students_attend.sort_values(['label'], ascending=[True])
     
-    setup_schooltype_map(schools_students_attend) 
-
 #    # Geolocation based-approach
 #    clustered_schools = obtainClust_DBSCAN(schools_students_attend, constants.RADIUS, constants.MIN_PER_CLUSTER)
 #    schools_students_attend = pd.merge(schools_students_attend, clustered_schools, on=['Lat', 'Long'], how='inner').drop_duplicates()
@@ -180,4 +178,4 @@ def setup_schooltype_map(schools_students_attend):
     schooltype_map = dict()
     for index, row in schools_students_attend.iterrows():
         schooltype_map[row['tt_ind']] = row['School_type']
-    constants.SCHOOLTYPE_MAP = schooltype_map 
+    return schooltype_map 

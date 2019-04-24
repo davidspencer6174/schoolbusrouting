@@ -91,7 +91,8 @@ def obtainClust_DBSCAN_AGGO_combined(schools_students_attend):
     final_agglo_df = original_df
 
     # find number of clusters using agglo clustering
-    num_clusters_agglo = find_num_clusters_aggo(clus_DBSCAN_df, agglo_sub_travel_times) 
+#    num_clusters_agglo = find_num_clusters_aggo(clus_DBSCAN_df, agglo_sub_travel_times) 
+    num_clusters_agglo = max(Counter(clus_DBSCAN_df['label']))
 
     # push back agglo clustering labels into df
     model = AgglomerativeClustering(affinity='precomputed', n_clusters=num_clusters_agglo, linkage='average').fit(agglo_sub_travel_times)

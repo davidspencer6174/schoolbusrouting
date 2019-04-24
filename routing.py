@@ -23,19 +23,30 @@ def make_routes(school_route_time, school_route, stud_route, students):
     last_stop = school_route[-1] 
     
     students.sort(key=lambda x: x.tt_ind, reverse=False)
-    stop_counts =[stud.tt_ind for stud in students]
-    stop_counts = dict(Counter(stop_counts))
-
-    MODIFIED_LARGEST_BUS = (constants.CAPACITY_MODIFIED_MAP[constants.CAP_COUNTS[-1][0]])[constants.SCHOOL_TYPE_INDEX]
-
+    
+    stop_counts = dict()
+    for stud in students: 
+        if stud.tt_ind in stop_counts:
+            stop_counts[stud.tt_ind][stud.student_type] += 1
+        else:
+            stop_counts[stud.tt_ind] = [0] * 3
+            stop_counts[stud.tt_ind][stud.student_type] += 1
+            
     # Go through every stop and check if they meet the constants.MAX_TIME or bus constraints
     # Create new route (starting from the schools) if the constraints are not met 
     for index, stop in enumerate(stud_route):
-        path_info.append((round(constants.TRAVEL_TIMES[last_stop][stop],2), stop_counts[stop]))
         
+        path_info.append((round(constants.TRAVEL_TIMES[last_stop][stop], 2), stop_counts[stop]))
+        stud_count = np.array([j for i,j in path_info])
+        sum_stud_count = stud_count.sum(axis=0)
+
+    # for i in range(0, len(constants.CAP_COUNTS)):
+
+        MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[constants.CAP_COUNTS[-1][0]])
+
         # If the travel time or the bus capacity doesn't work, then break the routes
         if (total_school_route_time + sum([i for i, j in path_info]) > constants.MAX_TIME) or \
-            (sum([j for i, j in path_info]) > MODIFIED_LARGEST_BUS):
+            (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) > 1:
 
             last_stop = school_route[-1]
             if len(path_info) == 1:
@@ -46,7 +57,9 @@ def make_routes(school_route_time, school_route, stud_route, students):
                 path_info_list.append(path_info[:-1])
                 path_info = list()
                 path_info.append((round(constants.TRAVEL_TIMES[last_stop][stop], 2), stop_counts[stop]))
-        
+
+            # break
+            
         else:
             last_stop = stop
     
@@ -64,20 +77,6 @@ def make_routes(school_route_time, school_route, stud_route, students):
             ind += 1
         result_list.append(school_route + group_list)
     
-    temp = path_info_list 
-
-    # Stops that might have more students than bus capacity 
-    # Break these into seperate (duplicate) routes
-    for idx, path_info_group in enumerate(path_info_list):  
-        for stop in path_info_group:   
-            if stop[1] > MODIFIED_LARGEST_BUS:
-                to_update = list()
-                temp = (stop[0], MODIFIED_LARGEST_BUS)
-                path_info_group[0] = temp
-                to_update.append((stop[0], stop[1] - MODIFIED_LARGEST_BUS))                
-                result_list.append(result_list[idx])
-                path_info_list.append(to_update)
-
     # Add information about the routes between schools 
     # Prepend travel times from school -> school into the stop_info
     for info in path_info_list:
@@ -98,22 +97,58 @@ def make_routes(school_route_time, school_route, stud_route, students):
                     stud.update_time_on_bus(stop, current_route)
                     current_route.add_student(stud)
                     
-                if current_route.occupants >= sum([j for i, j in current_route.path_info]):
+                if current_route.occupants >= sum(current_route.get_route_occupants_count()):
                     break
 
         # Assign bus to current route
         current_route.assign_bus_to_route()
 
         # If there are no buses big enough to fit passengers, we have to split the route and use additional buses
-        if current_route.bus_size == None and constants.CAP_COUNTS: 
-            split_route = current_route.split_route()
-            route_list.append(split_route)
-        elif current_route.bus_size : 
+        # if current_route.bus_size == None and constants.CAP_COUNTS: 
+            # returned_split_routes = split_route(current_route, [])
+            # route_list.extend(returned_split_routes)
+
+        if current_route.bus_size == None and not constants.CAP_COUNTS: 
             current_route.assign_contract_bus_to_route()
+
+        else:
+            route_list.append(current_route)
         
-        route_list.append(current_route)
-       
     return route_list
+
+def split_route(current_route, routes_to_return):
+
+    if current_route.bus_size != None:
+        routes_to_return.append(current_route)
+        return routes_to_return
+
+    else:
+        total_students_list = copy.deepcopy(current_route.students)
+        current_route.students = []
+        new_route = copy.deepcopy(current_route)
+
+        for i, stop in enumerate(current_route.get_schoolless_path()[::-1]):
+            curr_idx = (i+1)*-1
+            current_route.path_info[curr_idx] = (current_route.path_info[::-1][i][0], list(map(lambda x: int(x/2), current_route.path_info[::-1][i][1])))
+            new_route.path_info[curr_idx] = (current_route.path_info[::-1][i][0], list(np.array(new_route.path_info[::-1][i][1])-np.array(current_route.path_info[::-1][i][1])))
+            
+            stud_list = list()
+            for stud in total_students_list: 
+                if stud.tt_ind == stop: 
+                    stud_list.append(stud)
+
+            current_route.students.extend(stud_list[:sum(current_route.path_info[curr_idx][1])])
+            new_route.students.extend(stud_list[sum(current_route.path_info[curr_idx][1]):])
+
+        current_route.update_occupants()
+        current_route.assign_bus_to_route()
+        new_route.update_occupants()
+        new_route.assign_bus_to_route()
+
+        split_route(current_route, routes_to_return)
+        split_route(new_route, routes_to_return)
+
+    return routes_to_return
 
 # find the shortes pair of schools and stops
 # return [(school_index, stop_index)]
@@ -225,9 +260,6 @@ def combine_routes(routes):
     # Check if routes can be combined based on size of bus 
     idx = 0
     while idx < len(routes_to_check):
-
-        if routes_to_check[idx].path_info[0] == (3667.2, 1):
-            print('willy is here')
 
         for temp_route in routes:
             if routes_to_check[idx] == temp_route:

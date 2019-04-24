@@ -6,7 +6,7 @@ import constants
 
 #If true, informational lines will be printed
 VERBOSE = True
-COMBINE_ROUTES = True
+COMBINE_ROUTES = False
 OUTPUT_TO_FILE = True 
 CLEAN_ROUTE = True
 
@@ -60,7 +60,6 @@ PREFIX = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Researc
 TRAVEL_TIMES = (np.load(PREFIX + "travel_times.npy")*1.5)
 CAP_COUNTS = setup_buses(PREFIX+'dist_bus_capacities.csv')
 GEOCODES = pd.read_csv(PREFIX+'all_geocodes.csv')
-SCHOOLTYPE_MAP= None
 
 DF_TRAVEL_TIMES = pd.DataFrame(data=np.transpose(constants.TRAVEL_TIMES))
 
@@ -70,4 +69,6 @@ with open(PREFIX+'stops_codes_map', 'rb') as handle:
     STOPS_CODES_MAP = pickle.load(handle)
 with open(PREFIX+'codes_inds_map', 'rb') as handle:
     CODES_INDS_MAP = pickle.load(handle)
+with open(PREFIX+'schooltypes_map', 'rb') as handle:
+    SCHOOLTYPE_MAP = pickle.load(handle)
 

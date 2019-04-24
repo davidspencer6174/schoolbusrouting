@@ -84,13 +84,13 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
                 if route.is_mixed_loads == True:
                     num_mixed_routes += 1
 
-                utility_rate.append(route.occupants/constants.CAPACITY_MODIFIED_MAP[route.bus_size][constants.SCHOOL_TYPE_INDEX])
+                # utility_rate.append(route.occupants/constants.CAPACITY_MODIFIED_MAP[route.bus_size][constants.SCHOOL_TYPE_INDEX])
                         
                 for x in route.path_info:
                     route_travel_info.append(x)
                 
     total_travel_time = round((sum([i for i, j in route_travel_info])/3600), 2)
-    utility_rate = round(np.average(utility_rate), 2)
+    # utility_rate = round(np.average(utility_rate), 2)
     average_travel_time = round(total_travel_time*60/routes_count, 2)
 
     for value in schoolcluster_students_map.values():
@@ -132,8 +132,8 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
         print("Exceeded route times (mins): " + str(exceeded_routes_times))
         
     else: 
-        print(' - - - - - - - - - - - - - - - - -\n')
-        print('[OTHER STATS] \n') 
+        print(' - - - - - - - - - - - - - - - - -')
+        print('[OTHER STATS]') 
         print("Average time of exceeded routes: " + str(round((statistics.mean(exceeded_routes_times)-(constants.MAX_TIME/60)), 2)) + " mins")
         print("Max exceeded route time: " + str(max(exceeded_routes_times)) + ' mins')
         print("Exceeded route times (mins): " + str(exceeded_routes_times))
@@ -185,7 +185,7 @@ def output_routes_to_file(output, routes_returned, filename, title):
     file.write("Num. of school clusters: " + str(len(output[6])) + '\n')
     file.write("Total travel time: " + str(output[2]) + " hours" + '\n')
     file.write("Average travel time / route: " + str(output[3]) + " mins" + '\n')
-    file.write("Utility rate: " + str(round(output[4]*100, 2)) + '%\n')
+    # file.write("Utility rate: " + str(round(output[4]*100, 2)) + '%\n')
 
     if constants.COMBINE_ROUTES:
         file.write(' - - - - - - - - - - - - - - - - -\n')
@@ -214,9 +214,14 @@ def output_routes_to_file(output, routes_returned, filename, title):
         file.write("Schools in this cluster: \n") 
         
         count = 0
-        for clus_school in output[6][index]:            
-            file.write(str(clus_school.school_name) +  " (" + str(clus_school.cost_center) + ") -- " + str(constants.CODES_INDS_MAP[constants.SCHOOLS_CODES_MAP[clus_school.cost_center]]) + "\n")
-                       
+        school_ages = set()
+        for clus_school in output[6][index]:    
+            sch_index = constants.CODES_INDS_MAP[constants.SCHOOLS_CODES_MAP[clus_school.cost_center]]
+            sch_age_type = constants.SCHOOLTYPE_MAP[constants.CODES_INDS_MAP[constants.SCHOOLS_CODES_MAP[clus_school.cost_center]]]
+            file.write(str(clus_school.school_name) +  " (" + str(clus_school.cost_center) + ") -- " + str(sch_index) + " -- {" + str(sch_age_type) + "}\n")
+            school_ages.add(sch_age_type)
+            
+        file.write('School age categories: ' + str(school_ages) + '\n')
         
         file.write('\n')
         googlemap_routes = list()

@@ -16,8 +16,6 @@ def plot_gmap(schools_geo, stops_geo, routes_geo):
     gmap.scatter(stops_lats, stops_longs, '#3B0B39', size=200, marker=False)
     
     for route in routes_geo: 
-        
-        
         route_lats, route_longs = zip(*route)
         gmap.plot(route_lats, route_longs, 'cornflowerblue', edge_width=6)
     
