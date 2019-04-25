@@ -1,15 +1,17 @@
 import numpy as np
 import copy
 from geopy.distance import geodesic
+from operator import add
 import constants
 from collections import Counter
 from locations import Route
 
-# Check routes before adding to final list
+# Make last changes to routes before adding to final route list
 def check_routes(route_list):
     for route in route_list:
         if constants.CLEAN_ROUTE:
             route.clean_route()
+        route.update_student_time_on_bus()
         route.check_mixedload_status()
     return route_list
 
@@ -39,9 +41,6 @@ def make_routes(school_route_time, school_route, stud_route, students):
         path_info.append((round(constants.TRAVEL_TIMES[last_stop][stop], 2), stop_counts[stop]))
         stud_count = np.array([j for i,j in path_info])
         sum_stud_count = stud_count.sum(axis=0)
-
-    # for i in range(0, len(constants.CAP_COUNTS)):
-
         MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[constants.CAP_COUNTS[-1][0]])
 
         # If the travel time or the bus capacity doesn't work, then break the routes
@@ -89,14 +88,12 @@ def make_routes(school_route_time, school_route, stud_route, students):
         current_route = Route(copy.deepcopy(route), copy.deepcopy(path_info_list[index]), copy.deepcopy(school_route))
         
         # Pick up students at each stop, but if the number of students exceeds 
-        # the number of students that should be picked up according to path_info_list 
-        # then break 
+        # the number of students that should be picked up according to path_info_list, break
         for stop in current_route.path:
             for idx, stud in enumerate(students):
                 if stud.tt_ind == stop:
-                    stud.update_time_on_bus(stop, current_route)
                     current_route.add_student(stud)
-                    
+
                 if current_route.occupants >= sum(current_route.get_route_occupants_count()):
                     break
 
@@ -104,18 +101,15 @@ def make_routes(school_route_time, school_route, stud_route, students):
         current_route.assign_bus_to_route()
 
         # If there are no buses big enough to fit passengers, we have to split the route and use additional buses
-        # if current_route.bus_size == None and constants.CAP_COUNTS: 
-            # returned_split_routes = split_route(current_route, [])
-            # route_list.extend(returned_split_routes)
-
-        if current_route.bus_size == None and not constants.CAP_COUNTS: 
-            current_route.assign_contract_bus_to_route()
-
+        if current_route.bus_size == None: 
+            returned_split_routes = split_route(current_route, [])
+            route_list.extend(returned_split_routes)
         else:
             route_list.append(current_route)
-        
+
     return route_list
 
+# Recursivley split routes that cannot fit into a bus
 def split_route(current_route, routes_to_return):
 
     if current_route.bus_size != None:
@@ -150,7 +144,7 @@ def split_route(current_route, routes_to_return):
 
     return routes_to_return
 
-# find the shortes pair of schools and stops
+# find the shortets pair of schools and stops between a school cluster and stop cluster
 # return [(school_index, stop_index)]
 def get_shortest_pair(schools, students):
     
@@ -220,6 +214,7 @@ def get_possible_route(items, shortest_pair_index, total_indexes, item_type):
 def start_routing(cluster_school_map, schoolcluster_students_map):
     
     routes = dict()
+
     # Loop through every cluster of schools and cluster of stops
     # Generate route(s) for each cluster_school and cluster_stops pair
     for key, schools in cluster_school_map.items():
@@ -227,7 +222,6 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
         route_list = list()
 
         for students in schoolcluster_students_map[key]:
-            
             shortest_pair = get_shortest_pair(schools, students)
             school_route, school_route_time = get_possible_route(schools, shortest_pair[0], [], "school")        
             stud_route = get_possible_route(students, shortest_pair[1], [school_route[-1]], "student")[0]
@@ -235,50 +229,63 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
             routes_returned = make_routes(school_route_time, school_route, stud_route, students)
             
             if constants.COMBINE_ROUTES:
-                routes_returned = combine_routes(routes_returned)
+                combine_routes(routes_returned)
 
             routes_returned = check_routes(routes_returned)
             route_list.append(routes_returned)
         
         routes[key] = route_list    
-
+        print('----------------------------------------------------------')
     return routes
 
 # Combine routes
 def combine_routes(routes):
-
+    
+    # routes = copy.deepcopy(input_routes)
     routes_to_check = list()
 
+    # If the route isn't maxed out, insert into routes_to_check
     for route in routes:
-        if route.bus_size < (constants.CAPACITY_MODIFIED_MAP[constants.CAP_COUNTS[-1][0]])[constants.SCHOOL_TYPE_INDEX]: 
+        if route.bus_size < constants.CAP_COUNTS[-1][0]: 
             routes_to_check.append(route)
 
     # If there are no routes_to_check or only one route, just return
     if not routes_to_check or len(routes) == 1: 
         return routes
 
-    # Check if routes can be combined based on size of bus 
+    # Iterate through routes to check to check if these routes can be combined with existing routes based on conditions
     idx = 0
     while idx < len(routes_to_check):
 
+        # remove route that is currently being checked from original route list
         for temp_route in routes:
             if routes_to_check[idx] == temp_route:
-                routes.remove(temp_route)
+                routes.remove(routes_to_check[idx])
+                break
         
         possible_routes = list()
-        for pos_route in routes:
-            if (routes_to_check[idx].occupants + pos_route.occupants <= (constants.CAPACITY_MODIFIED_MAP[constants.CAP_COUNTS[-1][0]])[constants.SCHOOL_TYPE_INDEX]) and \
-                pos_route.get_possible_combined_route_time(routes_to_check[idx]) <= constants.COMBINE_ROUTES_TIME_LIMIT:
-                    possible_routes.append(pos_route)
 
+        for pos_route in routes:
+            # Set up bus capacity interpolations (x/a + y/b + z/c <= 1)
+            MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[constants.CAP_COUNTS[-1][0]])
+            pos_route_stud_count = pos_route.get_stud_count_in_route()
+            routes_to_check_stud_count = routes_to_check[idx].get_stud_count_in_route()
+            combined_stud_count = list(map(add, pos_route_stud_count, routes_to_check_stud_count))
+
+            # If is under time and bus capacity interpolation, append into possible route
+            if pos_route.get_possible_combined_route_time(routes_to_check[idx]) <= constants.COMBINE_ROUTES_TIME_LIMIT and \
+                (combined_stud_count[0]/MOD_BUS[0])+ (combined_stud_count[1]/MOD_BUS[1]) + (combined_stud_count[2]/MOD_BUS[2]) <= 1: 
+                 possible_routes.append(pos_route)
+
+        # No possible routes, then append the removed route back into original route list
         if not possible_routes:
-            routes.append(routes_to_check[idx])
+            routes += [routes_to_check[idx]]
         
         else:
             clust_dis = [geodesic(routes_to_check[idx].find_route_center(), a.find_route_center()) for a in possible_routes]
             clust_dis = [round(float(str(a).strip('km')),6) for a in clust_dis]
             ind = [i for i, v in enumerate(clust_dis) if v == min(clust_dis)][0]
-            
+
             routes.remove(possible_routes[ind]) 
             possible_routes[ind].combine_route(routes_to_check[idx])
             routes.append(possible_routes[ind])

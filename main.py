@@ -26,6 +26,7 @@ def main():
 
     cluster_school_map, schoolcluster_students_map = setup_clusters(schools_students_attend, schoolcluster_students_map_df)
     routes_returned = start_routing(cluster_school_map, schoolcluster_students_map)
+
     
     # Get statistics 
     final_stats = get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map)

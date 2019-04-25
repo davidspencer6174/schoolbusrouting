@@ -1,12 +1,12 @@
 import pickle
 import numpy as np
 import pandas as pd
-from setup import setup_buses
+from setup import setup_buses, setup_contract_buses
 import constants
 
 #If true, informational lines will be printed
 VERBOSE = True
-COMBINE_ROUTES = False
+COMBINE_ROUTES = True
 OUTPUT_TO_FILE = True 
 CLEAN_ROUTE = True
 
@@ -33,7 +33,7 @@ RADIUS_STUDENT = 1400
 MIN_SAMPLES = 1
 
 # Agglo parameters 
-NUM_AGGLO_CLUSTERS = 100
+NUM_CLUSTERS_AGGLO = 70
 
 # MODIFIED BUS CAPACITES 
 CAPACITY_MODIFIED_MAP = dict()
@@ -55,11 +55,13 @@ CAPACITY_MODIFIED_MAP[16] = [16, 11, 11]
 def REFRESH_STATS():
     constants.INITIAL_LOW_OCC_ROUTES_COUNTS = 0 
     constants.CAP_COUNTS = setup_buses(PREFIX+"dist_bus_capacities.csv")
+    constants.CONTRACT_CAP_COUNTS = setup_contract_buses()
 
 PREFIX = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
 TRAVEL_TIMES = (np.load(PREFIX + "travel_times.npy")*1.5)
 CAP_COUNTS = setup_buses(PREFIX+'dist_bus_capacities.csv')
 GEOCODES = pd.read_csv(PREFIX+'all_geocodes.csv')
+CONTRACT_CAP_COUNTS = setup_contract_buses()
 
 DF_TRAVEL_TIMES = pd.DataFrame(data=np.transpose(constants.TRAVEL_TIMES))
 

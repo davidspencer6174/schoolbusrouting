@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import copy
 import constants
 from locations import School, Student
 from clustering import obtainClust_DBSCAN_AGGO_combined, partition_students
@@ -19,16 +20,7 @@ def editBellTimes(schools):
         else:
             newTime.append(np.nan)
     schools['r1_start'] = newTime
-    
     return schools
-
-#prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
-#
-#stops = prefix+'stop_geocodes_fixed.csv'
-#zipdata =prefix+'zipData.csv'
-#schools = prefix+'school_geocodes_fixed.csv'
-#phonebook = prefix+'totalPhoneBook.csv'
-#bell_times = prefix+'bell_times.csv'
 
 # Set up up the dataframes to make stops, zipdata, schools, and phonebook
 # Filter and wrangle through data 
@@ -95,7 +87,7 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
 #    schools_students_attend = schools_students_attend.sort_values(['label', 'r1_start'], ascending=[True, False])
     
     schoolcluster_students_map_df = partition_students(schools_students_attend, phonebook)
-
+    print('phonebook length: ' + str(len(phonebook)))
     return schools_students_attend, schoolcluster_students_map_df
 
 # Setup the buses
@@ -114,28 +106,14 @@ def setup_buses(bus_capacities):
     cap_counts_list = sorted(cap_counts_list, key = lambda x:x[0])
     for i in range(len(cap_counts_list)):
         cap_counts_list[i] = list(cap_counts_list[i])
-        
     return cap_counts_list
 
 # Setup contract buses
-def setup_contract_buses(bus_capacities):
-    
-    cap_counts_dict = dict()  #map from capacities to # of buses of that capacity
-    caps = open(bus_capacities, 'r')
-    for bus in caps.readlines():
-        fields = bus.split(";")
-        cap = int(fields[1])
-        if cap not in cap_counts_dict:
-            cap_counts_dict[cap] = 0
-    caps.close()
-    
-    #now turn into a list sorted by capacity
-    cap_counts_list = list(cap_counts_dict.items())
-    cap_counts_list = sorted(cap_counts_list, key = lambda x:x[0])
-    for i in range(len(cap_counts_list)):
-        cap_counts_list[i] = list(cap_counts_list[i])
-        
-    return cap_counts_list
+def setup_contract_buses():
+    contract_cap_counts = copy.deepcopy(constants.CAP_COUNTS)
+    for i in range(0, len(contract_cap_counts)):
+        contract_cap_counts[i][1] = 0 
+    constants.CONTRACT_CAP_COUNTS = contract_cap_counts
 
 # Setup clusters: input all required files 
 def setup_clusters(cluster_schools_df, schoolcluster_students_df):

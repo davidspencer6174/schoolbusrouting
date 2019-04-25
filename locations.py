@@ -17,10 +17,20 @@ class Student:
         self.time_on_bus = None
     
     # Calculate how much time a student spends on the bus
-    def update_time_on_bus(self, stop, current_route):
-        ind = current_route.get_schoolless_path().index(stop)
-        newTime = sum([i for i,j in current_route.path_info[:ind+1]])
-        self.time_on_bus = newTime 
+    def update_time_on_bus(self, current_route):
+        school_ind = current_route.path.index(self.school_ind)
+        stop_ind = current_route.path.index(self.tt_ind)
+        new_time = current_route.path_info[school_ind:stop_ind]
+
+        # print(str(school_ind) + " -- " + str(self.school_ind))
+        # print(str(stop_ind) + " -- " + str(self.tt_ind))
+        # print(current_route.path)
+        # print(current_route.path_info)
+        # print("new--time" + str(new_time))
+        # print('total-time: ' + str(sum([i for i,j in new_time])))
+        # print(' -------------------------------------------- ')
+
+        self.time_on_bus = round(sum([i for i,j in new_time]), 2)
 
 class Route:
     #For now, encapsulated as a list of student/stop index pairs in order
@@ -79,6 +89,7 @@ class Route:
     def get_schoolless_path(self):
         return list(filter(lambda x: x not in self.school_path, self.path))
     
+    # Obtain the types of schools that need to be visited
     def get_schools_to_visit_types(self):
         school_types = set()
         for school in self.schools_to_visit:
@@ -93,6 +104,11 @@ class Route:
 
         if len(school_set) != 1: 
             self.update_mixed_loads_status()
+
+    # Update the student times on the bus
+    def update_student_time_on_bus(self):
+        for stud in self.students:
+            stud.update_time_on_bus(self)
 
     # Clean routes and remove schools from path and path_info that will not be visited
     def clean_route(self):
@@ -119,34 +135,54 @@ class Route:
 
         self.path_info = new_school_path_info + self.path_info[1::]
                 
+    # Get the student counts in the route []
+    def get_stud_count_in_route(self):
+         stud_count = [j for i, j in self.path_info[-len(self.get_schoolless_path()):]]
+         sum_stud_count = list(np.array(stud_count).sum(axis=0))    
+         return sum_stud_count
+
    # assign a bus to a given route
     def assign_bus_to_route(self):
         # Assign buses to the routes according to num. of occupants
-        # We have to use modified capacities mapping 
-        for bus_ind in range(len(constants.CAP_COUNTS)):
+        # We have to use modified capacities mapping
 
-                bus = constants.CAP_COUNTS[bus_ind]
-                MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus[0]])
+         for bus_ind in range(len(constants.CAP_COUNTS)):
+            bus = constants.CAP_COUNTS[bus_ind]
+            MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus[0]])
 
-                stud_count = np.array(j for i, j in self.path_info[len(self.path)-len(self.get_schoolless_path())-1:])
-                sum_stud_count = list(stud_count.sum(axis=0))
-                sum_stud_count = sum_stud_count[0]
+            sum_stud_count = self.get_stud_count_in_route()
 
-                if (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) < 1:
-                    #mark the bus as taken
-                    bus[1] -= 1
-                    self.update_bus(bus[0])
-                    #if all buses of this capacity are now taken, remove
-                    #this capacity
-                    if bus[1] == 0:
-                        constants.CAP_COUNTS.remove(bus)
-                    break
+            if (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) <= 1:
+                #mark the bus as taken
+                bus[1] -= 1
+                self.update_bus(bus[0])
+                #if all buses of this capacity are now taken, remove
+                #this capacity
+                if bus[1] == 0:
+                    constants.CAP_COUNTS.remove(bus)
+                break
 
-    # TODO: WORK ON ASSIGNING CONTRACT BUS TO ROUTE
+         if self.bus_size == None and not constants.CAP_COUNTS:
+             self.assign_contract_bus_to_route()
+
     # Assign contract bus to route 
     def assign_contract_bus_to_route(self): 
+        print('CONTRACT BUS USED')
         self.update_contract_route_status()
-        pass
+        for bus_ind in range(len(constants.CONTRACT_CAP_COUNTS)):
+
+            bus = constants.CONTRACT_CAP_COUNTS[bus_ind]
+            MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus[0]])
+
+            stud_count = np.array(j for i, j in self.path_info[len(self.path)-len(self.get_schoolless_path())-1:])
+            sum_stud_count = list(stud_count.sum(axis=0))
+            sum_stud_count = sum_stud_count[0]
+
+            if (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) <= 1:
+                #mark the bus as taken
+                bus[1] += 1
+                self.update_bus(bus[0])
+
 
     # Obtain the "center" of the route
     def find_route_center(self):
@@ -189,10 +225,8 @@ class Route:
 
    # Obtain possible combined route time 
     def get_possible_combined_route_time(self, new_route):
-
         temp_route = copy.deepcopy(self)
         temp_route.combine_route(new_route)
-
         return sum([i for i, j in temp_route.path_info])
    
    # Combine route
@@ -240,20 +274,21 @@ class Route:
         self.path = self.school_path + route
 
         for index, stop in enumerate(route):
-            new_path_info.append((round(constants.TRAVEL_TIMES[base][stop], 2), len([x for x in self.students if x.tt_ind==stop])))
+            stud_count = [0] * 3
+            for stud in self.students:
+                if stud.tt_ind == stop:
+                    stud_count[constants.SCHOOLTYPE_MAP[stud.school_ind]] += 1 
+
+            new_path_info.append((round(constants.TRAVEL_TIMES[base][stop], 2), stud_count))
             base = stop
 
-            for stud in self.students:
-                stud.update_time_on_bus(stop, self)
-
         self.path_info = self.path_info[0:len(self.school_path)-1] + new_path_info
-        
+
         # Update bus information - increment bus of discarded route back to cap_counts
         for bus in constants.CAP_COUNTS:
             if bus[0] == new_route.bus_size:
                 bus[1] += 1
 
-        self.assign_bus_to_route() 
+        self.assign_bus_to_route()
         self.update_combine_route_status()
-
 

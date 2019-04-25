@@ -83,14 +83,11 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
 
                 if route.is_mixed_loads == True:
                     num_mixed_routes += 1
-
-                # utility_rate.append(route.occupants/constants.CAPACITY_MODIFIED_MAP[route.bus_size][constants.SCHOOL_TYPE_INDEX])
                         
                 for x in route.path_info:
                     route_travel_info.append(x)
                 
     total_travel_time = round((sum([i for i, j in route_travel_info])/3600), 2)
-    # utility_rate = round(np.average(utility_rate), 2)
     average_travel_time = round(total_travel_time*60/routes_count, 2)
 
     for value in schoolcluster_students_map.values():
@@ -116,7 +113,6 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
     print("Num. of school clusters: " +str(len(cluster_school_map)))
     print("Total travel-time: " + str(total_travel_time) + " hours" )
     print("Average travel time / route: " + str(average_travel_time) + " mins")
-    print("Utility rate: " + str(utility_rate*100) + "%")
     print("Buses used: " + str(sum(buses_used.values())))
     print(buses_used)
     print("Buses left: ") 
@@ -159,6 +155,7 @@ def output_routes_to_file(output, routes_returned, filename, title):
     prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
     all_geocodesFile = prefix+'all_geocodes.csv'
     geocodes = pd.read_csv(all_geocodesFile)
+    bug_checker = list()
 
     if constants.COMBINE_ROUTES:
         file = open("combine_route_" + str(filename) + ".txt", "w")   
@@ -185,7 +182,6 @@ def output_routes_to_file(output, routes_returned, filename, title):
     file.write("Num. of school clusters: " + str(len(output[6])) + '\n')
     file.write("Total travel time: " + str(output[2]) + " hours" + '\n')
     file.write("Average travel time / route: " + str(output[3]) + " mins" + '\n')
-    # file.write("Utility rate: " + str(round(output[4]*100, 2)) + '%\n')
 
     if constants.COMBINE_ROUTES:
         file.write(' - - - - - - - - - - - - - - - - -\n')
@@ -213,7 +209,9 @@ def output_routes_to_file(output, routes_returned, filename, title):
         file.write("Cluster Number: " + str(index) + "\n")
         file.write("Schools in this cluster: \n") 
         
+        temp = 0 
         count = 0
+        
         school_ages = set()
         for clus_school in output[6][index]:    
             sch_index = constants.CODES_INDS_MAP[constants.SCHOOLS_CODES_MAP[clus_school.cost_center]]
@@ -227,7 +225,6 @@ def output_routes_to_file(output, routes_returned, filename, title):
         googlemap_routes = list()
 
         for idx in range(0, len(routes_returned[index])):
-            
             for route in routes_returned[index][idx]:
                 if int(route.occupants) < constants.UNDER_UTILIZED_COUNT:
                     file.write("UNDER UTILIZED BUS \n")
@@ -242,6 +239,7 @@ def output_routes_to_file(output, routes_returned, filename, title):
                 for route_stat in route.path_info:
                     travel_time += route_stat[0]
 
+                file.write("ROUTE STUDENTS LENGTH: " + str(len(route.students)) + "\n")
                 file.write("Route index: " + str(index) + "." + str(count) + "\n")
                 file.write("Route path: " + str(route.path) + "\n")
                 file.write("Route travel time: " + str(round(travel_time/60, 2)) +  " mins\n") 
@@ -249,7 +247,9 @@ def output_routes_to_file(output, routes_returned, filename, title):
                 file.write("Bus capacity: " + str(route.bus_size) + "\n")
                 file.write("Num. of occupants: " + str(route.occupants) + "\n")
                 link = "https://www.google.com/maps/dir"
-    
+                
+                temp += len(route.students)
+
                 for point in route.path:
                     point_geoloc = geocodes.iloc[point,: ]
                     
@@ -260,14 +260,15 @@ def output_routes_to_file(output, routes_returned, filename, title):
                 file.write(link)
                 file.write("\n---------------------- \n")
                 count += 1
-                
+        bug_checker.append(temp)
+        file.write("=========" + str(temp) + "\n")
         file.write("\n###################################################\n")
         file.write("BULK GOOGLE MAP ROUTES FOR CLUSTER \n")
         for x in googlemap_routes:
             file.write(x)
             file.write("\n")
         file.write("###################################################\n")
-
+    file.write(str(bug_checker))
     file.close()
 
 # Print out student statistics
@@ -282,8 +283,8 @@ def get_student_stats(total_routes):
 
     student_travel_times.sort() 
     print('----------------------------------') 
-    print("Average student travel time: " + str(round(statistics.mean(student_travel_times),2)) + " mins")
-    print("Student travel time: " + str(round(statistics.stdev(student_travel_times), 2)))
+    print("Student travel time mean: " + str(round(statistics.mean(student_travel_times),2)) + " mins")
+    print("Student travel time stdev: " + str(round(statistics.stdev(student_travel_times), 2)))
     print(" ")
     
     return student_travel_times
