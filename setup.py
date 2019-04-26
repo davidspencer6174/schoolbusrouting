@@ -87,7 +87,6 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
 #    schools_students_attend = schools_students_attend.sort_values(['label', 'r1_start'], ascending=[True, False])
     
     schoolcluster_students_map_df = partition_students(schools_students_attend, phonebook)
-    print('phonebook length: ' + str(len(phonebook)))
     return schools_students_attend, schoolcluster_students_map_df
 
 # Setup the buses

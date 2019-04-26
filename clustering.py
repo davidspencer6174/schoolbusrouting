@@ -91,9 +91,9 @@ def obtainClust_DBSCAN_AGGO_combined(schools_students_attend):
     final_agglo_df = original_df
 
     # find number of clusters using agglo clustering
-    # num_clusters_agglo = find_num_clusters_aggo(clus_DBSCAN_df, agglo_sub_travel_times) 
-    num_clusters_agglo = max(Counter(clus_DBSCAN_df['label']))
-    # num_clusters_agglo = constants.NUM_CLUSTERS_AGGLO 
+#    num_clusters_agglo = find_num_clusters_aggo(clus_DBSCAN_df, agglo_sub_travel_times) 
+#    num_clusters_agglo = max(Counter(clus_DBSCAN_df['label']))
+    num_clusters_agglo = constants.NUM_CLUSTERS_AGGLO 
 
     # push back agglo clustering labels into df
     model = AgglomerativeClustering(affinity='precomputed', n_clusters=num_clusters_agglo, linkage='average').fit(agglo_sub_travel_times)
@@ -104,7 +104,6 @@ def obtainClust_DBSCAN_AGGO_combined(schools_students_attend):
 
     return final_agglo_df
 
-
 # find the appropriate number of clusters to be used in agglomerative clustering
 def find_num_clusters_aggo(clus_DBSCAN_df, travel_times):
     
@@ -112,7 +111,7 @@ def find_num_clusters_aggo(clus_DBSCAN_df, travel_times):
     agglo_df = copy.deepcopy(clus_DBSCAN_df.drop(['label'], axis = 1))
     
     # Iterate down 
-    for num_clus in range(num_clus_DBSCAN-15, num_clus_DBSCAN-30, -1):
+    for num_clus in range(num_clus_DBSCAN, num_clus_DBSCAN-30, -1):
         model = AgglomerativeClustering(affinity='precomputed', n_clusters=num_clus, linkage='average').fit(travel_times)
         agglo_tt_ind = list(travel_times.columns.values)
         agglo_df = agglo_df.assign(tt_ind_cat=pd.Categorical(agglo_df['tt_ind'], categories=agglo_tt_ind, ordered=True))
@@ -180,7 +179,6 @@ def break_large_clusters(data, break_num, limit):
 
 # Partition students based on the school clusters
 def partition_students(schools_students_attend, phonebook):
-    
     counts = Counter(schools_students_attend['label'])
     schoolcluster_students_map = dict()
      

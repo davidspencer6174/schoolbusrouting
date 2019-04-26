@@ -26,7 +26,8 @@ def make_routes(school_route_time, school_route, stud_route, students):
     
     students.sort(key=lambda x: x.tt_ind, reverse=False)
     
-    stop_counts = dict()
+    # Get the categorized student counts at each stop
+    stop_counts = dict() 
     for stud in students: 
         if stud.tt_ind in stop_counts:
             stop_counts[stud.tt_ind][stud.student_type] += 1
@@ -56,9 +57,6 @@ def make_routes(school_route_time, school_route, stud_route, students):
                 path_info_list.append(path_info[:-1])
                 path_info = list()
                 path_info.append((round(constants.TRAVEL_TIMES[last_stop][stop], 2), stop_counts[stop]))
-
-            # break
-            
         else:
             last_stop = stop
     
@@ -181,6 +179,7 @@ def get_possible_route(items, shortest_pair_index, total_indexes, item_type):
 
     route.append(total_indexes[index])
     
+    # Make mini-travel-time matrix
     dropoff_mat = constants.DF_TRAVEL_TIMES.iloc[total_indexes,:]
     dropoff_mat = dropoff_mat.iloc[:,total_indexes]
     dropoff_mat = dropoff_mat.values
@@ -221,12 +220,12 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
         
         route_list = list()
 
-        for students in schoolcluster_students_map[key]:
-            shortest_pair = get_shortest_pair(schools, students)
+        for stops_with_students in schoolcluster_students_map[key]:
+            shortest_pair = get_shortest_pair(schools, stops_with_students)
             school_route, school_route_time = get_possible_route(schools, shortest_pair[0], [], "school")        
-            stud_route = get_possible_route(students, shortest_pair[1], [school_route[-1]], "student")[0]
+            stud_route = get_possible_route(stops_with_students, shortest_pair[1], [school_route[-1]], "student")[0]
             stud_route.pop(0)
-            routes_returned = make_routes(school_route_time, school_route, stud_route, students)
+            routes_returned = make_routes(school_route_time, school_route, stud_route, stops_with_students)
             
             if constants.COMBINE_ROUTES:
                 combine_routes(routes_returned)
@@ -235,7 +234,6 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
             route_list.append(routes_returned)
         
         routes[key] = route_list    
-        print('----------------------------------------------------------')
     return routes
 
 # Combine routes
@@ -264,7 +262,6 @@ def combine_routes(routes):
                 break
         
         possible_routes = list()
-
         for pos_route in routes:
             # Set up bus capacity interpolations (x/a + y/b + z/c <= 1)
             MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[constants.CAP_COUNTS[-1][0]])

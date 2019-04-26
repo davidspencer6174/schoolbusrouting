@@ -21,15 +21,6 @@ class Student:
         school_ind = current_route.path.index(self.school_ind)
         stop_ind = current_route.path.index(self.tt_ind)
         new_time = current_route.path_info[school_ind:stop_ind]
-
-        # print(str(school_ind) + " -- " + str(self.school_ind))
-        # print(str(stop_ind) + " -- " + str(self.tt_ind))
-        # print(current_route.path)
-        # print(current_route.path_info)
-        # print("new--time" + str(new_time))
-        # print('total-time: ' + str(sum([i for i,j in new_time])))
-        # print(' -------------------------------------------- ')
-
         self.time_on_bus = round(sum([i for i,j in new_time]), 2)
 
 class Route:
@@ -54,7 +45,8 @@ class Route:
             
     def get_route_length(self):
         return sum([i for i, j in self.path_info])
-    
+   
+    # Get the categorized student counts
     def get_route_occupants_count(self):
         temp = self.path_info[len(self.school_path)-1:]
         stud_count = np.array([j for i,j in temp])
@@ -115,10 +107,10 @@ class Route:
     
         # If no cleaning needed
         new_school_path_info = list()
+        ori_school_path = copy.deepcopy(self.school_path)
+        
         if self.schools_to_visit == set(self.school_path):
             return 
-        
-        ori_school_path = copy.deepcopy(self.school_path)
         
         # Delete schools that do not need to be visited
         for index, school in enumerate(ori_school_path):
@@ -149,7 +141,6 @@ class Route:
          for bus_ind in range(len(constants.CAP_COUNTS)):
             bus = constants.CAP_COUNTS[bus_ind]
             MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus[0]])
-
             sum_stud_count = self.get_stud_count_in_route()
 
             if (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) <= 1:
@@ -243,7 +234,8 @@ class Route:
                 
         total_indexes = sum([[self.school_path[-1]], self.get_schoolless_path(), new_route.get_schoolless_path()], [])
         route = [total_indexes[index]]
-
+        
+        # Generate drop off matrix
         dropoff_mat = constants.DF_TRAVEL_TIMES.iloc[total_indexes,:]
         dropoff_mat = dropoff_mat.iloc[:,total_indexes]
         dropoff_mat = dropoff_mat.values

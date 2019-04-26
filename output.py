@@ -239,7 +239,7 @@ def output_routes_to_file(output, routes_returned, filename, title):
                 for route_stat in route.path_info:
                     travel_time += route_stat[0]
 
-                file.write("ROUTE STUDENTS LENGTH: " + str(len(route.students)) + "\n")
+#                file.write("ROUTE STUDENTS LENGTH: " + str(len(route.students)) + "\n")
                 file.write("Route index: " + str(index) + "." + str(count) + "\n")
                 file.write("Route path: " + str(route.path) + "\n")
                 file.write("Route travel time: " + str(round(travel_time/60, 2)) +  " mins\n") 

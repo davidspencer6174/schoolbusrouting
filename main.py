@@ -36,14 +36,17 @@ def main():
 
 final_stats_df = pd.DataFrame()
 
-#for rad in range(600, 1800, 60):
+#for rad in range(1200, 1800, 60):
+#for i in range(90, 80, -1):
 
-rad = constants.RADIUS
 constants.REFRESH_STATS()
 final_stats, routes_returned, students_travel_times = main()
-#final_stats = [constants.RADIUS] + final_stats + [students_travel_times]
-#final_stats_df = final_stats_df.append(pd.Series(final_stats, index =['radius,', 'student_count', 'routes_count', 'total_travel_time', 'average_travel_time', 'utility_rate', 'buses_used', 
-#               'len(cluster_school_map)', 'len(schoolcluster_students_map)', 'num_combined_routes', 'exceeded_routes', 'num_schools', 'num_mixed_routes', 'student_travel_times']), ignore_index=True)
+
+
+
+#    final_stats = [constants.NUM_CLUSTERS_AGGLO] + final_stats + [students_travel_times]
+#    final_stats_df = final_stats_df.append(pd.Series(final_stats, index =['radius,', 'student_count', 'routes_count', 'total_travel_time', 'average_travel_time', 'utility_rate', 'buses_used', 
+#                   'len(cluster_school_map)', 'len(schoolcluster_students_map)', 'num_combined_routes', 'exceeded_routes', 'num_schools', 'num_mixed_routes', 'student_travel_times']), ignore_index=True)
 #
 
     

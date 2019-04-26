@@ -78,8 +78,7 @@ def find_routes_with_schools(routes_returned, schools_to_find):
 
     return schools_geo, stops_geo, route_list_geo
 
-
-schools_geo, stops_geo, total_routes_geo = find_routes_with_schools(routes_returned, [10574])
+schools_geo, stops_geo, total_routes_geo = find_routes_with_schools(routes_returned, [10136])
 plot_gmap(schools_geo, stops_geo, total_routes_geo)
 
 
