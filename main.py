@@ -1,10 +1,10 @@
 import pandas as pd
-import constants
 import sys 
 from routing import start_routing
 from setup import setup_data, setup_clusters
-from output import output_routes_to_file, get_route_stats, get_student_stats
-import statistics 
+from output import get_route_stats, get_student_stats
+from utilties import find_routes_with_schools
+from plot_plotly import plot_routes
 
 def main():
    
@@ -32,22 +32,17 @@ def main():
     final_stats = get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map)
     students_travel_times = get_student_stats(routes_returned)
     
-    return final_stats, routes_returned, students_travel_times
+    return routes_returned
+
 
 final_stats_df = pd.DataFrame()
 
-#for rad in range(1200, 1800, 60):
-#for i in range(90, 80, -1):
 
-constants.REFRESH_STATS()
-final_stats, routes_returned, students_travel_times = main()
+routes_returned = main()
+school_to_find = ['Combined -- Vintage', [10827]]
+schools_geo, stops_geo, routes = find_routes_with_schools(routes_returned, school_to_find[1])
+plot_routes(schools_geo, stops_geo, routes, school_to_find[0])
 
-
-
-#    final_stats = [constants.NUM_CLUSTERS_AGGLO] + final_stats + [students_travel_times]
-#    final_stats_df = final_stats_df.append(pd.Series(final_stats, index =['radius,', 'student_count', 'routes_count', 'total_travel_time', 'average_travel_time', 'utility_rate', 'buses_used', 
-#                   'len(cluster_school_map)', 'len(schoolcluster_students_map)', 'num_combined_routes', 'exceeded_routes', 'num_schools', 'num_mixed_routes', 'student_travel_times']), ignore_index=True)
-#
 
     
     

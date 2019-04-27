@@ -20,7 +20,7 @@ LA_coord = [34.052235, -118.243683]
 def get_center_geolocs(total_geos):
     return [sum(total_geos.Lat)/len(total_geos), sum(total_geos.Long)/len(total_geos)]
 
-def plot_routes(schools_geo, stops_geo, routes):
+def plot_routes(schools_geo, stops_geo, routes, filename):
     
     points_geoloc = schools_geo[['Lat','Long']].append(stops_geo[['Lat','Long']]).round(6)
     center_coords = get_center_geolocs(points_geoloc)
@@ -64,8 +64,8 @@ def plot_routes(schools_geo, stops_geo, routes):
         diff = abs(len(current_route.path_info) - len(current_route.path))
         stop_info = ["START"] * diff + current_route.path_info
         
-        for i, stop in enumerate(current_route.path):
-            stop_info[i] = str(stop_names.loc[stop]["ADDRESS"]) + " -- " + str(stop_info[i])
+        for j, stop in enumerate(current_route.path):
+            stop_info[j] = str(stop_names.loc[stop]["ADDRESS"]) + " -- " + str(stop_info[j])
         
         route_paths.append(
             go.Scattermapbox(
@@ -81,6 +81,7 @@ def plot_routes(schools_geo, stops_geo, routes):
     
     # Layout settings
     layout = go.Layout(
+        title = filename + " routes",
         autosize=True,
         hovermode=None,
         mapbox=go.layout.Mapbox(
@@ -97,7 +98,6 @@ def plot_routes(schools_geo, stops_geo, routes):
     )
     
     fig = go.Figure(data=route_paths+data, layout=layout)
-    plotly.offline.plot(fig, filename='Routes.html')
+    plotly.offline.plot(fig, filename=str(filename)+'.html')
     
-plot_routes(schools_geo, stops_geo, routes)
 

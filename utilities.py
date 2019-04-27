@@ -1,8 +1,15 @@
 import pandas as pd
 import pickle
-
+from plot_plotly import plot_routes
+from main import main 
 
 prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/mixed_load_data/"
+
+with open(prefix+'schoolnames_map.pickle', 'rb') as handle:
+    schoolnames_map = pickle.load(handle)
+    
+with open(prefix+'routes_returned.pickle', 'rb') as handle:
+    routes_returned = pickle.load(handle)
 
 def find_routes_with_schools(routes_returned, schools_to_find):
         
@@ -14,7 +21,6 @@ def find_routes_with_schools(routes_returned, schools_to_find):
     
     schools_set, stops_set = set(), set()
     routes = list()
-    path_info_list, stops_list = list(), list()
 
     for index in range(0, len(routes_returned)):   
         
@@ -28,7 +34,6 @@ def find_routes_with_schools(routes_returned, schools_to_find):
                 if schools_to_find.issubset(route.schools_to_visit):
                     
                     routes_geo = list()
-                    path_info_list.append(route.path_info)
 
                     stops_set.update(route.get_schoolless_path())
                     schools_set.update(route.schools_to_visit)
@@ -58,7 +63,6 @@ def find_routes_with_schools(routes_returned, schools_to_find):
                     googlemap_routes.append(link)
                     routes.append(route)
                     count += 1
-            
     
     schools_geo = pd.DataFrame(columns=['Name', 'Lat', 'Long']).round(6)
     for i, school in enumerate(schools_set): 
@@ -69,16 +73,6 @@ def find_routes_with_schools(routes_returned, schools_to_find):
         stops_geo.loc[i] = ((geocodes.iloc[stop,:]['Lat'], geocodes.iloc[stop,:]['Long']))
         
     return schools_geo, stops_geo, routes
-
-
-with open(prefix+'schoolnames_map.pickle', 'rb') as handle:
-    schoolnames_map = pickle.load(handle)
-    
-with open(prefix+'routes_returned.pickle', 'rb') as handle:
-    routes_returned = pickle.load(handle)
-
-
-schools_geo, stops_geo, routes = find_routes_with_schools(routes_returned, [10136])
 
 
 
