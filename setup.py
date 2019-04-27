@@ -26,7 +26,7 @@ def editBellTimes(schools):
 # Filter and wrangle through data 
 def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
-#    prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
+#    prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
 #
 #    stops = prefix+'stop_geocodes_fixed.csv'
 #    zipdata =prefix+'zipData.csv'

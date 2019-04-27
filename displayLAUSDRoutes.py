@@ -39,7 +39,7 @@ def displayLAUSDRoutes(schools):
     return links_list
 
 def setup_files(school_type):
-    prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/'
+    prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
     phonebookFile = prefix+'totalPhoneBook.csv'
     phonebook = pd.read_csv(phonebookFile, dtype={"RecordID": str, 'Prog': str, 'Cost_Center': str, "AM_Route": str, 'Lat': float, 'Long': float}, low_memory=False)
     phonebook['Cost_Center_Name'] = phonebook['Cost_Center_Name'].str.strip()

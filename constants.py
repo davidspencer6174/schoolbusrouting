@@ -57,7 +57,7 @@ def REFRESH_STATS():
     constants.CAP_COUNTS = setup_buses(PREFIX+"dist_bus_capacities.csv")
     constants.CONTRACT_CAP_COUNTS = setup_contract_buses()
 
-PREFIX = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
+PREFIX = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/mixed_load_data/"
 TRAVEL_TIMES = (np.load(PREFIX + "travel_times.npy")*1.5)
 CAP_COUNTS = setup_buses(PREFIX+'dist_bus_capacities.csv')
 GEOCODES = pd.read_csv(PREFIX+'all_geocodes.csv')
@@ -73,4 +73,10 @@ with open(PREFIX+'codes_inds_map', 'rb') as handle:
     CODES_INDS_MAP = pickle.load(handle)
 with open(PREFIX+'schooltypes_map', 'rb') as handle:
     SCHOOLTYPE_MAP = pickle.load(handle)
+with open(PREFIX+'schoolnames_map.pickle', 'rb') as handle:
+    SCHOOLNAME_MAP = pickle.load(handle)
+
+all_geocodesFile = PREFIX+'all_geocodes.csv'
+geocodes = pd.read_csv(all_geocodesFile)
+
 

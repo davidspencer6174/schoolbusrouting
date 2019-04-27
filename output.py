@@ -152,8 +152,7 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
 # routes_returned: bus routes for each school cluster
 def output_routes_to_file(output, routes_returned, filename, title):
     
-    prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
-    all_geocodesFile = prefix+'all_geocodes.csv'
+    all_geocodesFile = constants.PREFIX+'all_geocodes.csv'
     geocodes = pd.read_csv(all_geocodesFile)
     bug_checker = list()
 

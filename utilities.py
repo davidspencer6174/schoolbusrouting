@@ -1,18 +1,20 @@
 import pandas as pd
+import pickle
+
+
+prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/mixed_load_data/"
 
 def find_routes_with_schools(routes_returned, schools_to_find):
-    
-    
-    schools_set, stops_set = set(), set()
-    
-    prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/School_Bus_Work/Willy_Data/mixed_load_data/"
+        
     all_geocodesFile = prefix+'all_geocodes.csv'
     geocodes = pd.read_csv(all_geocodesFile)
 
     schools_to_find = set(schools_to_find)
     print("Schools to find: " + str(schools_to_find))
     
-    route_list_geo = list()
+    schools_set, stops_set = set(), set()
+    routes = list()
+    path_info_list, stops_list = list(), list()
 
     for index in range(0, len(routes_returned)):   
         
@@ -26,7 +28,9 @@ def find_routes_with_schools(routes_returned, schools_to_find):
                 if schools_to_find.issubset(route.schools_to_visit):
                     
                     routes_geo = list()
-                    stops_set.update(set(route.get_schoolless_path()))
+                    path_info_list.append(route.path_info)
+
+                    stops_set.update(route.get_schoolless_path())
                     schools_set.update(route.schools_to_visit)
                     
                     print('---------------------------------')
@@ -52,34 +56,29 @@ def find_routes_with_schools(routes_returned, schools_to_find):
                         link += ("/" + str(round(point_geoloc['Lat'],6)) + "," + str(round(point_geoloc['Long'],6)))
                     
                     googlemap_routes.append(link)
-                    route_list_geo.append(routes_geo)
-                    print("Google Maps Link: ")
-                    print(link)
+                    routes.append(route)
                     count += 1
             
-#        if googlemap_routes:
-#            print("###################################################")
-#            print("BULK GOOGLE MAP ROUTES FOR CLUSTER")
-#            for x in googlemap_routes:
-#                print(x)
-#            print("###################################################")
     
-    
-    schools_geo, stops_geo = list(), list()
-    
-    for school in schools_set: 
-        schools_geo.append((geocodes.iloc[school,:]['Lat'], geocodes.iloc[school,:]['Long']))
+    schools_geo = pd.DataFrame(columns=['Name', 'Lat', 'Long']).round(6)
+    for i, school in enumerate(schools_set): 
+        schools_geo.loc[i] = [schoolnames_map[school], geocodes.iloc[school,:]['Lat'], geocodes.iloc[school,:]['Long']]
         
-    for stop in stops_set:
-        stops_geo.append((geocodes.iloc[stop,:]['Lat'], geocodes.iloc[stop,:]['Long']))
+    stops_geo = pd.DataFrame(columns=['Lat','Long'])
+    for i, stop in enumerate(stops_set):
+        stops_geo.loc[i] = ((geocodes.iloc[stop,:]['Lat'], geocodes.iloc[stop,:]['Long']))
         
-#    schools_geo = pd.DataFrame(schools_geo, columns=["Lat", "Long"])
-#    stops_geo = pd.DataFrame(stops_geo, columns=["Lat", "Long"])
+    return schools_geo, stops_geo, routes
 
-    return schools_geo, stops_geo, route_list_geo
 
-schools_geo, stops_geo, total_routes_geo = find_routes_with_schools(routes_returned, [10136])
-plot_gmap(schools_geo, stops_geo, total_routes_geo)
+with open(prefix+'schoolnames_map.pickle', 'rb') as handle:
+    schoolnames_map = pickle.load(handle)
+    
+with open(prefix+'routes_returned.pickle', 'rb') as handle:
+    routes_returned = pickle.load(handle)
+
+
+schools_geo, stops_geo, routes = find_routes_with_schools(routes_returned, [10136])
 
 
 
