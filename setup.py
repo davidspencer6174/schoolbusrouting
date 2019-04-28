@@ -26,13 +26,13 @@ def editBellTimes(schools):
 # Filter and wrangle through data 
 def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
-#    prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
-#
-#    stops = prefix+'stop_geocodes_fixed.csv'
-#    zipdata =prefix+'zipData.csv'
-#    schools = prefix+'school_geocodes_fixed.csv'
-#    phonebook = prefix+'totalPhoneBook.csv'
-#    bell_times = prefix+'bell_times.csv'
+    prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
+
+    stops = prefix+'stop_geocodes_fixed.csv'
+    zipdata =prefix+'zipData.csv'
+    schools = prefix+'school_geocodes_fixed.csv'
+    phonebook = prefix+'totalPhoneBook.csv'
+    bell_times = prefix+'bell_times.csv'
 
     stops = pd.read_csv(stops, low_memory=False)
     zipdata = pd.read_csv(zipdata, low_memory=False)

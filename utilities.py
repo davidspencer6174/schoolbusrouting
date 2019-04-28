@@ -1,15 +1,14 @@
 import pandas as pd
 import pickle
 from plot_plotly import plot_routes
-from main import main 
 
 prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/mixed_load_data/"
 
 with open(prefix+'schoolnames_map.pickle', 'rb') as handle:
     schoolnames_map = pickle.load(handle)
     
-with open(prefix+'routes_returned.pickle', 'rb') as handle:
-    routes_returned = pickle.load(handle)
+#with open(prefix+'routes_returned.pickle', 'rb') as handle:
+#    routes_returned = pickle.load(handle)
 
 def find_routes_with_schools(routes_returned, schools_to_find):
         
