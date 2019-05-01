@@ -59,10 +59,12 @@ def find_routes_with_schools(routes_returned, schools_to_find):
                         routes_geo.append((round(point_geoloc['Lat'], 6), (round(point_geoloc['Long'], 6))))
                         link += ("/" + str(round(point_geoloc['Lat'],6)) + "," + str(round(point_geoloc['Long'],6)))
                     
+                    print("Google maps link: ")
+                    print(str(link))
                     googlemap_routes.append(link)
                     routes.append(route)
                     count += 1
-    
+                        
     schools_geo = pd.DataFrame(columns=['Name', 'Lat', 'Long']).round(6)
     for i, school in enumerate(schools_set): 
         schools_geo.loc[i] = [schoolnames_map[school], geocodes.iloc[school,:]['Lat'], geocodes.iloc[school,:]['Long']]

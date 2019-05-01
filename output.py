@@ -3,6 +3,7 @@ import numpy as np
 import pickle
 import constants
 import statistics
+import matplotlib.pyplot as plt
 
 # Output the clustered objects (schools/stops) with
 # their respective geolocations
@@ -71,9 +72,9 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
                 routes_count += 1
                 student_count += route.occupants
                 
-                if route.get_route_length() >= constants.MAX_TIME: 
+                if route.get_route_length() >= round(constants.MAX_TIME/60,2): 
                     exceeded_routes.append(route)
-                    exceeded_routes_times.append(round(route.get_route_length()/60, 2))
+                    exceeded_routes_times.append(round(route.get_route_length(), 2))
                     
                 if route.bus_size in buses_used: 
                     buses_used[route.bus_size] += 1
@@ -86,8 +87,13 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
                         
                 for x in route.path_info:
                     route_travel_info.append(x)
+                    
+                stud_counts = route.get_route_occupants_count()   
+                new_bus = constants.CAPACITY_MODIFIED_MAP
+                util_rate = stud_counts[0]/new_bus[route.bus_size][0] + stud_counts[1]/new_bus[route.bus_size][1] + stud_counts[2]/new_bus[route.bus_size][2]
+                utility_rate.append(util_rate)
                 
-    total_travel_time = round((sum([i for i, j in route_travel_info])/3600), 2)
+    total_travel_time = round((sum([i for i, j in route_travel_info])/60), 2)
     average_travel_time = round(total_travel_time*60/routes_count, 2)
 
     for value in schoolcluster_students_map.values():
@@ -140,12 +146,13 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
               num_schools, num_mixed_routes]
     
     if constants.OUTPUT_TO_FILE:
+
         output_routes_to_file(output, routes_returned, ("school_routes"), ("SCHOOL ROUTES"))
     
-    final_stats = [student_count, routes_count, total_travel_time, average_travel_time, utility_rate, buses_used, 
-                   len(cluster_school_map), len(schoolcluster_students_map), num_combined_routes, exceeded_routes, num_schools, num_mixed_routes]    
+    # final_stats = [student_count, routes_count, total_travel_time, average_travel_time, utility_rate, buses_used, 
+    #                 len(cluster_school_map), len(schoolcluster_students_map), num_combined_routes, exceeded_routes, num_schools, num_mixed_routes]    
     
-    return final_stats
+    return output
     
 # write routes into .txt file
 # cluster_school_map: maps clusters to schools
@@ -154,7 +161,6 @@ def output_routes_to_file(output, routes_returned, filename, title):
     
     all_geocodesFile = constants.PREFIX+'all_geocodes.csv'
     geocodes = pd.read_csv(all_geocodesFile)
-    bug_checker = list()
 
     if constants.COMBINE_ROUTES:
         file = open("combine_route_" + str(filename) + ".txt", "w")   
@@ -234,14 +240,9 @@ def output_routes_to_file(output, routes_returned, filename, title):
                 if route.is_mixed_loads == True:
                     file.write("Mixed Loads == True\n")
 
-                travel_time = 0 
-                for route_stat in route.path_info:
-                    travel_time += route_stat[0]
-
-#                file.write("ROUTE STUDENTS LENGTH: " + str(len(route.students)) + "\n")
                 file.write("Route index: " + str(index) + "." + str(count) + "\n")
                 file.write("Route path: " + str(route.path) + "\n")
-                file.write("Route travel time: " + str(round(travel_time/60, 2)) +  " mins\n") 
+                file.write("Route travel time: " + str(round(route.get_route_length(), 2)) +  " mins\n") 
                 file.write("Route path information: " + str(route.path_info) + "\n")
                 file.write("Bus capacity: " + str(route.bus_size) + "\n")
                 file.write("Num. of occupants: " + str(route.occupants) + "\n")
@@ -259,15 +260,13 @@ def output_routes_to_file(output, routes_returned, filename, title):
                 file.write(link)
                 file.write("\n---------------------- \n")
                 count += 1
-        bug_checker.append(temp)
-        file.write("=========" + str(temp) + "\n")
+
         file.write("\n###################################################\n")
         file.write("BULK GOOGLE MAP ROUTES FOR CLUSTER \n")
         for x in googlemap_routes:
             file.write(x)
             file.write("\n")
         file.write("###################################################\n")
-    file.write(str(bug_checker))
     file.close()
 
 # Print out student statistics
@@ -278,7 +277,7 @@ def get_student_stats(total_routes):
         for j in total_routes[i]:
             for route in j: 
                 for stud in route.students:
-                    student_travel_times.append(round(stud.time_on_bus/60, 2))
+                    student_travel_times.append(round(stud.time_on_bus, 2))
 
     student_travel_times.sort() 
     print('----------------------------------') 
@@ -287,3 +286,15 @@ def get_student_stats(total_routes):
     print(" ")
     
     return student_travel_times
+
+def plot_histograms(students_travel_times, utility_rate):
+    plt.title('Estimated travel times for generated routes')
+    plt.xlabel('Estimated travel time (minutes)')
+    plt.ylabel('Number of students')
+    plt.hist(students_travel_times, bins=18)
+    
+    utility_rate = [x * 100 for x in utility_rate]
+    plt.title('Distribution of bus utilization percentages (generated)')
+    plt.xlabel('Perecent of capcaity used')
+    plt.ylabel('Number of routes')
+    plt.hist(utility_rate, bins=20)

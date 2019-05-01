@@ -19,7 +19,9 @@ def check_routes(route_list):
 # Divide routes based on constraints 
 def make_routes(school_route_time, school_route, stud_route, students):
     
-    total_school_route_time = sum(school_route_time)
+    # total_shool_route_time = time to visit all schools + dropoff time at each school 
+    total_school_route_time = sum(school_route_time) 
+    # + sum([constants.SCHOOL_DROPOFF_TIME[school] for school in school_route])
     path_info = list()
     path_info_list = list()
     last_stop = school_route[-1] 
@@ -34,11 +36,12 @@ def make_routes(school_route_time, school_route, stud_route, students):
         else:
             stop_counts[stud.tt_ind] = [0] * 3
             stop_counts[stud.tt_ind][stud.student_type] += 1
-            
+    
     # Go through every stop and check if they meet the constants.MAX_TIME or bus constraints
     # Create new route (starting from the schools) if the constraints are not met 
     for index, stop in enumerate(stud_route):
         
+        # print('last_stop -- stop: ' + str(last_stop) + ' | ' + str(stop) + ' -- ' + str(constants.TRAVEL_TIMES[last_stop][stop]))
         path_info.append((round(constants.TRAVEL_TIMES[last_stop][stop], 2), stop_counts[stop]))
         stud_count = np.array([j for i,j in path_info])
         sum_stud_count = stud_count.sum(axis=0)
@@ -52,11 +55,12 @@ def make_routes(school_route_time, school_route, stud_route, students):
             if len(path_info) == 1:
                 path_info_list.append(path_info)
                 path_info = list()
-                
+
             else:
                 path_info_list.append(path_info[:-1])
                 path_info = list()
                 path_info.append((round(constants.TRAVEL_TIMES[last_stop][stop], 2), stop_counts[stop]))
+                last_stop = stop
         else:
             last_stop = stop
     
@@ -241,7 +245,6 @@ def combine_routes(routes):
     
     # routes = copy.deepcopy(input_routes)
     routes_to_check = list()
-
     # If the route isn't maxed out, insert into routes_to_check
     for route in routes:
         if route.bus_size < constants.CAP_COUNTS[-1][0]: 

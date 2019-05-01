@@ -47,7 +47,7 @@ def plot_routes(schools_geo, stops_geo, routes, filename):
         
         # Plot stops
         go.Scattermapbox(
-            name='Stops cluster',
+            name='Stops',
             lat=stops_geo.Lat,
             lon=stops_geo.Long,
             mode='markers',

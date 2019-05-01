@@ -81,6 +81,8 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     schools_students_attend = pd.merge(schools_students_attend, clustered_schools[['label', 'tt_ind']], on=['tt_ind'], how='inner').drop_duplicates()
     schools_students_attend = schools_students_attend.sort_values(['label'], ascending=[True])
     
+    update_school_dropoff_times(schools_students_attend)
+
 #    # Geolocation based-approach
 #    clustered_schools = obtainClust_DBSCAN(schools_students_attend, constants.RADIUS, constants.MIN_PER_CLUSTER)
 #    schools_students_attend = pd.merge(schools_students_attend, clustered_schools, on=['Lat', 'Long'], how='inner').drop_duplicates()
@@ -88,6 +90,13 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
     schoolcluster_students_map_df = partition_students(schools_students_attend, phonebook)
     return schools_students_attend, schoolcluster_students_map_df
+
+def update_school_dropoff_times(schools_students_attend):
+    dropoff_dict = dict() 
+    for school in schools_students_attend['tt_ind']:
+        dropoff_dict[school] = 480
+    constants.SCHOOL_DROPOFF_TIME = dropoff_dict 
+
 
 # Setup the buses
 def setup_buses(bus_capacities):
@@ -112,7 +121,7 @@ def setup_contract_buses():
     contract_cap_counts = copy.deepcopy(constants.CAP_COUNTS)
     for i in range(0, len(contract_cap_counts)):
         contract_cap_counts[i][1] = 0 
-    constants.CONTRACT_CAP_COUNTS = contract_cap_counts
+    return contract_cap_counts
 
 # Setup clusters: input all required files 
 def setup_clusters(cluster_schools_df, schoolcluster_students_df):

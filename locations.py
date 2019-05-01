@@ -104,14 +104,10 @@ class Route:
 
     # Clean routes and remove schools from path and path_info that will not be visited
     def clean_route(self):
-    
-        # If no cleaning needed
+        
         new_school_path_info = list()
         ori_school_path = copy.deepcopy(self.school_path)
-        
-        if self.schools_to_visit == set(self.school_path):
-            return 
-        
+                
         # Delete schools that do not need to be visited
         for index, school in enumerate(ori_school_path):
             if school not in self.schools_to_visit: 
@@ -126,7 +122,18 @@ class Route:
                 new_school_path_info.append((round(constants.TRAVEL_TIMES[school][self.school_path[ind+1]], 2), 0))
 
         self.path_info = new_school_path_info + self.path_info[1::]
-                
+        
+        # Convert path info into minutes
+        for idx, stop_info in enumerate(self.path_info):
+
+            if round(stop_info[0],2) != round(constants.TRAVEL_TIMES[self.path[idx]][self.path[idx+1]],2):
+                print(str(stop_info[0]) + " -- " + str(constants.TRAVEL_TIMES[self.path[idx]][self.path[idx+1]]))
+                print("ERROR HERE")
+
+            time_taken = round((constants.TRAVEL_TIMES[self.path[idx]][self.path[idx+1]]/60), 2)
+            new_info = (time_taken, self.path_info[idx][1])
+            self.path_info[idx] = new_info
+            
     # Get the student counts in the route []
     def get_stud_count_in_route(self):
          stud_count = [j for i, j in self.path_info[-len(self.get_schoolless_path()):]]
@@ -173,7 +180,13 @@ class Route:
                 #mark the bus as taken
                 bus[1] += 1
                 self.update_bus(bus[0])
-
+    
+    # Get dropoff_time for schools
+    def get_total_school_dropoff_time(self):
+        dropoff_time = 0
+        for school in self.schools_to_visit:
+            dropoff_time += constants.SCHOOL_DROPOFF_TIME[school] 
+        return dropoff_time
 
     # Obtain the "center" of the route
     def find_route_center(self):
