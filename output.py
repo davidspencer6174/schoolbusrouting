@@ -243,9 +243,10 @@ def output_routes_to_file(output, routes_returned, filename, title):
 
             file.write("Route index: " + str(index) + "." + str(count) + "\n")
             file.write("Route path: " + str(route.path) + "\n")
-            file.write("TOTAL time: " + str(round(route.get_route_length() + route.get_total_school_dropoff_time(),2)) + " mins\n")
+            file.write("Schools to visit: " + str(sorted(list(route.schools_to_visit), key=lambda x: route.school_path.index(x))) + "\n")
+            file.write("School drop-off time: " + str(round(route.get_total_school_dropoff_time()/60, 2)) + " mins\n")
             file.write("Route travel time: " + str(round(route.get_route_length(), 2)) +  " mins\n") 
-            file.write("School drop-off time: " + str(round(route.get_total_school_dropoff_time(),2)) + " mins\n")
+            file.write("TOTAL TIME: " + str(round(route.get_route_length() + route.get_total_school_dropoff_time()/60,2)) + " mins\n")
             file.write("Route path information: " + str(route.path_info) + "\n")
             file.write("Bus capacity: " + str(route.bus_size) + "\n")
             file.write("Num. of occupants: " + str(route.occupants) + "\n")

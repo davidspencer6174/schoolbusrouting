@@ -22,13 +22,12 @@ def find_routes_with_schools(routes_returned, schools_to_find):
     routes = list()
 
     for index in range(0, len(routes_returned)):   
-        
         count = 0 
         googlemap_routes = list()
         
         for route in routes_returned[index]:
-                            
-            if schools_to_find.issubset(route.schools_to_visit):
+
+            if schools_to_find.issubset(set(route.schools_to_visit)):
                 
                 routes_geo = list()
 

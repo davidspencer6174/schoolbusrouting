@@ -39,7 +39,7 @@ routes_returned, utility_rate, students_travel_times = main()
 
 #plot_histograms(students_travel_times, utility_rate)
 
-#school_to_find = ['Combined -- Vintage', [10827]]
+#school_to_find = ['Combined -- TEST', [9801]]
 #school_to_find = ['Combined -- Balboa', [10376]]
 #school_to_find = ['Combined -- Porter', [9895]]
 #schools_geo, stops_geo, routes = find_routes_with_schools(routes_returned, school_to_find[1])

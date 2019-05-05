@@ -4,6 +4,7 @@ import copy
 import constants
 from locations import School, Student
 from clustering import obtainClust_DBSCAN_AGGO_combined, partition_students
+from collections import defaultdict
 
 def californiafy(address):
     return address[:-6] + " California," + address[-6:]
@@ -23,15 +24,22 @@ def editBellTimes(schools):
     return schools
 
 # For verification purposes
-def update_school_cluster_counter(schoolcluster_students_map_df):
-    new_dict = dict()
+def update_verif_counters(schoolcluster_students_map_df):
+    cluster_counter_dict = dict()
+    stop_counter_dict = defaultdict(int)
+    
     for i in schoolcluster_students_map_df:
         stop_set = set()
 
         for j, row in schoolcluster_students_map_df[i].iterrows():
-            stop_set.add(constants.CODES_INDS_MAP[constants.STOPS_CODES_MAP[californiafy(row['AM_Stop_Address'])]])
-        new_dict[i] = stop_set
-    constants.STUDENT_CLUSTER_COUNTER = new_dict 
+            stop = constants.CODES_INDS_MAP[constants.STOPS_CODES_MAP[californiafy(row['AM_Stop_Address'])]]
+            stop_set.add(stop)
+            stop_counter_dict[stop] += 1
+
+        cluster_counter_dict[i] = stop_set
+        
+    constants.STUDENT_CLUSTER_COUNTER = cluster_counter_dict 
+    constants.STUDENT_STOP_COUNTER = stop_counter_dict 
 
 # Set up up the dataframes to make stops, zipdata, schools, and phonebook
 # Filter and wrangle through data 
@@ -99,7 +107,7 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
     schoolcluster_students_map_df = partition_students(schools_students_attend, phonebook)
     update_school_dropoff_times(schools_students_attend)
-    update_school_cluster_counter(schoolcluster_students_map_df)
+    update_verif_counters(schoolcluster_students_map_df)
 
     return schools_students_attend, schoolcluster_students_map_df
 

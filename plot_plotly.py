@@ -75,8 +75,8 @@ def plot_routes(schools_geo, stops_geo, routes, filename):
                 visible = True,
                 opacity = 1,
                 name = "Route " + str(i),
-                lon = list(points_geoloc.Long),
                 lat = list(points_geoloc.Lat),
+                lon = list(points_geoloc.Long),
                 mode = 'lines',
                 text = stop_info
             )
