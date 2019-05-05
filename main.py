@@ -5,7 +5,7 @@ from setup import setup_data, setup_clusters
 from output import get_route_stats, get_student_stats, plot_histograms
 from utilities import find_routes_with_schools
 from plot_plotly import plot_routes
-
+from verify import verify_routes
 
 def main():
    
@@ -31,17 +31,18 @@ def main():
     # Get statistics 
     utility_rate = get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map)
     students_travel_times = get_student_stats(routes_returned)
-    
-    return routes_returned, utility_rate, students_travel_times
+    verify_routes(routes_returned)
 
+    return routes_returned, utility_rate, students_travel_times
 
 routes_returned, utility_rate, students_travel_times = main()
 
 #plot_histograms(students_travel_times, utility_rate)
 
-# school_to_find = ['Combined -- Vintage', [10827]]
-# school_to_find = ['Combined -- Balboa', [10376]]
-# schools_geo, stops_geo, routes = find_routes_with_schools(routes_returned, school_to_find[1])
+#school_to_find = ['Combined -- Vintage', [10827]]
+#school_to_find = ['Combined -- Balboa', [10376]]
+#school_to_find = ['Combined -- Porter', [9895]]
+#schools_geo, stops_geo, routes = find_routes_with_schools(routes_returned, school_to_find[1])
 #plot_routes(schools_geo, stops_geo, routes, school_to_find[0])
 
 

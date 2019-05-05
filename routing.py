@@ -15,13 +15,20 @@ def check_routes(route_list):
         route.check_mixedload_status()
     return route_list
 
+# Unpack routes from nested list to single list 
+def unpack_routes(routes_list):
+    routes_returned = list()
+    for i in range(0, len(routes_list)):
+        for route in routes_list[i]:
+            routes_returned.append(route)
+    return routes_returned
+
 # Make route objects with route information in them
 # Divide routes based on constraints 
 def make_routes(school_route_time, school_route, stud_route, students):
     
     # total_shool_route_time = time to visit all schools + dropoff time at each school 
-    total_school_route_time = sum(school_route_time) 
-    # + sum([constants.SCHOOL_DROPOFF_TIME[school] for school in school_route])
+    total_school_route_time = sum(school_route_time) + sum([constants.SCHOOL_DROPOFF_TIME[school] for school in school_route[1:]])
     path_info = list()
     path_info_list = list()
     last_stop = school_route[-1] 
@@ -234,17 +241,24 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
             if constants.COMBINE_ROUTES:
                 combine_routes(routes_returned)
 
-            routes_returned = check_routes(routes_returned)
             route_list.append(routes_returned)
+
+        routes_returned = unpack_routes(route_list)
         
-        routes[key] = route_list    
+        if constants.COMBINE_ROUTES: 
+            combine_routes(routes_returned)
+
+        routes_returned = check_routes(routes_returned)
+
+        routes[key] = routes_returned    
+    
     return routes
 
 # Combine routes
 def combine_routes(routes):
     
-    # routes = copy.deepcopy(input_routes)
     routes_to_check = list()
+
     # If the route isn't maxed out, insert into routes_to_check
     for route in routes:
         if route.bus_size < constants.CAP_COUNTS[-1][0]: 
@@ -273,7 +287,7 @@ def combine_routes(routes):
             combined_stud_count = list(map(add, pos_route_stud_count, routes_to_check_stud_count))
 
             # If is under time and bus capacity interpolation, append into possible route
-            if pos_route.get_possible_combined_route_time(routes_to_check[idx]) <= constants.COMBINE_ROUTES_TIME_LIMIT and \
+            if pos_route.get_possible_combined_route_time(routes_to_check[idx]) <= constants.RELAX_TIME and \
                 (combined_stud_count[0]/MOD_BUS[0])+ (combined_stud_count[1]/MOD_BUS[1]) + (combined_stud_count[2]/MOD_BUS[2]) <= 1: 
                  possible_routes.append(pos_route)
 

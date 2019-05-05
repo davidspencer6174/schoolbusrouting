@@ -125,7 +125,8 @@ class Route:
         
         # Convert path info into minutes
         for idx, stop_info in enumerate(self.path_info):
-
+            
+            # Bug checker 
             if round(stop_info[0],2) != round(constants.TRAVEL_TIMES[self.path[idx]][self.path[idx+1]],2):
                 print(str(stop_info[0]) + " -- " + str(constants.TRAVEL_TIMES[self.path[idx]][self.path[idx+1]]))
                 print("ERROR HERE")
@@ -134,7 +135,7 @@ class Route:
             new_info = (time_taken, self.path_info[idx][1])
             self.path_info[idx] = new_info
             
-    # Get the student counts in the route []
+    # Get the student counts in the route 
     def get_stud_count_in_route(self):
          stud_count = [j for i, j in self.path_info[-len(self.get_schoolless_path()):]]
          sum_stud_count = list(np.array(stud_count).sum(axis=0))    
@@ -184,7 +185,8 @@ class Route:
     # Get dropoff_time for schools
     def get_total_school_dropoff_time(self):
         dropoff_time = 0
-        for school in self.schools_to_visit:
+        temp_list =  sorted(list(self.schools_to_visit), key=lambda x: self.school_path.index(x))
+        for school in temp_list[1:]:
             dropoff_time += constants.SCHOOL_DROPOFF_TIME[school] 
         return dropoff_time
 
@@ -231,7 +233,7 @@ class Route:
     def get_possible_combined_route_time(self, new_route):
         temp_route = copy.deepcopy(self)
         temp_route.combine_route(new_route)
-        return sum([i for i, j in temp_route.path_info])
+        return temp_route.get_route_length() + temp_route.get_total_school_dropoff_time()
    
    # Combine route
     def combine_route(self, new_route):
@@ -297,3 +299,12 @@ class Route:
         self.assign_bus_to_route()
         self.update_combine_route_status()
 
+    def verify_route(self):
+        MOD_BUS = constants.CAPACITY_MODIFIED_MAP[self.bus_size]
+        combined_stud_count = self.get_stud_count_in_route()
+
+        if self.get_route_length() + self.get_total_school_dropoff_time() <= constants.RELAX_TIME and \
+            (combined_stud_count[0]/MOD_BUS[0])+ (combined_stud_count[1]/MOD_BUS[1]) + (combined_stud_count[2]/MOD_BUS[2]) <= 1: 
+            return True
+        else:
+            return False

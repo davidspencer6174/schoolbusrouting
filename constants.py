@@ -24,7 +24,7 @@ SCHOOL_CATEGORIES = ['elem', 'middle', 'high']
 SCHOOL_TYPE_INDEX = 0
 
 # COMBINE_ROUTE PARAMETERS 
-COMBINE_ROUTES_TIME_LIMIT = MAX_TIME + 600 
+RELAX_TIME = MAX_TIME + 300 
 INITIAL_LOW_OCC_ROUTES_COUNTS = 0
 
 # DBSCAN paramters
@@ -33,7 +33,7 @@ RADIUS_STUDENT = 1400
 MIN_SAMPLES = 1
 
 # Agglo parameters 
-NUM_CLUSTERS_AGGLO = 80
+NUM_CLUSTERS_AGGLO = 100 
 
 # MODIFIED BUS CAPACITES 
 CAPACITY_MODIFIED_MAP = dict()
@@ -63,6 +63,7 @@ CAP_COUNTS = setup_buses(PREFIX+'dist_bus_capacities.csv')
 GEOCODES = pd.read_csv(PREFIX+'all_geocodes.csv')
 CONTRACT_CAP_COUNTS = setup_contract_buses()
 SCHOOL_DROPOFF_TIME = dict() 
+STUDENT_CLUSTER_COUNTER = dict()
 
 DF_TRAVEL_TIMES = pd.DataFrame(data=np.transpose(constants.TRAVEL_TIMES))
 

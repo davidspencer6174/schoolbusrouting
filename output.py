@@ -66,33 +66,32 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
     student_count, routes_count, num_students, num_schools, num_combined_routes, num_mixed_routes = 0, 0, 0, 0, 0, 0 
     
     for i in routes_returned:
-        for j in routes_returned[i]:
-            for route in j:
+        for route in routes_returned[i]:
 
-                routes_count += 1
-                student_count += route.occupants
+            routes_count += 1
+            student_count += route.occupants
+            
+            if route.get_route_length() >= round(constants.MAX_TIME/60,2): 
+                exceeded_routes.append(route)
+                exceeded_routes_times.append(round(route.get_route_length(), 2))
                 
-                if route.get_route_length() >= round(constants.MAX_TIME/60,2): 
-                    exceeded_routes.append(route)
-                    exceeded_routes_times.append(round(route.get_route_length(), 2))
-                    
-                if route.bus_size in buses_used: 
-                    buses_used[route.bus_size] += 1
-                   
-                if route.is_combined_route == True:
-                    num_combined_routes +=1 
+            if route.bus_size in buses_used: 
+                buses_used[route.bus_size] += 1
+               
+            if route.is_combined_route == True:
+                num_combined_routes +=1 
 
-                if route.is_mixed_loads == True:
-                    num_mixed_routes += 1
-                        
-                for x in route.path_info:
-                    route_travel_info.append(x)
+            if route.is_mixed_loads == True:
+                num_mixed_routes += 1
                     
-                stud_counts = route.get_route_occupants_count()   
-                new_bus = constants.CAPACITY_MODIFIED_MAP
-                util_rate = stud_counts[0]/new_bus[route.bus_size][0] + stud_counts[1]/new_bus[route.bus_size][1] + stud_counts[2]/new_bus[route.bus_size][2]
-                utility_rate.append(util_rate)
+            for x in route.path_info:
+                route_travel_info.append(x)
                 
+            stud_counts = route.get_route_occupants_count()   
+            new_bus = constants.CAPACITY_MODIFIED_MAP
+            util_rate = stud_counts[0]/new_bus[route.bus_size][0] + stud_counts[1]/new_bus[route.bus_size][1] + stud_counts[2]/new_bus[route.bus_size][2]
+            utility_rate.append(util_rate)
+            
     total_travel_time = round((sum([i for i, j in route_travel_info])/60), 2)
     average_travel_time = round(total_travel_time*60/routes_count, 2)
 
@@ -109,7 +108,7 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
     print('[PARAMETERS USED]')
     print('Radius: ' + str(constants.RADIUS))
     print('Max time constraint: ' + str(round(constants.MAX_TIME/60, 2)) + ' mins')
-    print('Combine route time limit: ' + str(round(constants.COMBINE_ROUTES_TIME_LIMIT/60, 2)) + ' mins')
+    print('Combine route time limit: ' + str(round(constants.RELAX_TIME/60, 2)) + ' mins')
     print(' - - - - - - - - - - - - - - - - -')
     print('[ROUTE STATS]')
     print("Num. of students routed: " + str(student_count))
@@ -176,7 +175,7 @@ def output_routes_to_file(output, routes_returned, filename, title):
     file.write("Combine route: " + str(constants.COMBINE_ROUTES) + '\n')
 
     if constants.COMBINE_ROUTES:
-        file.write('Combine route time limit: ' + str(round(constants.COMBINE_ROUTES_TIME_LIMIT/60, 2)) + ' mins \n')
+        file.write('Combine route time limit: ' + str(round(constants.RELAX_TIME/60, 2)) + ' mins \n')
 
     file.write(' - - - - - - - - - - - - - - - - -\n')
     file.write('[ROUTE STATS] \n')
@@ -228,38 +227,46 @@ def output_routes_to_file(output, routes_returned, filename, title):
         
         file.write('\n')
         googlemap_routes = list()
+        temp_set = set()
+        for route in routes_returned[index]:
 
-        for idx in range(0, len(routes_returned[index])):
-            for route in routes_returned[index][idx]:
-                if int(route.occupants) < constants.UNDER_UTILIZED_COUNT:
-                    file.write("UNDER UTILIZED BUS \n")
-                
-                if route.is_combined_route == True:
-                    file.write("Combined Route == True\n")
-                
-                if route.is_mixed_loads == True:
-                    file.write("Mixed Loads == True\n")
+            temp_set.update(set(route.get_schoolless_path()))
 
-                file.write("Route index: " + str(index) + "." + str(count) + "\n")
-                file.write("Route path: " + str(route.path) + "\n")
-                file.write("Route travel time: " + str(round(route.get_route_length(), 2)) +  " mins\n") 
-                file.write("Route path information: " + str(route.path_info) + "\n")
-                file.write("Bus capacity: " + str(route.bus_size) + "\n")
-                file.write("Num. of occupants: " + str(route.occupants) + "\n")
-                link = "https://www.google.com/maps/dir"
-                
-                temp += len(route.students)
+            if int(route.occupants) < constants.UNDER_UTILIZED_COUNT:
+                file.write("UNDER UTILIZED BUS \n")
+            
+            if route.is_combined_route == True:
+                file.write("Combined Route == True\n")
+            
+            if route.is_mixed_loads == True:
+                file.write("Mixed Loads == True\n")
 
-                for point in route.path:
-                    point_geoloc = geocodes.iloc[point,: ]
-                    
-                    link += ("/" + str(round(point_geoloc['Lat'],6)) + "," + str(round(point_geoloc['Long'],6)))
-                    
-                googlemap_routes.append(link)
-                file.write("Google Maps Link: \n")
-                file.write(link)
-                file.write("\n---------------------- \n")
-                count += 1
+            file.write("Route index: " + str(index) + "." + str(count) + "\n")
+            file.write("Route path: " + str(route.path) + "\n")
+            file.write("TOTAL time: " + str(round(route.get_route_length() + route.get_total_school_dropoff_time(),2)) + " mins\n")
+            file.write("Route travel time: " + str(round(route.get_route_length(), 2)) +  " mins\n") 
+            file.write("School drop-off time: " + str(round(route.get_total_school_dropoff_time(),2)) + " mins\n")
+            file.write("Route path information: " + str(route.path_info) + "\n")
+            file.write("Bus capacity: " + str(route.bus_size) + "\n")
+            file.write("Num. of occupants: " + str(route.occupants) + "\n")
+            link = "https://www.google.com/maps/dir"
+            
+            temp += len(route.students)
+
+            for point in route.path:
+                point_geoloc = geocodes.iloc[point,: ]
+                
+                link += ("/" + str(round(point_geoloc['Lat'],6)) + "," + str(round(point_geoloc['Long'],6)))
+                
+            googlemap_routes.append(link)
+            file.write("Google Maps Link: \n")
+            file.write(link)
+            file.write("\n---------------------- \n")
+            count += 1
+
+        file.write(" CHECKING STOPS ROUTED \n" )
+        file.write(str(sorted(list(temp_set))) + "\n")
+        file.write(str(sorted(list(constants.STUDENT_CLUSTER_COUNTER[index]))) + "\n")
 
         file.write("\n###################################################\n")
         file.write("BULK GOOGLE MAP ROUTES FOR CLUSTER \n")
@@ -274,10 +281,9 @@ def get_student_stats(total_routes):
     student_travel_times = list()
 
     for i in total_routes: 
-        for j in total_routes[i]:
-            for route in j: 
-                for stud in route.students:
-                    student_travel_times.append(round(stud.time_on_bus, 2))
+        for route in total_routes[i]:
+            for stud in route.students:
+                student_travel_times.append(round(stud.time_on_bus, 2))
 
     student_travel_times.sort() 
     print('----------------------------------') 
