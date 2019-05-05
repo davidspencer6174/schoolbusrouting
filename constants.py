@@ -9,7 +9,6 @@ VERBOSE = True
 COMBINE_ROUTES = True
 OUTPUT_TO_FILE = True 
 CLEAN_ROUTE = True
-VERIFY = True
 
 #Max allowable travel time in seconds
 MAX_TIME = 3600
@@ -25,7 +24,7 @@ SCHOOL_CATEGORIES = ['elem', 'middle', 'high']
 SCHOOL_TYPE_INDEX = 0
 
 # COMBINE_ROUTE PARAMETERS 
-RELAXED_TIME = MAX_TIME + 600 
+RELAX_TIME = MAX_TIME + 300 
 INITIAL_LOW_OCC_ROUTES_COUNTS = 0
 
 # DBSCAN paramters

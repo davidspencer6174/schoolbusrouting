@@ -6,7 +6,6 @@ from output import get_route_stats, get_student_stats, plot_histograms
 from utilities import find_routes_with_schools
 from plot_plotly import plot_routes
 from verify import verify_routes
-import constants
 
 def main():
    
@@ -32,19 +31,11 @@ def main():
     # Get statistics 
     utility_rate = get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map)
     students_travel_times = get_student_stats(routes_returned)
-    
-    if constants.VERIFY:
-        verify_routes(routes_returned)
-
-    return routes_returned, utility_rate, students_travel_times
+    verify_routes(routes_returned)
 
     return routes_returned, utility_rate, students_travel_times
 
 routes_returned, utility_rate, students_travel_times = main()
-
-
-
-
 
 #plot_histograms(students_travel_times, utility_rate)
 

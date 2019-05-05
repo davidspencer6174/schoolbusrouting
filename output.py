@@ -25,6 +25,38 @@ def output_dictionary(schools_students_attend, schoolcluster_students_map_df, st
     with open(str(student_level) + '_clusteredschools_students_map' ,'wb') as handle:
         pickle.dump(schoolcluster_students_map_df, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
+# Print statistics of a school cluster
+def print_begin_stats(cluster_school_map, schoolcluster_students_map, cap_counts, school_type):
+    
+    num_students = 0 
+    num_schools = 0 
+
+    for value in schoolcluster_students_map.values():
+        for j in range(0, len(value)):
+            num_students = num_students + len(value[j])
+            
+    for value in cluster_school_map.values():
+        num_schools = num_schools + len(value)
+
+    tot_cap = 0
+    for bus in cap_counts:
+        tot_cap += bus[0]*bus[1]
+
+    print('--------------------------------------------------------------------')
+    print("Starting to route " + school_type.upper() + " SCHOOL students")
+    print('PARAMETERS USED')
+    print('RADIUS: ' + str(constants.RADIUS))
+    print('---------------------------------')
+    print('Pre-routing statistics')
+    print('---------------------------------')
+    print("Num. of Students: " + str(num_students))
+    print("Num. of Schools: " + str(num_schools))
+    print("Num. of School Clusters: " +str(len(cluster_school_map)))
+    print("Num. of School - Stops Cluster: " + str(len(schoolcluster_students_map)))
+    print("Total capacity: " + str(tot_cap) + "\n")
+    print("Bus Info: ")
+    print(cap_counts)
+
 # Print statistics after routing complete
 def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map):
     
@@ -45,7 +77,7 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
                 
             if route.bus_size in buses_used: 
                 buses_used[route.bus_size] += 1
-                
+               
             if route.is_combined_route == True:
                 num_combined_routes +=1 
 
@@ -54,11 +86,6 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
                     
             for x in route.path_info:
                 route_travel_info.append(x)
-                
-            stud_counts = route.get_route_occupants_count()   
-            new_bus = constants.CAPACITY_MODIFIED_MAP
-            util_rate = stud_counts[0]/new_bus[route.bus_size][0] + stud_counts[1]/new_bus[route.bus_size][1] + stud_counts[2]/new_bus[route.bus_size][2]
-            utility_rate.append(util_rate)
                 
             stud_counts = route.get_route_occupants_count()   
             new_bus = constants.CAPACITY_MODIFIED_MAP
@@ -81,7 +108,7 @@ def get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_
     print('[PARAMETERS USED]')
     print('Radius: ' + str(constants.RADIUS))
     print('Max time constraint: ' + str(round(constants.MAX_TIME/60, 2)) + ' mins')
-    print('Combine route time limit: ' + str(round(constants.RELAXED_TIME/60, 2)) + ' mins')
+    print('Combine route time limit: ' + str(round(constants.RELAX_TIME/60, 2)) + ' mins')
     print(' - - - - - - - - - - - - - - - - -')
     print('[ROUTE STATS]')
     print("Num. of students routed: " + str(student_count))
@@ -148,7 +175,7 @@ def output_routes_to_file(output, routes_returned, filename, title):
     file.write("Combine route: " + str(constants.COMBINE_ROUTES) + '\n')
 
     if constants.COMBINE_ROUTES:
-        file.write('Combine route time limit: ' + str(round(constants.RELAXED_TIME/60, 2)) + ' mins \n')
+        file.write('Combine route time limit: ' + str(round(constants.RELAX_TIME/60, 2)) + ' mins \n')
 
     file.write(' - - - - - - - - - - - - - - - - -\n')
     file.write('[ROUTE STATS] \n')
@@ -203,7 +230,8 @@ def output_routes_to_file(output, routes_returned, filename, title):
         temp_set = set()
         for route in routes_returned[index]:
 
-        for route in routes_returned[index]:
+            temp_set.update(set(route.get_schoolless_path()))
+
             if int(route.occupants) < constants.UNDER_UTILIZED_COUNT:
                 file.write("UNDER UTILIZED BUS \n")
             
@@ -215,9 +243,9 @@ def output_routes_to_file(output, routes_returned, filename, title):
 
             file.write("Route index: " + str(index) + "." + str(count) + "\n")
             file.write("Route path: " + str(route.path) + "\n")
-            file.write("Schools to visit: " + str(route.schools_to_visit) + "\n")
-            file.write("School dropoff time: " + str(route.get_total_dropoff_time()/60) + " mins\n")
+            file.write("TOTAL time: " + str(round(route.get_route_length() + route.get_total_school_dropoff_time(),2)) + " mins\n")
             file.write("Route travel time: " + str(round(route.get_route_length(), 2)) +  " mins\n") 
+            file.write("School drop-off time: " + str(round(route.get_total_school_dropoff_time(),2)) + " mins\n")
             file.write("Route path information: " + str(route.path_info) + "\n")
             file.write("Bus capacity: " + str(route.bus_size) + "\n")
             file.write("Num. of occupants: " + str(route.occupants) + "\n")
@@ -235,6 +263,10 @@ def output_routes_to_file(output, routes_returned, filename, title):
             file.write(link)
             file.write("\n---------------------- \n")
             count += 1
+
+        file.write(" CHECKING STOPS ROUTED \n" )
+        file.write(str(sorted(list(temp_set))) + "\n")
+        file.write(str(sorted(list(constants.STUDENT_CLUSTER_COUNTER[index]))) + "\n")
 
         file.write("\n###################################################\n")
         file.write("BULK GOOGLE MAP ROUTES FOR CLUSTER \n")
