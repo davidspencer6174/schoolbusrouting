@@ -123,6 +123,7 @@ class Route:
 
         self.path_info = new_school_path_info + self.path_info[1::]
         
+    def update_times_to_mins(self):
         # Convert path info into minutes
         for idx, stop_info in enumerate(self.path_info):
             
@@ -134,6 +135,9 @@ class Route:
             time_taken = round((constants.TRAVEL_TIMES[self.path[idx]][self.path[idx+1]]/60), 2)
             new_info = (time_taken, self.path_info[idx][1])
             self.path_info[idx] = new_info
+        
+        for stud in self.students:
+            stud.update_time_on_bus(self)
             
     # Get the student counts in the route 
     def get_stud_count_in_route(self):
@@ -183,10 +187,9 @@ class Route:
                 self.update_bus(bus[0])
     
     # Get dropoff_time for schools
-    def get_total_school_dropoff_time(self):
+    def get_total_dropoff_time(self):
         dropoff_time = 0
-        temp_list =  sorted(list(self.schools_to_visit), key=lambda x: self.school_path.index(x))
-        for school in temp_list[1:]:
+        for school in self.path[:len(self.schools_to_visit)][1:]:
             dropoff_time += constants.SCHOOL_DROPOFF_TIME[school] 
         return dropoff_time
 
@@ -233,7 +236,7 @@ class Route:
     def get_possible_combined_route_time(self, new_route):
         temp_route = copy.deepcopy(self)
         temp_route.combine_route(new_route)
-        return temp_route.get_route_length() + temp_route.get_total_school_dropoff_time()
+        return sum([i for i, j in temp_route.path_info]) + temp_route.get_total_dropoff_time()
    
    # Combine route
     def combine_route(self, new_route):
@@ -299,12 +302,15 @@ class Route:
         self.assign_bus_to_route()
         self.update_combine_route_status()
 
+    # Verify that route works
     def verify_route(self):
+        
         MOD_BUS = constants.CAPACITY_MODIFIED_MAP[self.bus_size]
         combined_stud_count = self.get_stud_count_in_route()
 
-        if self.get_route_length() + self.get_total_school_dropoff_time() <= constants.RELAX_TIME and \
-            (combined_stud_count[0]/MOD_BUS[0])+ (combined_stud_count[1]/MOD_BUS[1]) + (combined_stud_count[2]/MOD_BUS[2]) <= 1: 
+        if self.get_route_length() + self.get_total_dropoff_time()/60 <= constants.RELAXED_TIME and \
+            (combined_stud_count[0]/MOD_BUS[0]) + (combined_stud_count[1]/MOD_BUS[1]) + (combined_stud_count[2]/MOD_BUS[2]) <= 1: 
             return True
         else:
             return False
+

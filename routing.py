@@ -15,20 +15,24 @@ def check_routes(route_list):
         route.check_mixedload_status()
     return route_list
 
-# Unpack routes from nested list to single list 
-def unpack_routes(routes_list):
-    routes_returned = list()
-    for i in range(0, len(routes_list)):
-        for route in routes_list[i]:
-            routes_returned.append(route)
-    return routes_returned
+def unpack_routes(route_list):
+    new_route_list = list()
+    for route_group in route_list:
+        for route in route_group:
+            new_route_list.append(route)
+    return new_route_list 
+
+def update_times_to_mins(route_list):
+    for route in route_list:
+        route.update_times_to_mins()
+    return route_list
 
 # Make route objects with route information in them
 # Divide routes based on constraints 
 def make_routes(school_route_time, school_route, stud_route, students):
     
     # total_shool_route_time = time to visit all schools + dropoff time at each school 
-    total_school_route_time = sum(school_route_time) + sum([constants.SCHOOL_DROPOFF_TIME[school] for school in school_route[1:]])
+    total_school_route_time = sum(school_route_time) + sum([constants.SCHOOL_DROPOFF_TIME[school] for school in school_route])
     path_info = list()
     path_info_list = list()
     last_stop = school_route[-1] 
@@ -240,18 +244,12 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
             
             if constants.COMBINE_ROUTES:
                 combine_routes(routes_returned)
+            
+            route_list.append(check_routes(routes_returned))
 
-            route_list.append(routes_returned)
+        route_list = unpack_routes(route_list)
+        routes[key] = update_times_to_mins(route_list)
 
-        routes_returned = unpack_routes(route_list)
-        
-        if constants.COMBINE_ROUTES: 
-            combine_routes(routes_returned)
-
-        routes_returned = check_routes(routes_returned)
-
-        routes[key] = routes_returned    
-    
     return routes
 
 # Combine routes
@@ -287,14 +285,13 @@ def combine_routes(routes):
             combined_stud_count = list(map(add, pos_route_stud_count, routes_to_check_stud_count))
 
             # If is under time and bus capacity interpolation, append into possible route
-            if pos_route.get_possible_combined_route_time(routes_to_check[idx]) <= constants.RELAX_TIME and \
-                (combined_stud_count[0]/MOD_BUS[0])+ (combined_stud_count[1]/MOD_BUS[1]) + (combined_stud_count[2]/MOD_BUS[2]) <= 1: 
+            if pos_route.get_possible_combined_route_time(routes_to_check[idx]) <= constants.RELAXED_TIME and \
+                (combined_stud_count[0]/MOD_BUS[0]) + (combined_stud_count[1]/MOD_BUS[1]) + (combined_stud_count[2]/MOD_BUS[2]) <= 1: 
                  possible_routes.append(pos_route)
 
         # No possible routes, then append the removed route back into original route list
         if not possible_routes:
             routes += [routes_to_check[idx]]
-        
         else:
             clust_dis = [geodesic(routes_to_check[idx].find_route_center(), a.find_route_center()) for a in possible_routes]
             clust_dis = [round(float(str(a).strip('km')),6) for a in clust_dis]
