@@ -24,7 +24,7 @@ SCHOOL_CATEGORIES = ['elem', 'middle', 'high']
 SCHOOL_TYPE_INDEX = 0
 
 # COMBINE_ROUTE PARAMETERS 
-RELAX_TIME = MAX_TIME + 0 
+RELAX_TIME = MAX_TIME + 300 
 INITIAL_LOW_OCC_ROUTES_COUNTS = 0
 
 # DBSCAN paramters
@@ -62,7 +62,13 @@ TRAVEL_TIMES = (np.load(PREFIX + "travel_times.npy")*1.5)
 CAP_COUNTS = setup_buses(PREFIX+'dist_bus_capacities.csv')
 GEOCODES = pd.read_csv(PREFIX+'all_geocodes.csv')
 CONTRACT_CAP_COUNTS = setup_contract_buses()
+
+# For dropoff/bell times purposes
 SCHOOL_DROPOFF_TIME = dict() 
+SCHOOL_BELL_TIMES = dict()
+SCHOOL_DROPOFF_RANGE = dict()
+
+# For verification purposes 
 STUDENT_CLUSTER_COUNTER = dict()
 STUDENT_STOP_COUNTER = dict()
 

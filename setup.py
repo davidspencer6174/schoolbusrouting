@@ -10,17 +10,17 @@ def californiafy(address):
     return address[:-6] + " California," + address[-6:]
 
 # Edit belltimes from ___AM to only seconds
-def editBellTimes(schools):
+def edit_bell_times(schools):
     newTime = list()
     for row in schools.iterrows():        
-        if isinstance(row[1]["r1_start"], str):
-            hours, mins = row[1]["r1_start"].split(":", 1)
+        if isinstance(row[1]["start_time"], str):
+            hours, mins = row[1]["start_time"].split(":", 1)
             hours = int(hours)*3600
             mins = int(mins[:2])*60
             newTime.append(hours+mins)
         else:
             newTime.append(np.nan)
-    schools['r1_start'] = newTime
+    schools['start_time'] = newTime
     return schools
 
 # For verification purposes
@@ -31,7 +31,7 @@ def update_verif_counters(schoolcluster_students_map_df):
     for i in schoolcluster_students_map_df:
         stop_set = set()
 
-        for j, row in schoolcluster_students_map_df[i].iterrows():
+        for _, row in schoolcluster_students_map_df[i].iterrows():
             stop = constants.CODES_INDS_MAP[constants.STOPS_CODES_MAP[californiafy(row['AM_Stop_Address'])]]
             stop_set.add(stop)
             stop_counter_dict[stop] += 1
@@ -40,6 +40,23 @@ def update_verif_counters(schoolcluster_students_map_df):
         
     constants.STUDENT_CLUSTER_COUNTER = cluster_counter_dict 
     constants.STUDENT_STOP_COUNTER = stop_counter_dict 
+
+# For school dropoff information purposes 
+def update_school_dropoff_info(schools_students_attend):
+    
+    dropoff_dict = dict()
+    dropoff_interval = dict()
+    start_time = dict()
+    
+    for idx, row in schools_students_attend.iterrows():
+        dropoff_dict[row['tt_ind']] = row['dropoff_time']
+        dropoff_interval[row['tt_ind']] = row['bell_time_intervals']
+        start_time[row['tt_ind']] = row['start_time']
+        
+    constants.SCHOOL_DROPOFF_TIME = dropoff_dict 
+    constants.SCHOOL_BELL_TIMES = start_time
+    constants.SCHOOL_DROPOFF_RANGE = dropoff_interval
+
 
 # Set up up the dataframes to make stops, zipdata, schools, and phonebook
 # Filter and wrangle through data 
@@ -59,13 +76,14 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     bell_times = pd.read_csv(bell_times, low_memory=False, encoding='windows-1252')
     schools = pd.read_csv(schools, dtype={'Location_Code': int, 'School_Name': str, 'Cost_Center': int, 'Lat': float, 'Long': float}, low_memory=False)
     schools = schools[['Location_Code', 'School_Name', 'Cost_Center', 'Lat', 'Long']]
-#    schools = pd.merge(schools, bell_times[['r1_start','Cost_Center']], on ='Cost_Center', how='left')
+    schools = pd.merge(schools, bell_times[['start_time','bell_time_intervals', 'dropoff_time', 'Cost_Center']], on ='Cost_Center', how='left')
     
     school_index_list = list()
     for row in schools.iterrows():
         school_index_list.append(constants.CODES_INDS_MAP[constants.SCHOOLS_CODES_MAP[str(row[1]['Cost_Center'])]])
 
     schools['tt_ind'] = school_index_list
+    schools = edit_bell_times(schools)
     
     phonebook = pd.read_csv(phonebook, dtype={"RecordID": str, 'Prog': str, 'Mod_Grade': int, 'Cost_Center': str, "AM_Trip": str, "AM_Route": str, 'Lat': float, 'Long': float}, low_memory=False)
     phonebook = phonebook[['RecordID', 'Prog', 'Cost_Center', 'Cost_Center_Name','Mod_Grade','AM_Stop_Address', 'AM_Route', 'AM_Trip']]
@@ -99,6 +117,7 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     clustered_schools = obtainClust_DBSCAN_AGGO_combined(schools_students_attend)
     schools_students_attend = pd.merge(schools_students_attend, clustered_schools[['label', 'tt_ind']], on=['tt_ind'], how='inner').drop_duplicates()
     schools_students_attend = schools_students_attend.sort_values(['label'], ascending=[True])
+    update_school_dropoff_info(schools_students_attend)
     
 #    # Geolocation based-approach
 #    clustered_schools = obtainClust_DBSCAN(schools_students_attend, constants.RADIUS, constants.MIN_PER_CLUSTER)
@@ -106,16 +125,9 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
 #    schools_students_attend = schools_students_attend.sort_values(['label', 'r1_start'], ascending=[True, False])
     
     schoolcluster_students_map_df = partition_students(schools_students_attend, phonebook)
-    update_school_dropoff_times(schools_students_attend)
     update_verif_counters(schoolcluster_students_map_df)
 
     return schools_students_attend, schoolcluster_students_map_df
-
-def update_school_dropoff_times(schools_students_attend):
-    dropoff_dict = dict() 
-    for school in schools_students_attend['tt_ind']:
-        dropoff_dict[school] = 480
-    constants.SCHOOL_DROPOFF_TIME = dropoff_dict 
 
 
 # Setup the buses

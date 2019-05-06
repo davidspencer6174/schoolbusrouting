@@ -235,6 +235,8 @@ class Route:
         temp_route.combine_route(new_route)
         return temp_route.get_route_length() + temp_route.get_total_school_dropoff_time()
    
+    
+   # TODO: More flexible way to combine routes
    # Combine route
     def combine_route(self, new_route):
         
@@ -299,12 +301,17 @@ class Route:
         self.assign_bus_to_route()
         self.update_combine_route_status()
 
+    def check_bell_times(self):
+        return True
+
+    # Verify route based on travel time and bus capacity 
     def verify_route(self):
         MOD_BUS = constants.CAPACITY_MODIFIED_MAP[self.bus_size]
         combined_stud_count = self.get_stud_count_in_route()
 
         if self.get_route_length() + self.get_total_school_dropoff_time() <= constants.RELAX_TIME and \
-            (combined_stud_count[0]/MOD_BUS[0])+ (combined_stud_count[1]/MOD_BUS[1]) + (combined_stud_count[2]/MOD_BUS[2]) <= 1: 
+            (combined_stud_count[0]/MOD_BUS[0])+ (combined_stud_count[1]/MOD_BUS[1]) + (combined_stud_count[2]/MOD_BUS[2])<= 1 and \
+            self.check_bell_times(): 
             return True
         else:
             return False

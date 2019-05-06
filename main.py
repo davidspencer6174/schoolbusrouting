@@ -28,10 +28,12 @@ def main():
     cluster_school_map, schoolcluster_students_map = setup_clusters(schools_students_attend, schoolcluster_students_map_df)
     routes_returned = start_routing(cluster_school_map, schoolcluster_students_map)
 
+    # Verify routes
+    verify_routes(routes_returned)
+
     # Get statistics 
     utility_rate = get_route_stats(routes_returned, cluster_school_map, schoolcluster_students_map)
     students_travel_times = get_student_stats(routes_returned)
-    verify_routes(routes_returned)
 
     return routes_returned, utility_rate, students_travel_times
 

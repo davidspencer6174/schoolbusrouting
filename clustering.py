@@ -102,6 +102,9 @@ def obtainClust_DBSCAN_AGGO_combined(schools_students_attend):
     final_agglo_df = final_agglo_df.sort_values('tt_ind_cat')
     final_agglo_df = final_agglo_df.assign(label = model.labels_)
 
+    # TODO: make sure the bell times work, if not have to create new clusters.
+    #       make bigger clusters to start with, so bell times would work
+
     return final_agglo_df
 
 # find the appropriate number of clusters to be used in agglomerative clustering
