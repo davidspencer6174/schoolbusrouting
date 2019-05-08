@@ -1,6 +1,7 @@
 import constants
 import itertools
 import numpy as np
+from diagnostics import printout, printout_google_maps
 
 #Used to get the data into a full address format        
 def californiafy(address):
@@ -94,3 +95,47 @@ def overlapping_routes(route_plan, route):
                 if isomorphic(stop1, stop2):
                     out.add(compare_route)
     return out
+
+def full_comparison(rp1, rp2):
+    tot = 0
+    for r in rp1:
+        out = overlapping_routes(rp2, r)
+        if len(out) == 1:
+            tot += 1
+    print("Route Plan 2 has " + str(tot) + " routes that are subroutes "+
+          "of routes in Route Plan 1.")
+    tot = 0
+    for r in rp2:
+        out = overlapping_routes(rp1, r)
+        if len(out) == 1:
+            tot += 1
+    print("Route Plan 1 has " + str(tot) + " routes that are subroutes "+
+          "of routes in Route Plan 2.")
+    tot = 0
+    iso_stops_same = []
+    for r in rp1:
+        out = overlapping_routes(rp2, r)
+        if len(out) == 1:
+            r2 = list(out)[0]
+            out2 = overlapping_routes(rp1, r2)
+            if len(out2) == 1:
+                r1 = list(out)[0]
+                tot += 1
+                stop_inds = set()
+                for stop in r2.stops:
+                    stop_inds.add(stop.tt_ind)
+                iso_stops_same.append(len(stop_inds))
+                if len(stop_inds) == 5: #what is happening here?
+                    for stop in r1.stops:
+                        if stop.school.school_name == None:
+                            print(stop.occs)
+                    for stop in r2.stops:
+                        print(stop.occs)
+                    print(r1.stops)
+                    print(r2.stops)
+                    #printout_google_maps(r1)
+                    #printout_google_maps(r2)
+    print(str(tot) + " routes appear in both route plans.")
+    print("Number of stops in these common routes:")
+    iso_stops_same.sort()
+    print(iso_stops_same)
