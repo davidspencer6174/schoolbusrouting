@@ -158,16 +158,16 @@ def diagnostics(route_iter):
     print("Most occupants on a mixed-loads route: " + str(most_occs))
     printout(most_occs_route)
     
-    #do all Taft routes
-    for r in route_list:
-        to_print = False
-        for school in r.schools:
-            if ("VINTAGE" in school.school_name or
-                ("BALBOA" in school.school_name and "LAKE" not in school.school_name)):
-                to_print = True
-        if to_print:
-            print("Route that goes to Vintage/Balboa")
-            printout(r)
+    #do all Vintage/Balboa routes
+    #for r in route_list:
+    #    to_print = False
+    #    for school in r.schools:
+    #        if ("VINTAGE" in school.school_name or
+    #            ("BALBOA" in school.school_name and "LAKE" not in school.school_name)):
+    #            to_print = True
+    #    if to_print:
+    #        print("Route that goes to Vintage/Balboa")
+    #        printout(r)
     
 loading = open("output//routesforpresentationb.obj", "rb")
 #loading = open("output//optmstt55mfurthergreedyb.obj", "rb")
