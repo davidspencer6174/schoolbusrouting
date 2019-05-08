@@ -66,7 +66,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
                 print(to_display)
                 texts.append(plt.text(x_pix, y_pix + .005, to_display,
                                       ha='center', va='center',
-                                      fontsize = 3))
+                                      fontsize = 3, color = 'blue'))
         if to_plot != None and r not in to_plot:
             continue
         points = []
@@ -80,7 +80,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
             points.append((x_pix, y_pix))
         texts.append(plt.text(points[0][0], points[0][1],
                               "Route " + str(ind), ha='center', va='center',
-                              fontsize = 5))
+                              fontsize = 5, color = 'red'))
         plt.plot([p[0] for p in points], [p[1] for p in points], 'k',
                  linewidth = .1)
         if to_plot != None:
@@ -117,9 +117,11 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
     prefix = ("presentation_figures_matplotlib//")
     plt.axis('off')
     if to_plot == None:
-        fig.savefig(prefix + 'allvintagebalboa.eps', bbox_inches = 'tight')
+        fig.savefig(prefix + 'allvintagebalboa.eps', bbox_inches = 'tight',
+                    pad_inches = 0)
     else:
-        fig.savefig(prefix + filename, bbox_inches = 'tight')
+        fig.savefig(prefix + filename, bbox_inches = 'tight',
+                    pad_inches = 0)
     #win.getMouse()
     plt.close()
     
@@ -153,7 +155,7 @@ for code in geocodes_file.readlines():
 geocodes_file.close()
 
 xres = 1.0
-yres = 0.8
+yres = 0.9
 plot_routes(vb_routes, geocodes, xres, yres)
 for ind, route_with_ind in enumerate(vb_routes):
     plot_routes(vb_routes, geocodes, xres, yres,
