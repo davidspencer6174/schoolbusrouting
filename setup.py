@@ -5,6 +5,7 @@ import constants
 from locations import School, Student
 from clustering import obtainClust_DBSCAN_AGGO_combined, partition_students
 from collections import defaultdict
+from constraint_solver import solve_school_constraints
 
 def californiafy(address):
     return address[:-6] + " California," + address[-6:]
@@ -20,7 +21,7 @@ def edit_bell_times(schools):
             newTime.append(hours+mins)
         else:
             newTime.append(np.nan)
-    schools['start_time'] = newTime
+    schools['start_time_seconds'] = newTime
     return schools
 
 # For verification purposes
@@ -53,10 +54,9 @@ def update_school_dropoff_info(schools_students_attend):
         dropoff_interval[row['tt_ind']] = row['bell_time_intervals']
         start_time[row['tt_ind']] = row['start_time']
         
-    constants.SCHOOL_DROPOFF_TIME = dropoff_dict 
-    constants.SCHOOL_BELL_TIMES = start_time
-    constants.SCHOOL_DROPOFF_RANGE = dropoff_interval
-
+    constants.DROPOFF_TIME = dropoff_dict 
+    constants.BELL_TIMES = start_time
+    constants.DROPOFF_RANGE = dropoff_interval
 
 # Set up up the dataframes to make stops, zipdata, schools, and phonebook
 # Filter and wrangle through data 
@@ -115,9 +115,16 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
     # Cluster schools and merge back into list of schools_students_attend
     clustered_schools = obtainClust_DBSCAN_AGGO_combined(schools_students_attend)
+    clustered_schools['early_start_time'] = clustered_schools['start_time_seconds'] - clustered_schools['bell_time_intervals']
+    
+    # Check requirements 
+    clustered_schools = solve_school_constraints(clustered_schools)
+
+    
     schools_students_attend = pd.merge(schools_students_attend, clustered_schools[['label', 'tt_ind']], on=['tt_ind'], how='inner').drop_duplicates()
     schools_students_attend = schools_students_attend.sort_values(['label'], ascending=[True])
     update_school_dropoff_info(schools_students_attend)
+    
     
 #    # Geolocation based-approach
 #    clustered_schools = obtainClust_DBSCAN(schools_students_attend, constants.RADIUS, constants.MIN_PER_CLUSTER)

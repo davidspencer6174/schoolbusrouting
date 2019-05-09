@@ -13,7 +13,7 @@ class Student:
     def __init__(self, tt_ind, school_ind):
         self.tt_ind = tt_ind
         self.school_ind = school_ind
-        self.student_type = constants.SCHOOLTYPE_MAP[school_ind]
+        self.age_type = constants.SCHOOLTYPE_MAP[school_ind]
         self.time_on_bus = None
     
     # Calculate how much time a student spends on the bus
@@ -187,7 +187,7 @@ class Route:
         dropoff_time = 0
         temp_list =  sorted(list(self.schools_to_visit), key=lambda x: self.school_path.index(x))
         for school in temp_list[1:]:
-            dropoff_time += constants.SCHOOL_DROPOFF_TIME[school] 
+            dropoff_time += DROPOFF_TIME[school] 
         return dropoff_time
 
     # Obtain the "center" of the route
@@ -235,8 +235,8 @@ class Route:
         temp_route.combine_route(new_route)
         return temp_route.get_route_length() + temp_route.get_total_school_dropoff_time()
    
-    
    # TODO: More flexible way to combine routes
+   #       Now onnly combines routes that have same school path
    # Combine route
     def combine_route(self, new_route):
         
@@ -300,6 +300,7 @@ class Route:
 
         self.assign_bus_to_route()
         self.update_combine_route_status()
+
 
     def check_bell_times(self):
         return True

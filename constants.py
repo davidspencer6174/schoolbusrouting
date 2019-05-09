@@ -64,9 +64,9 @@ GEOCODES = pd.read_csv(PREFIX+'all_geocodes.csv')
 CONTRACT_CAP_COUNTS = setup_contract_buses()
 
 # For dropoff/bell times purposes
-SCHOOL_DROPOFF_TIME = dict() 
-SCHOOL_BELL_TIMES = dict()
-SCHOOL_DROPOFF_RANGE = dict()
+SCHOOL_ROUTE = dict()
+SCHOOL_ROUTE_TIME = dict()
+
 
 # For verification purposes 
 STUDENT_CLUSTER_COUNTER = dict()

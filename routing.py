@@ -9,8 +9,8 @@ from locations import Route
 # Make last changes to routes before adding to final route list
 def check_routes(route_list):
     for route in route_list:
-        if constants.CLEAN_ROUTE:
-            route.clean_route()
+        route.clean_route()
+        route.verify_route() 
         route.update_student_time_on_bus()
         route.check_mixedload_status()
     return route_list
@@ -28,21 +28,20 @@ def unpack_routes(routes_list):
 def make_routes(school_route_time, school_route, stud_route, students):
     
     # total_shool_route_time = time to visit all schools + dropoff time at each school 
-    total_school_route_time = sum(school_route_time) + sum([constants.SCHOOL_DROPOFF_TIME[school] for school in school_route[1:]])
+    total_school_route_time = sum(school_route_time) + sum([constants.DROPOFF_TIME[school] for school in school_route[1:]])
     path_info = list()
     path_info_list = list()
     last_stop = school_route[-1] 
-    
-    students.sort(key=lambda x: x.tt_ind, reverse=False)
+    students.sor(key=lambda x: x.tt_ind, reverse=False)
     
     # Get the categorized student counts at each stop
     stop_counts = dict() 
     for stud in students: 
         if stud.tt_ind in stop_counts:
-            stop_counts[stud.tt_ind][stud.student_type] += 1
+            stop_counts[stud.tt_ind][stud.age_type] += 1
         else:
             stop_counts[stud.tt_ind] = [0] * 3
-            stop_counts[stud.tt_ind][stud.student_type] += 1
+            stop_counts[stud.tt_ind][stud.age_type] += 1
     
     # Go through every stop and check if they meet the constants.MAX_TIME or bus constraints
     # Create new route (starting from the schools) if the constraints are not met 
@@ -218,6 +217,7 @@ def get_possible_route(items, shortest_pair_index, total_indexes, item_type):
 
     return route, time_taken
 
+
 # Perform routing 
 # cluster_school_map: maps clusters to schools
 # schoolcluster_students_map: maps schoolclusters to students
@@ -227,13 +227,20 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
 
     # Loop through every cluster of schools and cluster of stops
     # Generate route(s) for each cluster_school and cluster_stops pair
-    for key, schools in cluster_school_map.items():
+#    for key, schools in cluster_school_map.items():
+    
+    for key, schools in constants.SCHOOL_ROUTE.items():
         
         route_list = list()
-
+        
         for stops_with_students in schoolcluster_students_map[key]:
             shortest_pair = get_shortest_pair(schools, stops_with_students)
-            school_route, school_route_time = get_possible_route(schools, shortest_pair[0], [], "school")        
+            
+            # TODO: Edit this school_route, school_route_time section 
+            #       dictionary pointing to these two variables 
+            
+            # school_route, school_route_time = get_possible_route(schools, shortest_pair[0], [], "school")     
+            school_route, school_route_time = constants.SCHOOL_ROUTE
             stud_route = get_possible_route(stops_with_students, shortest_pair[1], [school_route[-1]], "student")[0]
             stud_route.pop(0)
             routes_returned = make_routes(school_route_time, school_route, stud_route, stops_with_students)
@@ -249,7 +256,6 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
             combine_routes(routes_returned)
 
         routes_returned = check_routes(routes_returned)
-
         routes[key] = routes_returned    
     
     return routes
