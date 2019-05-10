@@ -1,6 +1,7 @@
 import pandas as pd
 import pickle
-from plot_plotly import plot_routes
+import constants
+from locations import Route
 
 prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/mixed_load_data/"
 
@@ -73,5 +74,26 @@ def find_routes_with_schools(routes_returned, schools_to_find):
     return schools_geo, stops_geo, routes
 
 
-
+# Convert my route format to intermediate route format 
+def convert_to_common(route):
+    list_one, list_two = list(), route.school_path    
+    
+    for stop in route.get_schoolless_path():
+        stop_school_info = set()
+        for stud in route.students:
+            if stud.tt_ind == stop:
+                stop_school_info.add((stud.school_ind, stud.age_type))
+                
+        stops_info = (stop_school_info)
+        list_one.append((stop, stops_info))
+    return list_one, list_two 
+    
+# Convert intermediate route format to my route format 
+def convert_from_common(list_one, list_two):
+    
+    path = list_two + [x[0] for x in list_one], 
+    path_info = [round(constants.TRAVEL_TIMES[path[idx]][path[idx+1]]/60, 2) for idx, pos in enumerate(path) if idx < len(path)-1]
+    output_route = Route(path, path_info, list_two)
+    
+    return output_route
     
