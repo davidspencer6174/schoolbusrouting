@@ -32,7 +32,7 @@ def make_routes(school_route_time, school_route, stud_route, students):
     path_info = list()
     path_info_list = list()
     last_stop = school_route[-1] 
-    students.sor(key=lambda x: x.tt_ind, reverse=False)
+    students.sort(key=lambda x: x.tt_ind, reverse=False)
     
     # Get the categorized student counts at each stop
     stop_counts = dict() 
@@ -218,6 +218,18 @@ def get_possible_route(items, shortest_pair_index, total_indexes, item_type):
     return route, time_taken
 
 
+
+def get_close_corres_stop(last_school, stops_with_studs):
+    stop_indexes = set()    
+    [stop_indexes.add(stud.tt_ind) for stud in stops_with_studs]
+    stop_indexes = list(stop_indexes)
+    last_school = [last_school]
+    pair_distances = constants.DF_TRAVEL_TIMES.iloc[last_school,:]
+    pair_distances = pair_distances.iloc[:,stop_indexes]
+    s, v = np.where(pair_distances == np.min(pair_distances.min()))
+    shortest_pair = list(zip(pair_distances.index[s], pair_distances.columns[v]))
+    return shortest_pair[0]
+
 # Perform routing 
 # cluster_school_map: maps clusters to schools
 # schoolcluster_students_map: maps schoolclusters to students
@@ -229,18 +241,19 @@ def start_routing(cluster_school_map, schoolcluster_students_map):
     # Generate route(s) for each cluster_school and cluster_stops pair
 #    for key, schools in cluster_school_map.items():
     
-    for key, schools in constants.SCHOOL_ROUTE.items():
+    for key, _ in constants.SCHOOL_ROUTE.items():
         
         route_list = list()
         
         for stops_with_students in schoolcluster_students_map[key]:
-            shortest_pair = get_shortest_pair(schools, stops_with_students)
             
-            # TODO: Edit this school_route, school_route_time section 
-            #       dictionary pointing to these two variables 
-            
-            # school_route, school_route_time = get_possible_route(schools, shortest_pair[0], [], "school")     
-            school_route, school_route_time = constants.SCHOOL_ROUTE
+            # Using shortest pair technique
+            # shortest_pair = get_shortest_pair(schools, stops_with_students)
+            # school_route, school_route_time = get_possible_route(schools, shortest_pair[0], [], "school") 
+                
+            school_route, school_route_time = constants.SCHOOL_ROUTE[key], constants.SCHOOL_ROUTE_TIME[key]
+            shortest_pair = get_close_corres_stop(school_route[-1], stops_with_students)
+
             stud_route = get_possible_route(stops_with_students, shortest_pair[1], [school_route[-1]], "student")[0]
             stud_route.pop(0)
             routes_returned = make_routes(school_route_time, school_route, stud_route, stops_with_students)

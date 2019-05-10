@@ -49,6 +49,11 @@ class Route:
     # Get the categorized student counts
     def get_route_occupants_count(self):
         temp = self.path_info[len(self.school_path)-1:]
+
+        if self.path_info[0] == (0,0):
+            self.path_info = self.path_info[1:]
+            temp = temp[1:]
+
         stud_count = np.array([j for i,j in temp])
         occ_count = stud_count.sum(axis=0)
         return occ_count
@@ -187,7 +192,7 @@ class Route:
         dropoff_time = 0
         temp_list =  sorted(list(self.schools_to_visit), key=lambda x: self.school_path.index(x))
         for school in temp_list[1:]:
-            dropoff_time += DROPOFF_TIME[school] 
+            dropoff_time += constants.DROPOFF_TIME[school] 
         return dropoff_time
 
     # Obtain the "center" of the route

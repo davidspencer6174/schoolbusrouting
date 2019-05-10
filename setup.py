@@ -49,7 +49,7 @@ def update_school_dropoff_info(schools_students_attend):
     dropoff_interval = dict()
     start_time = dict()
     
-    for idx, row in schools_students_attend.iterrows():
+    for _, row in schools_students_attend.iterrows():
         dropoff_dict[row['tt_ind']] = row['dropoff_time']
         dropoff_interval[row['tt_ind']] = row['bell_time_intervals']
         start_time[row['tt_ind']] = row['start_time']
@@ -118,9 +118,7 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     clustered_schools['early_start_time'] = clustered_schools['start_time_seconds'] - clustered_schools['bell_time_intervals']
     
     # Check requirements 
-    clustered_schools = solve_school_constraints(clustered_schools)
-
-    
+    clustered_schools = solve_school_constraints(clustered_schools)    
     schools_students_attend = pd.merge(schools_students_attend, clustered_schools[['label', 'tt_ind']], on=['tt_ind'], how='inner').drop_duplicates()
     schools_students_attend = schools_students_attend.sort_values(['label'], ascending=[True])
     update_school_dropoff_info(schools_students_attend)

@@ -66,7 +66,7 @@ CONTRACT_CAP_COUNTS = setup_contract_buses()
 # For dropoff/bell times purposes
 SCHOOL_ROUTE = dict()
 SCHOOL_ROUTE_TIME = dict()
-
+DROPOFF_TIME = dict()
 
 # For verification purposes 
 STUDENT_CLUSTER_COUNTER = dict()

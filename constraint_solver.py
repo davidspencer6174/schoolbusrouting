@@ -6,11 +6,10 @@ import numpy as np
 import pandas as pd
 from collections import Counter
 from itertools import chain
+import copy
 
 new_clustered_schools = pd.DataFrame()
-route_dict = dict()
 key_count = 0 
-
 
 def create_data_model(travel_times_matrix, time_windows):
   """Stores the data for the problem."""
@@ -20,7 +19,6 @@ def create_data_model(travel_times_matrix, time_windows):
   data['num_vehicles'] = 2
   data['depot'] = 0
   return data
-        
         
 def get_constraints_info(schools_subset):
     schools_subset.drop_duplicates(subset ="tt_ind", keep = 'first', inplace = True) 
@@ -82,11 +80,18 @@ def get_solutions(data, manager, routing, assignment, schools_subset):
         
     # Update the clusters df 
     for i in total_route_list:
+
+        constants.SCHOOL_ROUTE[key_count] = i
         
-        route_dict[key_count] = i
+        new_times = list()
+        for idx, val in enumerate(i):
+            if idx > 0:
+                new_times.append(round(constants.TRAVEL_TIMES[i[idx-1]][i[idx]],2))
+        
+        constants.SCHOOL_ROUTE_TIME[key_count] = new_times
         key_count += 1
         
-        temp = schools_subset[schools_subset['tt_ind'].isin(i)]
+        temp = copy.deepcopy(schools_subset[schools_subset['tt_ind'].isin(i)])
 
         if new_clustered_schools.empty: 
             temp.loc[:,'label'] = 0 
@@ -94,7 +99,7 @@ def get_solutions(data, manager, routing, assignment, schools_subset):
 
         else: 
             # Append the clusters with only one school to the new data frame; update the label
-            temp.loc[:,'label'] = max(new_clustered_schools['label'])+1
+            temp.loc[:,'label'] = int(max(new_clustered_schools['label']))+1
             new_clustered_schools = pd.concat([new_clustered_schools, temp])            
             
     return total_route_list
@@ -107,15 +112,15 @@ def solve_school_constraints(clustered_schools):
     for label_count in range(0, max(clustered_schools['label'])+1):
                 
         temp = clustered_schools[clustered_schools['label'] == label_count].sort_values(by=['early_start_time'])
-        print("THIS IS THE I: " + str(label_count))
-        
-        
+        # print("THIS IS THE I: " + str(label_count))
+
         if len(temp) == 1:
             
-            print("ONLY ONE SCHOOL")
-            print("################################")
+#            print("ONLY ONE SCHOOL")
+#            print("################################")
             
-            route_dict[key_count] = list(temp['tt_ind'])
+            constants.SCHOOL_ROUTE[key_count] = list(temp['tt_ind'])
+            constants.SCHOOL_ROUTE_TIME[key_count] = [0]
             key_count += 1
 
             if new_clustered_schools.empty: 
@@ -128,7 +133,7 @@ def solve_school_constraints(clustered_schools):
                 new_clustered_schools = pd.concat([new_clustered_schools, temp])
 
         else:
-            print("More than one school")
+#            print("More than one school")
             travel_time_matrix, time_windows = get_constraints_info(temp)
             
             # Instantiate the data problem.
@@ -185,7 +190,7 @@ def solve_school_constraints(clustered_schools):
             else: 
                 print("---------------------- No assignment available")
 
-            print("################################")
+#            print("################################")
                  
 
     return new_clustered_schools
