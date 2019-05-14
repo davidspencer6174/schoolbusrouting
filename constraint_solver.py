@@ -8,9 +8,6 @@ from collections import Counter
 from itertools import chain
 import copy
 
-new_clustered_schools = pd.DataFrame()
-key_count = 0 
-
 def create_data_model(travel_times_matrix, time_windows):
   """Stores the data for the problem."""
   data = {}
@@ -20,6 +17,17 @@ def create_data_model(travel_times_matrix, time_windows):
   data['depot'] = 0
   return data
         
+def find_optimal_wait_time(time_windows):
+    max_time = 0 
+    for i, _ in enumerate(time_windows):
+        if i == 0:
+            continue
+        else: 
+            new_time = time_windows[i][0] - time_windows[i-1][1]
+            if new_time > max_time:
+                max_time = new_time
+    return max_time+10
+
 def get_constraints_info(schools_subset):
     schools_subset.drop_duplicates(subset ="tt_ind", keep = 'first', inplace = True) 
     base_time = min(schools_subset.early_start_time)
@@ -29,18 +37,6 @@ def get_constraints_info(schools_subset):
     dropoff_mat = dropoff_mat.iloc[:,schools_subset.tt_ind]
     travel_time_matrix = dropoff_mat.values.astype(np.int64).tolist()
     return travel_time_matrix, time_windows
-
-def find_optimal_wait_time(time_windows):
-    max_time = 0 
-    for i, time in enumerate(time_windows):
-        if i == 0:
-            continue
-        else: 
-            new_time = time_windows[i][0] - time_windows[i-1][1]
-            if new_time > max_time:
-                max_time = new_time
-    return max_time+10
-
 
 def get_solutions(data, manager, routing, assignment, schools_subset):
 
@@ -73,126 +69,77 @@ def get_solutions(data, manager, routing, assignment, schools_subset):
             new_school_route = [school_indexes[i] for i in list_index]
             total_route_list.append(new_school_route)
 
-
     counts = Counter(chain(*map(set,total_route_list)))
     total_route_list = [[i for i in sublist if counts[i]==1] for sublist in total_route_list]
     total_route_list[-1] = new_school_route
-        
-    # Update the clusters df 
-    for i in total_route_list:
-
-        constants.SCHOOL_ROUTE[key_count] = i
-        
-        new_times = list()
-        for idx, val in enumerate(i):
-            if idx > 0:
-                new_times.append(round(constants.TRAVEL_TIMES[i[idx-1]][i[idx]],2))
-        
-        constants.SCHOOL_ROUTE_TIME[key_count] = new_times
-        key_count += 1
-        
-        temp = copy.deepcopy(schools_subset[schools_subset['tt_ind'].isin(i)])
-
-        if new_clustered_schools.empty: 
-            temp.loc[:,'label'] = 0 
-            new_clustered_schools = pd.concat([new_clustered_schools, temp])
-
-        else: 
-            # Append the clusters with only one school to the new data frame; update the label
-            temp.loc[:,'label'] = int(max(new_clustered_schools['label']))+1
-            new_clustered_schools = pd.concat([new_clustered_schools, temp])            
             
     return total_route_list
 
-def solve_school_constraints(clustered_schools):
+def solve_school_constraints(schools_info_df):
+
+    if len(schools_info_df) == 1:
+        school_route = [schools_info_df.iloc[0]['tt_ind']]
+        return school_route
+
+    else:
+        # Get required information 
+        travel_time_matrix, time_windows = get_constraints_info(schools_info_df)
+        
+        # Instantiate the data problem.
+        data = create_data_model(travel_time_matrix, time_windows)
+        wait_time = int(find_optimal_wait_time(data['time_windows']))
+
+        # Create the routing index manager.
+        manager = pywrapcp.RoutingIndexManager(
+            len(data['time_matrix']), data['num_vehicles'], data['depot'])
     
-    global new_clustered_schools
-    global key_count
+        # Create Routing Model.
+        routing = pywrapcp.RoutingModel(manager)
     
-    for label_count in range(0, max(clustered_schools['label'])+1):
-                
-        temp = clustered_schools[clustered_schools['label'] == label_count].sort_values(by=['early_start_time'])
-        # print("THIS IS THE I: " + str(label_count))
-
-        if len(temp) == 1:
-            
-#            print("ONLY ONE SCHOOL")
-#            print("################################")
-            
-            constants.SCHOOL_ROUTE[key_count] = list(temp['tt_ind'])
-            constants.SCHOOL_ROUTE_TIME[key_count] = [0]
-            key_count += 1
-
-            if new_clustered_schools.empty: 
-                temp.loc[:,'label'] = 0 
-                new_clustered_schools = pd.concat([new_clustered_schools, temp])
-
-            else: 
-                # Append the clusters with only one school to the new data frame; update the label
-                temp.loc[:,'label'] = max(new_clustered_schools['label'])+1
-                new_clustered_schools = pd.concat([new_clustered_schools, temp])
-
-        else:
-#            print("More than one school")
-            travel_time_matrix, time_windows = get_constraints_info(temp)
-            
-            # Instantiate the data problem.
-            data = create_data_model(travel_time_matrix, time_windows)
-            wait_time = int(find_optimal_wait_time(data['time_windows']))
-
-            # Create the routing index manager.
-            manager = pywrapcp.RoutingIndexManager(
-                len(data['time_matrix']), data['num_vehicles'], data['depot'])
+        # Create and register a transit callback.
+        def time_callback(from_index, to_index):
+            from_node = manager.IndexToNode(from_index)
+            to_node = manager.IndexToNode(to_index)
+            return data['time_matrix'][from_node][to_node]
+    
+        transit_callback_index = routing.RegisterTransitCallback(time_callback)
+        routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
+        time = 'Time'
+        routing.AddDimension(
+            transit_callback_index,
+            wait_time,  # allow waiting time
+            constants.MAX_TIME,  # maximum time per vehicle
+            False,  # Don't force start cumul to zero.
+            time)
+        time_dimension = routing.GetDimensionOrDie(time)
         
-            # Create Routing Model.
-            routing = pywrapcp.RoutingModel(manager)
-        
-            # Create and register a transit callback.
-            def time_callback(from_index, to_index):
-                from_node = manager.IndexToNode(from_index)
-                to_node = manager.IndexToNode(to_index)
-                return data['time_matrix'][from_node][to_node]
-        
-            transit_callback_index = routing.RegisterTransitCallback(time_callback)
-            routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
-            time = 'Time'
-            routing.AddDimension(
-                transit_callback_index,
-                wait_time,  # allow waiting time
-                3600,  # maximum time per vehicle
-                False,  # Don't force start cumul to zero.
-                time)
-            time_dimension = routing.GetDimensionOrDie(time)
+        # Add time window constraints for each location except depot.
+        for location_idx, time_window in enumerate(data['time_windows']):    
+            index = manager.NodeToIndex(location_idx)
+            time_dimension.CumulVar(index).SetRange(time_window[0], time_window[1])
             
-            # Add time window constraints for each location except depot.
-            for location_idx, time_window in enumerate(data['time_windows']):    
-                index = manager.NodeToIndex(location_idx)
-                time_dimension.CumulVar(index).SetRange(time_window[0], time_window[1])
-                
-            # Add time window constraints for each vehicle start node.
-            for vehicle_id in range(data['num_vehicles']):
-                index = routing.Start(vehicle_id)
-                time_dimension.CumulVar(index).SetRange(data['time_windows'][0][0],
-                                                        data['time_windows'][0][1])
-            for i in range(data['num_vehicles']):
-                routing.AddVariableMinimizedByFinalizer(
-                    time_dimension.CumulVar(routing.Start(i)))
-                routing.AddVariableMinimizedByFinalizer(
-                    time_dimension.CumulVar(routing.End(i)))
-            search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-            search_parameters.first_solution_strategy = (
-                routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
-            assignment = routing.SolveWithParameters(search_parameters)
-                        
-            if assignment:
-                get_solutions(data, manager, routing, assignment, temp)
-                                                
-            else: 
-                print("---------------------- No assignment available")
+        # Add time window constraints for each vehicle start node.
+        for vehicle_id in range(data['num_vehicles']):
+            index = routing.Start(vehicle_id)
+            time_dimension.CumulVar(index).SetRange(data['time_windows'][0][0],
+                                                    data['time_windows'][0][1])
+        for i in range(data['num_vehicles']):
+            routing.AddVariableMinimizedByFinalizer(
+                time_dimension.CumulVar(routing.Start(i)))
+            routing.AddVariableMinimizedByFinalizer(
+                time_dimension.CumulVar(routing.End(i)))
+        search_parameters = pywrapcp.DefaultRoutingSearchParameters()
+        search_parameters.first_solution_strategy = (
+            routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
+        assignment = routing.SolveWithParameters(search_parameters)
+                    
+        # If assignment possible, return school_route 
+        if assignment:
+            school_route = get_solutions(data, manager, routing, assignment, schools_info_df)
+            return school_route 
+        else: 
+            return False
 
-#            print("################################")
                  
-
-    return new_clustered_schools
                   
 
