@@ -39,6 +39,23 @@ def main():
 
 routes_returned, utility_rate, students_travel_times = main()
 
+
+converted_routes = list()
+for idx in routes_returned:
+    for route in routes_returned[idx]:
+        converted_routes.append(convert_to_common(route))
+
+
+import pickle
+with open('converted_routes', 'wb') as fp:
+    pickle.dump(converted_routes, fp)
+    
+with open ('converted_routes', 'rb') as fp:
+    converted_routes = pickle.load(fp)
+
+
+
+
 #plot_histograms(students_travel_times, utility_rate)
 
 #school_to_find = ['Combined -- TEST', [9801]]

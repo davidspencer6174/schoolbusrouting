@@ -74,26 +74,35 @@ def find_routes_with_schools(routes_returned, schools_to_find):
     return schools_geo, stops_geo, routes
 
 
+# ROUTE PLAN:
+# A route is stored as a 3-tuple (list of stops, list of tt_inds for visited schools, bus capacity)
+# A stop is stored as a 2-tuple (tt_ind, set of 2-tuples (school, age_type))
+
 # Convert my route format to intermediate route format 
 def convert_to_common(route):
-    list_one, list_two = list(), route.school_path    
+    list_of_stops = list()
+    list_of_visited_schools = route.school_path
+    bus_capacity = route.bus_size    
     
     for stop in route.get_schoolless_path():
-        stop_school_info = set()
+
+        schools_at_stop = set()
         for stud in route.students:
             if stud.tt_ind == stop:
-                stop_school_info.add((stud.school_ind, stud.age_type))
-                
-        stops_info = (stop_school_info)
-        list_one.append((stop, stops_info))
-    return list_one, list_two 
+                schools_at_stop.add((stud.school_ind, stud.age_type))
+        
+        stops_info = (stop, schools_at_stop)
+        list_of_stops.append(stops_info)
+    
+    route_output = (list_of_stops, list_of_visited_schools, bus_capacity)    
+    return route_output 
     
 # Convert intermediate route format to my route format 
-def convert_from_common(list_one, list_two):
-    
+def convert_from_common(route):
+    list_one, list_two, bus_size = route
     path = list_two + [x[0] for x in list_one], 
     path_info = [round(constants.TRAVEL_TIMES[path[idx]][path[idx+1]]/60, 2) for idx, pos in enumerate(path) if idx < len(path)-1]
     output_route = Route(path, path_info, list_two)
-    
+    output_route.bus_size = bus_size
     return output_route
     
