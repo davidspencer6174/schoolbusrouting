@@ -40,9 +40,13 @@ def route_cluster(cluster):
 	if stops_path:
 		stops_path_list.append(stops_path)
 
+	#TODO: add routes to pick up students
 	idx = 0 
 	while idx < len(stops_path_list):
 		new_route = Route(cluster.school_path, stops_path_list[idx])
+
+
+
 		new_route.assign_bus_to_route()
 		routes_returned.append(new_route)
 		idx += 1 
@@ -75,7 +79,7 @@ def get_possible_stops_path(cluster):
 	stops_path, visited = list(), list()
 	index = 0
 
-	total_indexes = [cluster.school_path[-1]] + list(set([stud.tt_ind for stud in cluster.students_list]))
+	total_indexes = [cluster.school_path[-1][0]] + list(set([stud.tt_ind for stud in cluster.students_list]))
 	stops_path.append(total_indexes[index])
 
 	# Setup mini travel time marix

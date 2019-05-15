@@ -10,6 +10,7 @@ class School:
         self.tt_ind = tt_ind
         self.cost_center = cost_center
         self.school_name = school_name
+        self.age_type = constants.SCHOOLTYPE_MAP[tt_ind]
 
 # Student object 
 class Student:
@@ -31,7 +32,8 @@ class Route:
     def __init__(self, school_path, stops_path):
         self.school_path = school_path
         self.stops_path = stops_path
-        self.num_of_students = 0 
+        self.schools_to_visit = set()
+        self.students_list = list()
         self.bus_size = 0
 
     # Update route variables 
@@ -45,12 +47,25 @@ class Route:
     def get_total_path(self):
         return self.school_path + self.stops_path
 
+    # Pick up students 
+    def add_students(self, student):
+        self.students_list.append(student)
+        self.schools_to_visit.add(student.school_ind)
+
+    # TODO: Delete schools that do need to be visited 
     # Clean routes 
     def clean_routes(self):
         pass
 
-    # Get route occupancy counts
+    # Assign buses 
     def assign_bus_to_route(self):
+        if constants.CAP_COUNTS:
+            pass 
+        else:
+            self.assign_contract_route()
+            pass
+    
+    def assign_contract_route(self):
         pass
 
 # Clusters 
@@ -79,7 +94,7 @@ class Cluster:
             return tot_time
         else: 
             for idx, school in enumerate(self.school_path[1:]):
-                tot_time += constants.TRAVEL_TIMES[self.school_path[idx]][school] + constants.DROPOFF_TIME[school]
+                tot_time += self.school_path[idx+1][1] + constants.DROPOFF_TIME[school]
             return tot_time 
 
     # Combine the clusters  
@@ -103,19 +118,33 @@ class Cluster:
                 self.routes_list = routes_returned
             else:
                 print("Routes generated are faulty")
-
         else:
             print("School constraints not met")
             return
 
+    # Check for E/M/H relations
     # Use linear programming to check if routing school constraints are met 
+    # TODO: Fix the school path when 
     def check_school_route_constraints(self):
-        school_route = solve_school_constraints(self.schools_info_df)
-        if school_route:
-            self.school_path = school_route
-            return True
+        schools_age_type_set = set()
+        for _, schools in self.schools_info_df.iterrows(): 
+            schools_age_type_set.add(schools['School_type'])
+
+        if len(schools_age_type_set) < 3:
+            school_route = solve_school_constraints(self.schools_info_df)
+            
+            if school_route:
+                if len(school_route) == 1:
+                    self.school_path = [(school_route, 0)]
+                else:
+                    updated_school_path = [(school_route[0], 0)] + [(school, round(constants.TRAVEL_TIMES[school_route[idx-1]][school], 2)) for idx, school in enumerate(school_route[1:])]
+                    self.school_path = updated_school_path
+                return True
+            else:
+                return False
         else:
-            return False
+            print("Age types don't work")
+            return False 
 
     # Find the n closest school clusters using cluster 'center'
     def find_closest_school_clusters(self, n):
