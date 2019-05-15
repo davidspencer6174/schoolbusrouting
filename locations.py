@@ -29,12 +29,13 @@ class Student:
 
 # Route object  
 class Route: 
-    def __init__(self, school_path, stops_path):
+    def __init__(self, school_path, stops_path, list_of_students):
         self.school_path = school_path
         self.stops_path = stops_path
         self.schools_to_visit = set()
         self.students_list = list()
         self.bus_size = 0
+        self.pickup_students(list_of_students)
 
     # Update route variables 
     def update_bus(self, bus_cap):
@@ -43,29 +44,63 @@ class Route:
     def update_contract_route_status(self):
         self.is_contract_route = True 
 
-    # Get total path 
+    # Get different info about route 
     def get_total_path(self):
         return self.school_path + self.stops_path
 
-    # Pick up students 
-    def add_students(self, student):
+    def get_student_counts(self):
+        count = np.sum([stop[2] for stop in self.stops_path])
+        return count 
+
+    # Pick up students  
+    def add_student(self, student):
         self.students_list.append(student)
         self.schools_to_visit.add(student.school_ind)
+    
+    def pickup_students(self, list_of_students):
+        for stop in self.stops_path:
+            for stud in list_of_students:
+                if stud.tt_ind == stop[0]:
+                    self.add_student(stud)
+                if len(self.students_list) >= self.get_student_counts():
+                    break
+    
+    # Assign buses 
+    def assign_bus_to_route(self):
+        for bus_ind in range(len(constants.CAP_COUNTS)):
+            bus = constants.CAP_COUNTS[bus_ind]
+            MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus[0]])
+            sum_stud_count = self.get_student_counts()
+
+            if (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) <= 1:
+                #mark the bus as taken
+                bus[1] -= 1
+                self.update_bus(bus[0])
+                #if all buses of this capacity are now taken, remove
+                #this capacity
+                if bus[1] == 0:
+                    constants.CAP_COUNTS.remove(bus)
+                break
+
+        if self.bus_size == None and not constants.CAP_COUNTS:
+            self.assign_contract_route()
+    
+    # Assign contract bus 
+    def assign_contract_route(self):
+        print('CONTRACT BUS USED')
+        self.update_contract_route_status()
+        for bus_ind in range(len(constants.CONTRACT_CAP_COUNTS)):
+            bus = constants.CONTRACT_CAP_COUNTS[bus_ind]
+            MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus[0]])
+            sum_stud_count = self.get_student_counts()
+
+            if (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) <= 1:
+                bus[1] += 1
+                self.update_bus(bus[0])
 
     # TODO: Delete schools that do need to be visited 
     # Clean routes 
     def clean_routes(self):
-        pass
-
-    # Assign buses 
-    def assign_bus_to_route(self):
-        if constants.CAP_COUNTS:
-            pass 
-        else:
-            self.assign_contract_route()
-            pass
-    
-    def assign_contract_route(self):
         pass
 
 # Clusters 
@@ -146,10 +181,10 @@ class Cluster:
             print("Age types don't work")
             return False 
 
-    # Find the n closest school clusters using cluster 'center'
-    def find_closest_school_clusters(self, n):
-        closest_clusters = list()
-        return closest_clusters
+    # # Find the n closest school clusters using cluster 'center'
+    # def find_closest_school_clusters(self):
+    #     closest_clusters = list()
+    #     return closest_clusters
 
     # Verification with csv files 
     def verify_routed_cluster(self, routes_returned):

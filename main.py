@@ -1,6 +1,6 @@
 import pandas as pd
 import sys 
-from routing import start_routing
+from routing import start_routing, start_combining
 import constants
 from setup import setup_data
 from output import print_routes
@@ -17,10 +17,8 @@ def main():
                                         prefix+'bell_times.csv')
 
     # Perform routing 
-    start_routing(single_school_clusters)
-
-    # Print routes 
-    print_routes(single_school_clusters)
+    clustered_route = start_routing(single_school_clusters)
+    start_combining(clustered_route)
     return 
 
 main()

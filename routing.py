@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd 
 import constants
 from locations import Route
+import copy
 
 # Begin routing 
 def start_routing(single_school_clusters):
@@ -12,9 +13,9 @@ def start_routing(single_school_clusters):
 # Perform routing for a cluster
 def route_cluster(cluster):
 	routes_returned = list()
-	stops_path_list = list()
-	stops_path = list()
+	stops_path_list, stops_path = list(), list()
 	stops_info = get_stops_info(get_possible_stops_path(cluster), cluster)
+	list_of_students = sorted(copy.deepcopy(cluster.students_list), key=lambda x: [stop[0] for stop in stops_info].index(x.tt_ind))
 
 	last_stop = cluster.school_path[-1]
 	for idx, stop in enumerate(stops_info):
@@ -40,17 +41,12 @@ def route_cluster(cluster):
 	if stops_path:
 		stops_path_list.append(stops_path)
 
-	#TODO: add routes to pick up students
 	idx = 0 
 	while idx < len(stops_path_list):
-		new_route = Route(cluster.school_path, stops_path_list[idx])
-
-
-
+		new_route = Route(cluster.school_path, stops_path_list[idx], list_of_students)
 		new_route.assign_bus_to_route()
 		routes_returned.append(new_route)
 		idx += 1 
-
 	return routes_returned
 
 # Get student occupancy and travel times
@@ -66,7 +62,7 @@ def get_stops_info(possible_stops_path, cluster):
 
 		# Get distance between stops
 		if idx == 0:
-			dist = round(constants.TRAVEL_TIMES[cluster.school_path[-1]][stop], 2)
+			dist = round(constants.TRAVEL_TIMES[cluster.school_path[-1][0][0]][stop], 2)
 		else:
 			dist = round(constants.TRAVEL_TIMES[possible_stops_path[idx-1]][stop], 2)
 
@@ -79,7 +75,7 @@ def get_possible_stops_path(cluster):
 	stops_path, visited = list(), list()
 	index = 0
 
-	total_indexes = [cluster.school_path[-1][0]] + list(set([stud.tt_ind for stud in cluster.students_list]))
+	total_indexes = cluster.school_path[-1][0] + list(set([stud.tt_ind for stud in cluster.students_list]))
 	stops_path.append(total_indexes[index])
 
 	# Setup mini travel time marix
@@ -102,8 +98,29 @@ def get_possible_stops_path(cluster):
 		time_to_add = np.nanmin(temp)
 		index = list(temp).index(time_to_add)
 		stops_path.append(total_indexes[index])
-
+		
 	return stops_path[1:]
 
+def start_combining(clustered_routes):
 
-    
+	count = 0 
+	iter_count = 0 
+
+	while True:
+		closest_clusters = find_closest_school_clusters(clustered_routes[count])
+
+		
+		count += 1 
+
+		if count >= len(clustered_routes):
+			count = 0
+			iter_count += 1
+
+
+	print('willy')
+
+# Find closest school clusters
+def find_closest_school_clusters(this_cluster):
+	closest_clusters = list()
+
+	return closest_clusters 

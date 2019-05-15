@@ -58,7 +58,7 @@ def update_school_dropoff_info(schools_students_attend):
 # Set up up the dataframes to make stops, zipdata, schools, and phonebook
 # Filter and wrangle through data 
 def setup_data(stops, zipdata, schools, phonebook, bell_times):
-#    
+    
     #  prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
     #  stops = prefix+'stop_geocodes_fixed.csv'
     #  zipdata =prefix+'zipData.csv'
