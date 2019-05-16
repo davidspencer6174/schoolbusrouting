@@ -77,6 +77,8 @@ def get_solutions(data, manager, routing, assignment, schools_subset):
 
 def solve_school_constraints(schools_info_df):
 
+    schools_info_df.sort_values(by=['early_start_time'])
+
     if len(schools_info_df) == 1:
         school_route = [schools_info_df.iloc[0]['tt_ind']]
         return school_route
@@ -136,7 +138,14 @@ def solve_school_constraints(schools_info_df):
         # If assignment possible, return school_route 
         if assignment:
             school_route = get_solutions(data, manager, routing, assignment, schools_info_df)
-            return school_route 
+            
+            # Modify output format 
+            if len(school_route[0]) == 1:
+                school_route = [school_route[0]]
+            else:
+                school_route = school_route[0]
+            return school_route
+            
         else: 
             return False
 

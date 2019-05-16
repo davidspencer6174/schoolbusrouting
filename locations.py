@@ -1,5 +1,8 @@
+import pandas as pd
 import numpy as np
 import copy
+import operator
+from geopy.distance import geodesic
 import constants
 from collections import defaultdict
 from constraint_solver import solve_school_constraints
@@ -70,7 +73,7 @@ class Route:
         for bus_ind in range(len(constants.CAP_COUNTS)):
             bus = constants.CAP_COUNTS[bus_ind]
             MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus[0]])
-            sum_stud_count = self.get_student_counts()
+            sum_stud_count = np.array([j[2] for j in self.stops_path]).sum(axis=0)
 
             if (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) <= 1:
                 #mark the bus as taken
@@ -92,7 +95,7 @@ class Route:
         for bus_ind in range(len(constants.CONTRACT_CAP_COUNTS)):
             bus = constants.CONTRACT_CAP_COUNTS[bus_ind]
             MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus[0]])
-            sum_stud_count = self.get_student_counts()
+            sum_stud_count = np.array([j[2] for j in self.stops_path]).sum(axis=0)
 
             if (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) <= 1:
                 bus[1] += 1
@@ -116,6 +119,9 @@ class Cluster:
 
     # insert csv information into objects
     def process_info(self):
+        self.students_list = list()
+        self.schools_list = list()
+
         for _, row in self.students_info_df.iterrows():
             self.students_list += [Student(constants.CODES_INDS_MAP[str(round(row['Lat'],6)) + ";" + str(round(row['Long'],6))], row['tt_ind'])] 
         
@@ -129,37 +135,40 @@ class Cluster:
             return tot_time
         else: 
             for idx, school in enumerate(self.school_path[1:]):
-                tot_time += self.school_path[idx+1][1] + constants.DROPOFF_TIME[school]
+                tot_time += self.school_path[idx+1][1] + constants.DROPOFF_TIME[school[0]]
             return tot_time 
 
+    # TODO: Debugging combining clusters
     # Combine the clusters  
     def combine_clusters(self, new_cluster):
         combined_cluster = copy.deepcopy(self)
-        combined_cluster.schools_info_df.append(new_cluster.schools_info_df)
-        combined_cluster.students_info_df.append(new_cluster.students_info_df)
+        combined_cluster.schools_info_df = combined_cluster.schools_info_df.append(new_cluster.schools_info_df)
+        combined_cluster.students_info_df = combined_cluster.students_info_df.append(new_cluster.students_info_df)
 
-        # If the school constraints are met, then we can cluster together 
-        if self.check_school_route_constraints():
+        # If the school constraints are met, then we can combine clusters 
+        if combined_cluster.check_school_route_constraints():
             combined_cluster.process_info()
             combined_cluster.create_routes_for_cluster()
+            return combined_cluster
+        else: 
+            print("Clusters cannot be combined due to school time constraints")
+            return False
 
     # Create the routes for a given cluster using schools_set and stops_set
     def create_routes_for_cluster(self):
         from routing import route_cluster
         if self.check_school_route_constraints():
             routes_returned = route_cluster(self)
-            
+
             if self.verify_routed_cluster(routes_returned):
                 self.routes_list = routes_returned
             else:
                 print("Routes generated are faulty")
         else:
             print("School constraints not met")
-            return
+            return 
 
-    # Check for E/M/H relations
     # Use linear programming to check if routing school constraints are met 
-    # TODO: Fix the school path when 
     def check_school_route_constraints(self):
         schools_age_type_set = set()
         for _, schools in self.schools_info_df.iterrows(): 
@@ -170,9 +179,9 @@ class Cluster:
             
             if school_route:
                 if len(school_route) == 1:
-                    self.school_path = [(school_route, 0)]
+                    self.school_path = [(school_route[0], 0)]
                 else:
-                    updated_school_path = [(school_route[0], 0)] + [(school, round(constants.TRAVEL_TIMES[school_route[idx-1]][school], 2)) for idx, school in enumerate(school_route[1:])]
+                    updated_school_path = [(school_route[0], 0)] + [(school, round(constants.TRAVEL_TIMES[school_route[school_route.index(school)-1]][school], 2)) for idx, school in enumerate(school_route[1:])]
                     self.school_path = updated_school_path
                 return True
             else:
@@ -180,11 +189,6 @@ class Cluster:
         else:
             print("Age types don't work")
             return False 
-
-    # # Find the n closest school clusters using cluster 'center'
-    # def find_closest_school_clusters(self):
-    #     closest_clusters = list()
-    #     return closest_clusters
 
     # Verification with csv files 
     def verify_routed_cluster(self, routes_returned):
@@ -203,7 +207,7 @@ class Cluster:
                 stop_dict_csv[stud.tt_ind][stud.age_type] += 1 
 
         for route in routes_returned: 
-            [school_set_route.add(school) for school in route.school_path]
+            [school_set_route.add(school) for school in route.schools_to_visit]
 
             for stop in route.stops_path:
                 if stop_dict_route.get(stop[0]) is None:
@@ -215,4 +219,21 @@ class Cluster:
             return True 
         else:
             return False 
+
+    # Find closest school clusters 
+    def find_closest_school_clusters(self, clustered_schools):
+        clus_indexes = [a for a in range(0, len(clustered_schools))]
+        clus_distances = [geodesic(self.find_cluster_center(), clustered_schools[idx].find_cluster_center()) for idx in clustered_schools]
+        min_list = sorted(zip(clus_indexes, clus_distances), key=lambda x: x[1])[1:constants.N_CLOSEST+1]
+        return min_list 
+
+    # Find the center of the clustered schools
+    def find_cluster_center(self):
+        lats, longs = [], []
+        for school in self.schools_list: 
+            this_lat, this_long = constants.SCHOOLS_CODES_MAP[str(school.cost_center)].split(";")
+            lats.append(round(float(this_lat), 6))
+            longs.append(round(float(this_long), 6))
+        return (sum(lats)/len(lats), sum(longs)/len(longs))
+
 

@@ -19,7 +19,8 @@ def edit_bell_times(schools):
             newTime.append(hours+mins)
         else:
             newTime.append(np.nan)
-    schools['start_time_seconds'] = newTime
+    newTime = [x - 600 for x in newTime]
+    schools['start_time_seconds'] = newTime 
     return schools
 
 # For verification purposes
@@ -111,6 +112,7 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     phonebook = pd.merge(phonebook, schools_students_attend[['Cost_Center', 'tt_ind']], on=['Cost_Center'], how='inner')
     schools_students_attend = schools_students_attend.drop_duplicates(subset="tt_ind")
     schools_students_attend = schools_students_attend.reset_index(drop=True)
+    schools_students_attend['early_start_time'] = schools_students_attend['start_time_seconds'] - schools_students_attend['bell_time_intervals']
 
     # Setup school_age_map 
     setup_school_age_map(schools_students_attend)
@@ -119,6 +121,7 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     single_school_clusters = setup_clusters(schools_students_attend, phonebook)
 
     # Store for future references
+    update_school_dropoff_info(schools_students_attend)
     constants.SCHOOLS_STUDENTS_ATTEND = schools_students_attend
     constants.STUDENT_PHONEBOOK = phonebook
 

@@ -2,7 +2,9 @@ import numpy as np
 import pandas as pd 
 import constants
 from locations import Route
+from geopy.distance import geodesic
 import copy
+from collections import defaultdict
 
 # Begin routing 
 def start_routing(single_school_clusters):
@@ -33,7 +35,7 @@ def route_cluster(cluster):
 			else:
 				stops_path_list.append(stops_path[:-1])
 				stops_path = list()
-				stops_path.append((stop[0], round(constants.TRAVEL_TIMES[last_stop][stop[0]], 2), stop[2]))
+				stops_path.append((stop[0], round(constants.TRAVEL_TIMES[last_stop[0]][stop[0]], 2), stop[2]))
 				last_stop = stop
 		else:
 			last_stop = stop
@@ -62,7 +64,7 @@ def get_stops_info(possible_stops_path, cluster):
 
 		# Get distance between stops
 		if idx == 0:
-			dist = round(constants.TRAVEL_TIMES[cluster.school_path[-1][0][0]][stop], 2)
+			dist = round(constants.TRAVEL_TIMES[cluster.school_path[-1][0]][stop], 2)
 		else:
 			dist = round(constants.TRAVEL_TIMES[possible_stops_path[idx-1]][stop], 2)
 
@@ -75,7 +77,7 @@ def get_possible_stops_path(cluster):
 	stops_path, visited = list(), list()
 	index = 0
 
-	total_indexes = cluster.school_path[-1][0] + list(set([stud.tt_ind for stud in cluster.students_list]))
+	total_indexes = [cluster.school_path[-1][0]] + list(set([stud.tt_ind for stud in cluster.students_list]))
 	stops_path.append(total_indexes[index])
 
 	# Setup mini travel time marix
@@ -98,18 +100,35 @@ def get_possible_stops_path(cluster):
 		time_to_add = np.nanmin(temp)
 		index = list(temp).index(time_to_add)
 		stops_path.append(total_indexes[index])
-		
+
+	print('willy')	
 	return stops_path[1:]
 
 def start_combining(clustered_routes):
 
-	count = 0 
-	iter_count = 0 
+	count, iter_count = 0, 0 
 
+	# TODO: Loop until there is no improvement 
 	while True:
-		closest_clusters = find_closest_school_clusters(clustered_routes[count])
 
+		route_counts_for_clusters = defaultdict(str)
+		nearest_clusters = clustered_routes[count].find_closest_school_clusters(clustered_routes)
+
+		# Insert the route counts of first cluster 
+		route_counts_for_clusters[str(count)] = len(clustered_routes[count].routes_list)
+
+		for test_clust in nearest_clusters:
+			route_counts_for_clusters[str(test_clust[0])] = len(clustered_routes[test_clust[0]].routes_list)
+			combined_cluster = clustered_routes[count].combine_clusters(clustered_routes[test_clust[0]])
+
+			if combined_cluster:
+				route_counts_for_clusters[str(count) + "+" + str(test_clust[0])] = len(combined_cluster.routes_list)
+			else: 
+				route_counts_for_clusters[str(count) + "+" + str(test_clust[0])] = None
+
+		# Once we have obtain the route counts, we check
 		
+	
 		count += 1 
 
 		if count >= len(clustered_routes):
@@ -117,10 +136,5 @@ def start_combining(clustered_routes):
 			iter_count += 1
 
 
-	print('willy')
-
-# Find closest school clusters
-def find_closest_school_clusters(this_cluster):
-	closest_clusters = list()
-
-	return closest_clusters 
+def find_min_routes_generated(route_counts_for_clusters):
+	pass
