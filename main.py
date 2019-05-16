@@ -18,8 +18,8 @@ def main():
 
     # Perform routing 
     clustered_route = start_routing(single_school_clusters)
-    start_combining(clustered_route)
-    return 
+    combined_clustered_route = start_combining(clustered_route)
+    return combined_clustered_route 
 
-main()
+combined_clustered_route = main()
 

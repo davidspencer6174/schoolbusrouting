@@ -155,7 +155,7 @@ def setup_buses(bus_capacities):
 
     # Setup contract buses
     contract_cap_counts = setup_contract_buses(cap_counts_list)
-    return cap_counts_list, contract_cap_counts
+    return defaultdict(int, cap_counts_list), defaultdict(int, contract_cap_counts)
 
 # Setup contract buses
 def setup_contract_buses(cap_counts_list):

@@ -23,7 +23,11 @@ def route_cluster(cluster):
 	for idx, stop in enumerate(stops_info):
 		stops_path.append(stop)
 		stud_count = (np.array([j[2] for j in stops_path])).sum(axis=0)
-		MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[constants.CAP_COUNTS[-1][0]])
+
+		if constants.CAP_COUNTS:
+			MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[max(constants.CAP_COUNTS.keys())])
+		else: 
+			MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[max(constants.CAP_COUNTS.keys())])
 
 		if (cluster.get_school_route_time() + sum([i[1] for i in stops_path]) > constants.MAX_TIME) or \
 			((stud_count[0]/MOD_BUS[0])+(stud_count[1]/MOD_BUS[1])+(stud_count[2]/MOD_BUS[2])) > 1:
@@ -47,9 +51,48 @@ def route_cluster(cluster):
 	while idx < len(stops_path_list):
 		new_route = Route(cluster.school_path, stops_path_list[idx], list_of_students)
 		new_route.assign_bus_to_route()
-		routes_returned.append(new_route)
+
+		# If no bus can fit students, then split route
+		if new_route.bus_size == 0:
+			splitted_routes = split_route(new_route, [])
+			routes_returned.extend(splitted_routes)
+		else:
+			routes_returned.append(new_route)
 		idx += 1 
+
 	return routes_returned
+
+# Recursively split routes
+def split_route(current_route, routes_to_return):
+	
+	if current_route.bus_size != 0:
+		routes_to_return.append(current_route)
+		return routes_to_return 
+
+	else:
+		total_students_list = copy.deepcopy(current_route.students_list)
+		current_route.students_list = []
+		new_route = copy.deepcopy(current_route)
+		
+		for idx, stop in enumerate(current_route.stops_path):
+			current_route.stops_path[idx] = (stop[0], stop[1], list(map(lambda x: int(x/2), current_route.stops_path[idx][2])))
+			new_route.stops_path[idx] = (stop[0], stop[1], list(np.array(new_route.stops_path[idx][2])-np.array(current_route.stops_path[idx][2])))
+			
+			stud_list = list()
+			for stud in total_students_list: 
+				if stud.tt_ind == stop[0]: 
+					stud_list.append(stud)
+			
+			current_route.students_list.extend(stud_list[:sum(current_route.stops_path[idx][2])])
+			new_route.students_list.extend(stud_list[sum(current_route.stops_path[idx][2]):])
+			
+		current_route.assign_bus_to_route()
+		new_route.assign_bus_to_route()
+		
+		split_route(current_route, routes_to_return)
+		split_route(new_route, routes_to_return)
+
+	return routes_to_return
 
 # Get student occupancy and travel times
 def get_stops_info(possible_stops_path, cluster):
@@ -101,40 +144,47 @@ def get_possible_stops_path(cluster):
 		index = list(temp).index(time_to_add)
 		stops_path.append(total_indexes[index])
 
-	print('willy')	
 	return stops_path[1:]
 
 def start_combining(clustered_routes):
 
 	count, iter_count = 0, 0 
+	total_num_of_routes = sum([len(clustered_routes[idx].routes_list) for idx in clustered_routes])
 
-	# TODO: Loop until there is no improvement 
 	while True:
 
-		route_counts_for_clusters = defaultdict(str)
+		route_counts_for_clusters = list()
 		nearest_clusters = clustered_routes[count].find_closest_school_clusters(clustered_routes)
 
-		# Insert the route counts of first cluster 
-		route_counts_for_clusters[str(count)] = len(clustered_routes[count].routes_list)
-
+		# Get statisitcs [(sum_of_seperate, combined_clusters)....()]
 		for test_clust in nearest_clusters:
-			route_counts_for_clusters[str(test_clust[0])] = len(clustered_routes[test_clust[0]].routes_list)
 			combined_cluster = clustered_routes[count].combine_clusters(clustered_routes[test_clust[0]])
-
+			
 			if combined_cluster:
-				route_counts_for_clusters[str(count) + "+" + str(test_clust[0])] = len(combined_cluster.routes_list)
-			else: 
-				route_counts_for_clusters[str(count) + "+" + str(test_clust[0])] = None
+				route_counts_for_clusters.append((len(clustered_routes[count].routes_list) + len(clustered_routes[test_clust[0]].routes_list), len(combined_cluster.routes_list)))
 
-		# Once we have obtain the route counts, we check
+		# Once we have obtain the route counts, we check best option and modify clustered_routes_list 
+		index_to_use = np.nanargmax([i[0]-i[1] for i in route_counts_for_clusters if i[1]!=None])
+
+		for clus in clustered_routes.values():
+			if clus == clustered_routes[nearest_clusters[index_to_use][0]]:
+				clustered_routes.pop(nearest_clusters[index_to_use][0])
+				break
+		clustered_routes[count] = combined_cluster
 		
-	
+		# Reset keys 
+		clustered_routes = {i: clustered_routes[k] for i, k in enumerate(sorted(clustered_routes.keys()))}
+
+		# Break conditions 
+		print("Iter-count: " + str(iter_count) + "-- Count: " + str(count))
 		count += 1 
 
 		if count >= len(clustered_routes):
-			count = 0
-			iter_count += 1
+			if total_num_of_routes >= sum([len(clustered_routes[idx].routes_list) for idx in clustered_routes]):
+				count = 0
+				iter_count += 1
 
+		if iter_count == 20:
+			break
 
-def find_min_routes_generated(route_counts_for_clusters):
-	pass
+	return clustered_routes

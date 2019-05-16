@@ -70,36 +70,34 @@ class Route:
     
     # Assign buses 
     def assign_bus_to_route(self):
-        for bus_ind in range(len(constants.CAP_COUNTS)):
-            bus = constants.CAP_COUNTS[bus_ind]
-            MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus[0]])
+        for bus in constants.CAP_COUNTS.keys():
+            MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus])
             sum_stud_count = np.array([j[2] for j in self.stops_path]).sum(axis=0)
 
             if (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) <= 1:
                 #mark the bus as taken
-                bus[1] -= 1
-                self.update_bus(bus[0])
+                constants.CAP_COUNTS[bus] -= 1
+                self.update_bus(bus)
                 #if all buses of this capacity are now taken, remove
                 #this capacity
-                if bus[1] == 0:
-                    constants.CAP_COUNTS.remove(bus)
+                if constants.CAP_COUNTS[bus] == 0:
+                    constants.CAP_COUNTS.pop(bus)
                 break
 
-        if self.bus_size == None and not constants.CAP_COUNTS:
+        if self.bus_size == 0 and not constants.CAP_COUNTS:
             self.assign_contract_route()
     
     # Assign contract bus 
     def assign_contract_route(self):
         print('CONTRACT BUS USED')
         self.update_contract_route_status()
-        for bus_ind in range(len(constants.CONTRACT_CAP_COUNTS)):
-            bus = constants.CONTRACT_CAP_COUNTS[bus_ind]
-            MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus[0]])
+        for bus in constants.CONTRACT_CAP_COUNTS.keys():
+            MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus])
             sum_stud_count = np.array([j[2] for j in self.stops_path]).sum(axis=0)
 
             if (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) <= 1:
-                bus[1] += 1
-                self.update_bus(bus[0])
+                constants.CONTRACT_CAP_COUNTS[bus] += 1
+                self.update_bus(bus)
 
     # TODO: Delete schools that do need to be visited 
     # Clean routes 
@@ -116,6 +114,13 @@ class Cluster:
         self.students_list = list()
         self.schools_list = list()
         self.process_info()
+
+    def __eq__(self, other): 
+        if self.school_path == other.school_path and self.students_list == other.students_list and \
+            self.routes_list == other.routes_list and self.routes_list == other.routes_list:
+            return True
+        else:
+            return False
 
     # insert csv information into objects
     def process_info(self):
@@ -149,10 +154,11 @@ class Cluster:
         if combined_cluster.check_school_route_constraints():
             combined_cluster.process_info()
             combined_cluster.create_routes_for_cluster()
+            new_cluster.add_buses_back()
             return combined_cluster
         else: 
             print("Clusters cannot be combined due to school time constraints")
-            return False
+            return 
 
     # Create the routes for a given cluster using schools_set and stops_set
     def create_routes_for_cluster(self):
@@ -213,7 +219,7 @@ class Cluster:
                 if stop_dict_route.get(stop[0]) is None:
                     stop_dict_route[stop[0]] = stop[2]
                 else: 
-                    stop_dict_route[stop[0]] = np.concatenate([stop_dict_route[stop[0]], stop[2]]).sum(axis=0)
+                    stop_dict_route[stop[0]] = list(np.array([stop_dict_route[stop[0]], stop[2]]).sum(axis=0))
                 
         if school_set_csv == school_set_route and stop_dict_csv == stop_dict_route:
             return True 
@@ -236,4 +242,8 @@ class Cluster:
             longs.append(round(float(this_long), 6))
         return (sum(lats)/len(lats), sum(longs)/len(longs))
 
-
+    # Add the buses back 
+    def add_buses_back(self):
+        for route in self.routes_list:
+            print("BUS SIZE: " + str(route.bus_size))
+            constants.CAP_COUNTS[route.bus_size] += 1
