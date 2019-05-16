@@ -1,6 +1,7 @@
 import constants
 import copy
 import itertools
+import numpy as np
 from locations import School, Stop, Student
 
 #Returns travel time from loc1 to loc2
@@ -24,10 +25,10 @@ class Route:
         self.valid_school_orderings = []
         self.max_time = constants.MAX_TIME
         #If no bus is assigned, the default capacity is infinite.
-        #This is denoted by a -1.
+        #This is denoted by None.
         #Otherwise, this variable should be modified to reflect
         #the actual capacity.
-        self.unmodified_bus_capacity = -1
+        self.unmodified_bus_capacity = None
         
     #This is a backup used during the mixed-load post improvement
     #procedure when it is determined that a bus cannot be deleted,
@@ -161,8 +162,12 @@ class Route:
         maxtime = school_perm[0].start_time - constants.LATEST
         for i in range(1, len(school_perm)):
             leg_time = trav_time(school_perm[i-1], school_perm[i])
-            mintime += trav_time(school_perm[i-1], school_perm[i])
-            maxtime += trav_time(school_perm[i-1], school_perm[i])
+            #If the shcools are different, need to add dropoff time
+            #at the first school.
+            if leg_time > 0:
+                leg_time += constants.SCHOOL_DROPOFF_TIME
+            mintime += leg_time
+            maxtime += leg_time
             time += leg_time
             school_mintime = school_perm[i].start_time - constants.EARLIEST
             school_maxtime = school_perm[i].start_time - constants.LATEST
@@ -212,6 +217,17 @@ class Route:
         self.length = best_length
         return best_length
     
+    #In cases where we don't want to look at school reorderings, just
+    #recompute the length in the straightforward way.
+    def recompute_length_naive(self):
+        self.length = 0
+        for i in range(0, len(self.stops) - 1):
+            self.length += trav_time(self.stops[i], self.stops[i+1])
+        self.length += trav_time(self.stops[-1], self.schools[0])
+        for i in range(0, len(self.schools) - 1):
+            self.length += trav_time(self.schools[i], self.schools[i+1])
+            self.length += constants.SCHOOL_DROPOFF_TIME
+    
     def recompute_occupants(self):
         self.occupants = 0
         for stop in self.stops:
@@ -232,6 +248,7 @@ class Route:
             self.max_time = max(self.max_time,
                                 constants.SLACK*trav_time(s, s.school))
         #Too long
+        self.enumerate_school_orderings()
         self.recompute_length()
         if self.length > self.max_time:
             if verbose:
@@ -274,7 +291,7 @@ class Route:
         #has too many students for any bus to take, so we
         #assume that stop is handled alone)
         #TODO: Modify this for mixed-age buses
-        if (self.unmodified_bus_capacity > -1 and
+        if (self.unmodified_bus_capacity != None and
             not self.is_acceptable(self.unmodified_bus_capacity) and
             len(self.stops) > 1):
             if verbose:
@@ -333,6 +350,9 @@ class Route:
             j = 0
             while self.stops[i].school != self.schools[j]:
                 this_stop_time += trav_time(self.schools[j], self.schools[j+1])
+                #If they are different schools, need to include dropoff time.
+                if trav_time(self.schools[j], self.schools[j+1]) > 0.1:
+                    this_stop_time += constants.SCHOOL_DROPOFF_TIME
                 j += 1
             for stud in range(self.stops[i].occs):
                 out.append(this_stop_time)
