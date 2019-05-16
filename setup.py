@@ -137,17 +137,24 @@ def setup_buses(bus_capacities):
 
 #Sets up the stops based on the output of setup_students
 #Populates unrouted_stops in the Schools
+#Note: students with different cost centers may go to the same
+#physical location. The loop variable "cost_cent" represents the cost
+#center number, whereas student.school is the school object in memory.
+#As a result, this function is the one that will associate different
+#cost centers at the same location together.
 def setup_stops(schools_students_map):
     stops = set()
-    for school in schools_students_map:
-        ttind_age_stop_map = dict()
-        for student in schools_students_map[school]:
+    ttind_age_stop_map = dict()
+    for cost_cent in schools_students_map:
+        for student in schools_students_map[cost_cent]:
             dict_key = (student.tt_ind, student.type)
-            if dict_key not in ttind_age_stop_map:
+            if student.school not in ttind_age_stop_map:
+                ttind_age_stop_map[student.school] = dict()
+            if dict_key not in ttind_age_stop_map[student.school]:
                 new_stop = Stop(student.school, student.type)
-                ttind_age_stop_map[dict_key] = new_stop
-                stops.add(ttind_age_stop_map[dict_key])
+                ttind_age_stop_map[student.school][dict_key] = new_stop
+                stops.add(ttind_age_stop_map[student.school][dict_key])
                 student.school.unrouted_stops[student.type].add(new_stop)
-            ttind_age_stop_map[dict_key].add_student(student)
+            ttind_age_stop_map[student.school][dict_key].add_student(student)
     return stops
                 
