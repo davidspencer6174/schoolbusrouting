@@ -9,7 +9,7 @@ import random
 from setup import setup_buses, setup_stops, setup_students
 from generateroutes import generate_routes
 from validation import full_verification
-from busassignment import assign_buses
+from busassignment_bruteforce import assign_buses
 import numpy as np
 from utils import stud_trav_time_array
 
@@ -28,7 +28,7 @@ def main(partial_route_plan = None, permutation = None):
     stops = setup_stops(schools_students_map)
     cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
     #So far, we are using 0 of each contract size.
-    #This will get incremented when the schools get routed.
+    #This may get incremented when the schools get routed.
     #contr_counts = [[8, 0], [12, 0], [25, 0], [39, 0], [65, 0]]
     #This option only allows using the larger buses -
     #I think this is preferred by LAUSD
@@ -77,9 +77,9 @@ routes_returned = None
 
 def permutation_approach():
     #Uncomment latter lines to use an existing permutation
-    best_perm = None
+    #best_perm = None
     #loading_perm = open(("output//lastperm55m.obj"), "rb")
-    loading_perm = open(("output//lastperm55mfurther.obj"), "rb")
+    loading_perm = open(("output//8minutesdropoffperm.obj"), "rb")
     best_perm = pickle.load(loading_perm)
     loading_perm.close()
     routes_returned = main(permutation = best_perm)
@@ -94,7 +94,7 @@ def permutation_approach():
     stud_trav_times = stud_trav_time_array(routes_returned)
     mean_stud_trav_time = np.mean(stud_trav_times)
     best_mstt = mean_stud_trav_time
-    best_score = best_num_routes + 40*best_mstt/60
+    best_score = best_num_routes + 10*best_mstt/60
     
     best = routes_returned
     print(str(best_num_routes) + " " + str(mean_stud_trav_time/60))
@@ -102,7 +102,7 @@ def permutation_approach():
     while True:
         #Try a few swaps
         new_perm = copy.copy(best_perm)
-        num_to_swap = random.randint(1, 10)
+        num_to_swap = random.randint(1, 40)
         for swap in range(num_to_swap):
             #Bias toward early stops, since these are more important
             ind1 = random.randint(0, 40)
@@ -115,7 +115,7 @@ def permutation_approach():
         new_num_routes = len(new_routes_returned)
         new_time = np.sum(np.array([r.length for r in new_routes_returned]))
         new_mstt = np.mean(stud_trav_time_array(new_routes_returned))
-        new_score = new_num_routes + 40*new_mstt/60
+        new_score = new_num_routes + 10*new_mstt/60
         if (new_score < best_score):
             print("New best")
             print(new_score)
@@ -125,10 +125,10 @@ def permutation_approach():
             best_time = new_time
             best_score = new_score
             best = new_routes_returned
-            saving = open(("output//optmstt55mfurther.obj"), "wb")
+            saving = open(("output//8minutesdropoff.obj"), "wb")
             pickle.dump(best, saving)
             saving.close()
-            saving = open(("output//lastperm55mfurther.obj"), "wb")
+            saving = open(("output//8minutesdropoffperm.obj"), "wb")
             pickle.dump(best_perm, saving)
             saving.close()
             successes.append(num_to_swap)

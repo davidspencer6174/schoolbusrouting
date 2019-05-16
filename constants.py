@@ -71,6 +71,10 @@ MAX_TIME = 3600
 #between schools.
 SCHOOL_DROPOFF_TIME = 480.0
 
+#Number of seconds to spend seeking an optimal bus assignment
+#solution for a route before giving up and using the greedy method
+BUS_SEARCH_TIME = 10.0
+
 #Farthest away a school can be from another school and
 #still have its stops flagged as candidates to combine
 MAX_SCHOOL_DIST = 947.033
