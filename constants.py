@@ -62,25 +62,29 @@ TRAVEL_TIMES = np.load("data//travel_time_matrix.npy")*TT_MULT
 #Max allowable travel time in seconds
 #MAX_TIME = 5500
 #MAX_TIME = 4100
-#MAX_TIME = 3600
-MAX_TIME = 3300
+MAX_TIME = 3600
+#MAX_TIME = 3300
 #MAX_TIME = 3000
 
+#Amount of time to drop off students at a school.
+#Should be used in the computation of time travelling
+#between schools.
+SCHOOL_DROPOFF_TIME = 480.0
 
 #Farthest away a school can be from another school and
 #still have its stops flagged as candidates to combine
-MAX_SCHOOL_DIST = 1343
+MAX_SCHOOL_DIST = 947.033
 
 #Cutoff below which a stop will not be accepted
 #Goal is to reduce mean travel time
 #EVALUATION_CUTOFF = -1000
-EVALUATION_CUTOFF = -276.79
+EVALUATION_CUTOFF = -194.853
 
 #Weights to determine value of a stop
 #SCH_DIST_WEIGHT = 0.85
 #STOP_DIST_WEIGHT = 0.2
-SCH_DIST_WEIGHT = .7706947
-STOP_DIST_WEIGHT = .085767536
+SCH_DIST_WEIGHT = .8732616
+STOP_DIST_WEIGHT = .1650857
 
 #Seconds before belltime to determine valid arrival
 #Valid arrival times are [belltime-EARLIEST, belltime-LATEST]
