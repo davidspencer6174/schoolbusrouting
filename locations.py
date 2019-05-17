@@ -116,8 +116,8 @@ class Cluster:
         self.process_info()
 
     def __eq__(self, other): 
-        if self.school_path == other.school_path and self.students_list == other.students_list and \
-            self.routes_list == other.routes_list and self.routes_list == other.routes_list:
+        if (self.school_path == other.school_path and self.students_list == other.students_list and \
+            self.routes_list == other.routes_list and self.routes_list == other.routes_list):
             return True
         else:
             return False
@@ -143,20 +143,28 @@ class Cluster:
                 tot_time += self.school_path[idx+1][1] + constants.DROPOFF_TIME[school[0]]
             return tot_time 
 
-    # TODO: Debugging combining clusters
     # Combine the clusters  
     def combine_clusters(self, new_cluster):
         combined_cluster = copy.deepcopy(self)
         combined_cluster.schools_info_df = combined_cluster.schools_info_df.append(new_cluster.schools_info_df)
         combined_cluster.students_info_df = combined_cluster.students_info_df.append(new_cluster.students_info_df)
 
+        print("BEFORE " + str(constants.CAP_COUNTS) + " -- " + str(sum([i for i in constants.CAP_COUNTS.values()])))
+        
+        # ALL COMBINED ROUTES GET ASSIGNED CLUSTERS
         # If the school constraints are met, then we can combine clusters 
         if combined_cluster.check_school_route_constraints():
             combined_cluster.process_info()
             combined_cluster.create_routes_for_cluster()
+            print("Num of new routes: " + str([j.bus_size for j in combined_cluster.routes_list]) + " -- " + str(sum([i for i in constants.CAP_COUNTS.values()])))
+
+            self.add_buses_back()
             new_cluster.add_buses_back()
+
+            print("AFTER: " + str(constants.CAP_COUNTS) + " -- " + str(sum([i for i in constants.CAP_COUNTS.values()])))
             return combined_cluster
-        else: 
+
+        else:
             print("Clusters cannot be combined due to school time constraints")
             return 
 
@@ -229,7 +237,7 @@ class Cluster:
     # Find closest school clusters 
     def find_closest_school_clusters(self, clustered_schools):
         clus_indexes = [a for a in range(0, len(clustered_schools))]
-        clus_distances = [geodesic(self.find_cluster_center(), clustered_schools[idx].find_cluster_center()) for idx in clustered_schools]
+        clus_distances = [geodesic(self.find_cluster_center(), clus.find_cluster_center()) for clus in clustered_schools.values()]
         min_list = sorted(zip(clus_indexes, clus_distances), key=lambda x: x[1])[1:constants.N_CLOSEST+1]
         return min_list 
 
@@ -244,6 +252,7 @@ class Cluster:
 
     # Add the buses back 
     def add_buses_back(self):
+        print('-------------------------')
         for route in self.routes_list:
-            print("BUS SIZE: " + str(route.bus_size))
+            print(route.bus_size)
             constants.CAP_COUNTS[route.bus_size] += 1

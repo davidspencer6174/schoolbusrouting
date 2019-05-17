@@ -7,13 +7,14 @@ import pandas as pd
 from collections import Counter
 from itertools import chain
 import copy
+import constants
 
 def create_data_model(travel_times_matrix, time_windows):
   """Stores the data for the problem."""
   data = {}
   data['time_matrix'] = travel_times_matrix 
   data['time_windows'] = time_windows
-  data['num_vehicles'] = 2
+  data['num_vehicles'] = 1 
   data['depot'] = 0
   return data
         
@@ -40,9 +41,6 @@ def get_constraints_info(schools_subset):
 
 def get_solutions(data, manager, routing, assignment, schools_subset):
 
-    global new_clustered_schools
-    global key_count
-
     total_time = 0
     time_dimension = routing.GetDimensionOrDie('Time')
     total_route_list = list()
@@ -61,7 +59,17 @@ def get_solutions(data, manager, routing, assignment, schools_subset):
             
             list_index += [manager.IndexToNode(index)]
             index = assignment.Value(routing.NextVar(index))
+
+            plan_output += '{0} Time({1},{2})\n'.format(
+            manager.IndexToNode(index), assignment.Min(time_var),
+            assignment.Max(time_var))
+
+            plan_output += 'Time of the route: {} secs\n'.format(
+            assignment.Min(time_var))
         
+        # if constants.VERBOSE:
+        #     print(plan_output)
+
         time_var = time_dimension.CumulVar(index)
         total_time += assignment.Min(time_var)
         
@@ -69,12 +77,13 @@ def get_solutions(data, manager, routing, assignment, schools_subset):
             new_school_route = [school_indexes[i] for i in list_index]
             total_route_list.append(new_school_route)
 
-    counts = Counter(chain(*map(set,total_route_list)))
-    total_route_list = [[i for i in sublist if counts[i]==1] for sublist in total_route_list]
-    total_route_list[-1] = new_school_route
-            
-    return total_route_list
+        counts = Counter(chain(*map(set,total_route_list)))
+        total_route_list = [[i for i in sublist if counts[i]==1] for sublist in total_route_list]
+        total_route_list[-1] = new_school_route
 
+        return total_route_list
+
+            
 def solve_school_constraints(schools_info_df):
 
     schools_info_df.sort_values(by=['early_start_time'])
@@ -148,7 +157,3 @@ def solve_school_constraints(schools_info_df):
             
         else: 
             return False
-
-                 
-                  
-

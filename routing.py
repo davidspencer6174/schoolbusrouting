@@ -64,7 +64,7 @@ def route_cluster(cluster):
 
 # Recursively split routes
 def split_route(current_route, routes_to_return):
-	
+
 	if current_route.bus_size != 0:
 		routes_to_return.append(current_route)
 		return routes_to_return 
@@ -146,37 +146,49 @@ def get_possible_stops_path(cluster):
 
 	return stops_path[1:]
 
+# Start combining clusters
 def start_combining(clustered_routes):
 
 	count, iter_count = 0, 0 
 	total_num_of_routes = sum([len(clustered_routes[idx].routes_list) for idx in clustered_routes])
 
 	while True:
-
 		route_counts_for_clusters = list()
 		nearest_clusters = clustered_routes[count].find_closest_school_clusters(clustered_routes)
 
 		# Get statisitcs [(sum_of_seperate, combined_clusters)....()]
-		for test_clust in nearest_clusters:
+		for idx, test_clust in enumerate(nearest_clusters):
+
+			print(" ----------- INDEX: " + str(idx))
+			print("BEFORE START COMBINING " + str(constants.CAP_COUNTS) + " -- " + str(sum([i for i in constants.CAP_COUNTS.values()])))
 			combined_cluster = clustered_routes[count].combine_clusters(clustered_routes[test_clust[0]])
-			
+			print("MIDDLE START COMBINING " + str(constants.CAP_COUNTS) + " -- " + str(sum([i for i in constants.CAP_COUNTS.values()])))
+	
 			if combined_cluster:
 				route_counts_for_clusters.append((len(clustered_routes[count].routes_list) + len(clustered_routes[test_clust[0]].routes_list), len(combined_cluster.routes_list)))
+				combined_cluster.add_buses_back()
+				print("AFTER START COMBINING " + str(constants.CAP_COUNTS) + " -- " + str(sum([i for i in constants.CAP_COUNTS.values()])))
 
-		# Once we have obtain the route counts, we check best option and modify clustered_routes_list 
-		index_to_use = np.nanargmax([i[0]-i[1] for i in route_counts_for_clusters if i[1]!=None])
+		# Once we have obtain the route counts, we check best option and modify clustered_routes_list
+		try:
+			index_to_use = np.nanargmax([i[0]-i[1] if i[1] != None else np.nan for i in route_counts_for_clusters])
 
-		for clus in clustered_routes.values():
-			if clus == clustered_routes[nearest_clusters[index_to_use][0]]:
-				clustered_routes.pop(nearest_clusters[index_to_use][0])
-				break
-		clustered_routes[count] = combined_cluster
-		
+			# Remove clus from original dict
+			for clus in clustered_routes.values():
+				if clus == clustered_routes[nearest_clusters[index_to_use][0]]:
+					clustered_routes[count] = clustered_routes[count].combine_clusters(copy.deepcopy(clus))
+					clustered_routes.pop(nearest_clusters[index_to_use][0])
+					break
+
+		# If no combinations
+		except ValueError:
+			print("No combinations could be done")
+
 		# Reset keys 
 		clustered_routes = {i: clustered_routes[k] for i, k in enumerate(sorted(clustered_routes.keys()))}
 
 		# Break conditions 
-		print("Iter-count: " + str(iter_count) + "-- Count: " + str(count))
+		print("Iter-count: " + str(iter_count) + " -- Count: " + str(count))
 		count += 1 
 
 		if count >= len(clustered_routes):
@@ -184,7 +196,7 @@ def start_combining(clustered_routes):
 				count = 0
 				iter_count += 1
 
-		if iter_count == 20:
+		if iter_count == 2:
 			break
 
 	return clustered_routes
