@@ -162,48 +162,26 @@ def start_combining(clustered_routes):
 		nearest_clusters = clustered_routes[count].find_closest_school_clusters(clustered_routes)
 		total_num_of_routes = sum([len(clustered_routes[idx].routes_list) for idx in clustered_routes])
 
-		print('-----------------------')
-		print("Iter-count: " + str(iter_count) + " -- Count: " + str(count))
-		print("NUM CLUS: " + str(len(clustered_routes)) + " -- NUM OF ROUTES BEGIN: " + str(total_num_of_routes))
+		if constants.VERBOSE:
+			print('-----------------------')
+			print("Iter-count: " + str(iter_count) + " -- Count: " + str(count))
+			print("NUM CLUS: " + str(len(clustered_routes)) + " -- NUM OF ROUTES BEGIN: " + str(total_num_of_routes))
 		
-
 		# Get statisitcs [(sum_of_seperate, combined_clusters)....()]
 		for _, test_clus in enumerate(nearest_clusters):
 			
 			combined_cluster = clustered_routes[count].combine_clusters(clustered_routes[test_clus[0]])
 
-			# set1, set2, set3 = set(), set(), set()
-
-			# for j in clustered_routes[count].routes_list:
-			# 	for i in j.stops_path:
-			# 		set1.add(i[0])
-								
-			# for j in clustered_routes[test_clus[0]].routes_list:
-			# 	for i in j.stops_path:
-			# 		set2.add(i[0])
-
-			# for j in combined_cluster.routes_list:
-			# 	for i in j.stops_path:
-			# 		set3.add(i[0])
-
-			# if set1.union(set2) != set3: 
-			# 	print("SOMETHING WRONG HERE") 
-			
 			if combined_cluster:
 				route_counts_for_clusters.append((len(clustered_routes[count].routes_list) + len(clustered_routes[test_clus[0]].routes_list), len(combined_cluster.routes_list)))
 				combined_cluster.add_buses_back()
 			else:
 				route_counts_for_clusters.append((-1,0)) 
 
-		print("counts list: " + str(route_counts_for_clusters))
-		print("diff: " + str([i[0]-i[1] if i[1] != None else np.nan for i in route_counts_for_clusters]))
-
 		# Once we have obtain the route counts, we check best option and modify clustered_routes_list
 		try:
 			diff_counters = [i[0]-i[1] if i[1] != None else np.nan for i in route_counts_for_clusters]
 			index_to_use = np.nanargmax(diff_counters)
-			# print("index to use: " + str(index_to_use) + " -- clust num: " + str(nearest_clusters[index_to_use][0]))
-			print("REDUCE AMOUNT: " + str(diff_counters[index_to_use]))
 
 			if diff_counters[index_to_use] > 0: 
 
@@ -211,25 +189,8 @@ def start_combining(clustered_routes):
 				for clus in clustered_routes.values():
 					if clus == clustered_routes[nearest_clusters[index_to_use][0]]:
 
-						# set1, set2, set3 = set(), set(), set()
-						# for j in clustered_routes[count].routes_list:
-						# 	for i in j.stops_path:
-						# 		set1.add(i[0])
-											
-						# for j in clus.routes_list:
-						# 	for i in j.stops_path:
-						# 		set2.add(i[0])
-
 						clustered_routes[count].add_buses_back()
 						clustered_routes[count] = copy.deepcopy(clustered_routes[count].combine_clusters(copy.deepcopy(clus)))
-
-						# for j in clustered_routes[count].routes_list:
-						# 	for i in j.stops_path:
-						# 		set3.add(i[0])
-
-						# if set1.union(set2) != set3: 
-						# 	print("SOMETHING WRONG HERE PART 2") 
-
 
 						clustered_routes[nearest_clusters[index_to_use][0]].add_buses_back()
 						clustered_routes.pop(nearest_clusters[index_to_use][0])
@@ -240,19 +201,13 @@ def start_combining(clustered_routes):
 
 				# Break conditions
 				end_total_num_of_routes = sum([len(clustered_routes[idx].routes_list) for idx in clustered_routes]) 
-				print("NUMBER OF ROUTES END: " + str(end_total_num_of_routes))
+
+				if constants.VERBOSE:
+					print("REDUCE AMOUNT: " + str(diff_counters[index_to_use]))
+					print("NUMBER OF ROUTES END: " + str(end_total_num_of_routes))
 
 				if end_total_num_of_routes != total_num_of_routes - diff_counters[index_to_use]:
 					print("NUMBERS DON'T MATCH UP") 
-
-					# for j in clustered_routes[count].routes_list:
-					# 	for i in j.stops_path:
-					# 		print(i)
-
-					# print('#############')
-					# for j in combined_clusters_list[index_to_use].routes_list:
-					# 	for i in j.stops_path:
-					# 		print(i)
 
 		# If no combinations
 		except ValueError:

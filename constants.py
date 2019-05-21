@@ -10,7 +10,7 @@ MAX_TIME = 3600
 
 # Program types
 PROG_TYPES = ['P', 'X', 'M']
-N_CLOSEST = 5
+N_CLOSEST = 10 
 
 # MODIFIED BUS CAPACITES 
 CAPACITY_MODIFIED_MAP = dict()
