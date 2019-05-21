@@ -70,19 +70,23 @@ class Route:
     
     # Assign buses 
     def assign_bus_to_route(self):
-        for bus in constants.CAP_COUNTS.keys():
-            MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus])
-            sum_stud_count = np.array([j[2] for j in self.stops_path]).sum(axis=0)
+        if len(self.stops_path) == 1: 
+            self.update_bus(max(constants.CAP_COUNTS.keys()))
 
-            if (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) <= 1:
-                #mark the bus as taken
-                constants.CAP_COUNTS[bus] -= 1
-                self.update_bus(bus)
-                #if all buses of this capacity are now taken, remove
-                #this capacity
-                if constants.CAP_COUNTS[bus] == 0:
-                    constants.CAP_COUNTS.pop(bus)
-                break
+        else:
+            for bus in constants.CAP_COUNTS.keys():
+                MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[bus])
+                sum_stud_count = np.array([j[2] for j in self.stops_path]).sum(axis=0)
+
+                if (sum_stud_count[0]/MOD_BUS[0])+(sum_stud_count[1]/MOD_BUS[1])+(sum_stud_count[2]/MOD_BUS[2]) <= 1:
+                    #mark the bus as taken
+                    constants.CAP_COUNTS[bus] -= 1
+                    self.update_bus(bus)
+                    #if all buses of this capacity are now taken, remove
+                    #this capacity
+                    if constants.CAP_COUNTS[bus] == 0:
+                        constants.CAP_COUNTS.pop(bus)
+                    break
 
         if self.bus_size == 0 and not constants.CAP_COUNTS:
             self.assign_contract_route()
@@ -116,8 +120,13 @@ class Cluster:
         self.process_info()
 
     def __eq__(self, other): 
-        if (self.school_path == other.school_path and self.students_list == other.students_list and \
-            self.routes_list == other.routes_list and self.routes_list == other.routes_list):
+        stops_visited_1 = set()
+        stops_visited_2 = set()
+
+        [[stops_visited_1.add(j[0]) for j in route.stops_path] for route in self.routes_list]
+        [[stops_visited_2.add(j[0]) for j in route.stops_path] for route in other.routes_list]
+
+        if self.school_path == other.school_path and stops_visited_1 == stops_visited_2:
             return True
         else:
             return False
@@ -148,25 +157,17 @@ class Cluster:
         combined_cluster = copy.deepcopy(self)
         combined_cluster.schools_info_df = combined_cluster.schools_info_df.append(new_cluster.schools_info_df)
         combined_cluster.students_info_df = combined_cluster.students_info_df.append(new_cluster.students_info_df)
-
-        print("BEFORE " + str(constants.CAP_COUNTS) + " -- " + str(sum([i for i in constants.CAP_COUNTS.values()])))
         
         # ALL COMBINED ROUTES GET ASSIGNED CLUSTERS
         # If the school constraints are met, then we can combine clusters 
         if combined_cluster.check_school_route_constraints():
             combined_cluster.process_info()
             combined_cluster.create_routes_for_cluster()
-            print("Num of new routes: " + str([j.bus_size for j in combined_cluster.routes_list]) + " -- " + str(sum([i for i in constants.CAP_COUNTS.values()])))
-
-            self.add_buses_back()
-            new_cluster.add_buses_back()
-
-            print("AFTER: " + str(constants.CAP_COUNTS) + " -- " + str(sum([i for i in constants.CAP_COUNTS.values()])))
             return combined_cluster
 
         else:
             print("Clusters cannot be combined due to school time constraints")
-            return 
+            return None
 
     # Create the routes for a given cluster using schools_set and stops_set
     def create_routes_for_cluster(self):
@@ -180,7 +181,7 @@ class Cluster:
                 print("Routes generated are faulty")
         else:
             print("School constraints not met")
-            return 
+            return False
 
     # Use linear programming to check if routing school constraints are met 
     def check_school_route_constraints(self):
@@ -252,7 +253,5 @@ class Cluster:
 
     # Add the buses back 
     def add_buses_back(self):
-        print('-------------------------')
         for route in self.routes_list:
-            print(route.bus_size)
             constants.CAP_COUNTS[route.bus_size] += 1
