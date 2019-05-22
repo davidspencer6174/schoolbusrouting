@@ -150,3 +150,6 @@ def get_possible_stops_path(cluster):
 		stops_path.append(total_indexes[index])
 
 	return stops_path[1:]
+
+def clean_and_combine(clusters):
+    pass

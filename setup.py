@@ -63,7 +63,6 @@ def update_school_dropoff_info(schools_students_attend):
 def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
     prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
-
     stops = prefix+'stop_geocodes_fixed.csv'
     zipdata =prefix+'zipData.csv'
     schools = prefix+'school_geocodes_fixed.csv'
@@ -121,23 +120,32 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
     # Check requirements 
     clustered_schools['early_start_time'] = clustered_schools['start_time_seconds'] - clustered_schools['bell_time_intervals']
-    clustered_schools = solve_school_constraints(clustered_schools)   
+    new_clustered_schools = pd.DataFrame()
+    new_clustered_schools = solve_school_constraints(clustered_schools)   
  
-    schools_students_attend = pd.merge(schools_students_attend, clustered_schools[['label', 'tt_ind']], on=['tt_ind'], how='inner').drop_duplicates()
+    schools_students_attend = pd.merge(schools_students_attend, new_clustered_schools[['label', 'tt_ind']], on=['tt_ind'], how='inner').drop_duplicates()
     schools_students_attend = schools_students_attend.sort_values(['label'], ascending=[True])
     update_school_dropoff_info(schools_students_attend)
 
-    schoolcluster_students_map_df = partition_students(schools_students_attend, phonebook)
+    schoolcluster_students_map_df = partition_students(new_clustered_schools, phonebook)
     update_verif_counters(schoolcluster_students_map_df)
+    
+#    count = 0 
+#    for i in schoolcluster_students_map_df: 
+#         count+= int(len(schoolcluster_students_map_df[i]))
+#    print("NUM OF SCHOOLS: " + str(len(schools_students_attend)))
+#    print("COUNT OF STUDENTS: " + str(count))
+
     return_clustered_schools = setup_clusters(schools_students_attend, schoolcluster_students_map_df)
+    
     return return_clustered_schools
 
 # Setup clusters: input all required files 
 def setup_clusters(cluster_schools_df, schoolcluster_students_df):
-    clustered_schools = defaultdict(int)
-    for idx in range(0, max(cluster_schools_df['label'])):
-        clustered_schools[idx] = Cluster(cluster_schools_df[cluster_schools_df['label'] == idx], schoolcluster_students_df[idx])
-    return clustered_schools
+    return_clustered_schools = defaultdict(int)
+    for idx in cluster_schools_df['label']:        
+        return_clustered_schools[idx] = Cluster(cluster_schools_df[cluster_schools_df['label'] == idx], schoolcluster_students_df[idx])
+    return return_clustered_schools
 
 # Setup the buses
 def setup_buses(bus_capacities):

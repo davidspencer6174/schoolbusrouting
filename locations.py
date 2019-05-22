@@ -5,7 +5,6 @@ import operator
 from geopy.distance import geodesic
 import constants
 from collections import defaultdict
-from constraint_solver import solve_school_constraints
 
 # School object 
 class School:
@@ -107,7 +106,7 @@ class Route:
     # Clean routes 
     def clean_routes(self):
         pass
-
+        
 # Clusters 
 class Cluster:
     def __init__(self, schools_info, students_info):
@@ -228,3 +227,7 @@ class Cluster:
     def add_buses_back(self):
         for route in self.routes_list:
             constants.CAP_COUNTS[route.bus_size] += 1
+            
+    # Clean the routes within a cluster
+    def clean_routes_in_cluster(self):
+        pass

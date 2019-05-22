@@ -185,12 +185,11 @@ def partition_students(schools_students_attend, phonebook):
     counts = Counter(schools_students_attend['label'])
     schoolcluster_students_map = dict()
      
-    for row in counts.items():
-
-        temp = schools_students_attend.loc[schools_students_attend['label'] == row[0]].copy()  
-        schools_in_cluster = list(temp['Cost_Center'].astype(str))
-        students = phonebook[phonebook['Cost_Center'].isin(schools_in_cluster)].copy()
-        students.loc[:,'School_Group'] = row[0]
+    for idx, _ in counts.items():
+        temp = schools_students_attend.loc[schools_students_attend['label'] == idx].copy()  
+        schools_in_cluster = list(temp['tt_ind'].astype(str))
+        students = phonebook[phonebook['tt_ind'].isin(schools_in_cluster)].copy()
+        students.loc[:,'School_Group'] = idx
         
 #        students.loc[:,'tt_ind'] = round(students['Lat'],6).astype(str) + ";" + round(students['Long'],6).astype(str)
 #        students = students.replace({"tt_ind": constants.CODES_INDS_MAP})
@@ -203,7 +202,7 @@ def partition_students(schools_students_attend, phonebook):
         student_labels = obtainClust_KMEANS(students, constants.BREAK_NUM)
         students = pd.merge(students, student_labels, on=['Lat', 'Long'], how='inner').drop_duplicates()
         students = students.sort_values(by=['label'])
-        schoolcluster_students_map[row[0]] = students
+        schoolcluster_students_map[idx] = students
         
     return schoolcluster_students_map
 

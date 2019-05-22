@@ -4,11 +4,9 @@ from ortools.constraint_solver import pywrapcp
 import constants
 import numpy as np 
 import pandas as pd
-from collections import Counter
-from itertools import chain
 import copy
 
-new_clustered_schools = pd.DataFrame()
+new_clustered_schools_CS = pd.DataFrame()
 key_count = 0 
 
 def create_data_model(travel_times_matrix, time_windows):
@@ -44,7 +42,7 @@ def find_optimal_wait_time(time_windows):
 
 def get_solutions(data, manager, routing, assignment, schools_subset):
 
-    global new_clustered_schools
+    global new_clustered_schools_CS
     global key_count
 
     total_time = 0
@@ -87,20 +85,20 @@ def get_solutions(data, manager, routing, assignment, schools_subset):
         
         temp = copy.deepcopy(schools_subset[schools_subset['tt_ind'].isin(i)])
 
-        if new_clustered_schools.empty: 
+        if new_clustered_schools_CS.empty: 
             temp.loc[:,'label'] = 0 
-            new_clustered_schools = pd.concat([new_clustered_schools, temp])
+            new_clustered_schools_CS = pd.concat([new_clustered_schools_CS, temp])
 
         else: 
             # Append the clusters with only one school to the new data frame; update the label
-            temp.loc[:,'label'] = int(max(new_clustered_schools['label']))+1
-            new_clustered_schools = pd.concat([new_clustered_schools, temp])            
+            temp.loc[:,'label'] = int(max(new_clustered_schools_CS['label']))+1
+            new_clustered_schools_CS = pd.concat([new_clustered_schools_CS, temp])            
             
     return total_route_list
 
 def solve_school_constraints(clustered_schools):
     
-    global new_clustered_schools
+    global new_clustered_schools_CS
     global key_count
     
     for label_count in range(0, max(clustered_schools['label'])+1):
@@ -113,14 +111,14 @@ def solve_school_constraints(clustered_schools):
             constants.SCHOOL_ROUTE[key_count] = [(temp['tt_ind'].iloc[0], 0)]
             key_count += 1
 
-            if new_clustered_schools.empty: 
+            if new_clustered_schools_CS.empty: 
                 temp.loc[:,'label'] = 0 
-                new_clustered_schools = pd.concat([new_clustered_schools, temp])
+                new_clustered_schools_CS = pd.concat([new_clustered_schools_CS, temp])
 
             else: 
                 # Append the clusters with only one school to the new data frame; update the label
-                temp.loc[:,'label'] = max(new_clustered_schools['label'])+1
-                new_clustered_schools = pd.concat([new_clustered_schools, temp])
+                temp.loc[:,'label'] = max(new_clustered_schools_CS['label'])+1
+                new_clustered_schools_CS = pd.concat([new_clustered_schools_CS, temp])
 
         else:
             travel_time_matrix, time_windows = get_constraints_info(temp)
@@ -179,4 +177,4 @@ def solve_school_constraints(clustered_schools):
             else: 
                 print("---------------------- No assignment available")
 
-    return new_clustered_schools
+    return new_clustered_schools_CS

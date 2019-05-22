@@ -1,8 +1,7 @@
-from routing import start_routing, start_combining
+from routing import start_routing, clean_and_combine
 from setup import setup_data
 from output import print_routes
 import pickle
-import datetime 
 
 def main():
    
@@ -20,3 +19,12 @@ def main():
     return clustered_routes 
 
 clustered_routes = main()
+clustered_routes = clean_and_combine(clustered_routes)
+
+print_routes(clustered_routes)
+
+
+#with open('routes_returned_(2019-05-22 00:18:47.186591)', 'rb') as f:
+#    # The protocol version used is detected automatically, so we do not
+#    # have to specify it.
+#    explicit_routes = pickle.load(f)
