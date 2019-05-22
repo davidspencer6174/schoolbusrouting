@@ -54,14 +54,12 @@ CAPACITY_MODIFIED_MAP[16] = [16, 11, 11]
 
 def REFRESH_STATS():
     constants.INITIAL_LOW_OCC_ROUTES_COUNTS = 0 
-    constants.CAP_COUNTS = setup_buses(PREFIX+"dist_bus_capacities.csv")
-    constants.CONTRACT_CAP_COUNTS = setup_contract_buses()
+    constants.CAP_COUNTS, constants.CONTRACT_CAP_COUNTS = setup_buses(PREFIX+'dist_bus_capacities.csv')
 
 PREFIX = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/mixed_load_data/"
 TRAVEL_TIMES = (np.load(PREFIX + "travel_times.npy")*1.5)
-CAP_COUNTS = setup_buses(PREFIX+'dist_bus_capacities.csv')
+CAP_COUNTS, CONTRACT_CAP_COUNTS = setup_buses(PREFIX+'dist_bus_capacities.csv')
 GEOCODES = pd.read_csv(PREFIX+'all_geocodes.csv')
-CONTRACT_CAP_COUNTS = setup_contract_buses()
 
 # For dropoff/bell times purposes
 SCHOOL_ROUTE = dict()
@@ -87,5 +85,4 @@ with open(PREFIX+'schoolnames_map.pickle', 'rb') as handle:
 
 all_geocodesFile = PREFIX+'all_geocodes.csv'
 geocodes = pd.read_csv(all_geocodesFile)
-
 

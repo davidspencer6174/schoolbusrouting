@@ -72,23 +72,17 @@ def get_solutions(data, manager, routing, assignment, schools_subset):
         if total_time != 0: 
             new_school_route = [school_indexes[i] for i in list_index]
             total_route_list.append(new_school_route)
-
-
-    counts = Counter(chain(*map(set,total_route_list)))
-    total_route_list = [[i for i in sublist if counts[i]==1] for sublist in total_route_list]
-    total_route_list[-1] = new_school_route
         
     # Update the clusters df 
     for i in total_route_list:
+        new_school_route = list()
+        for idx, school in enumerate(i):
+            if idx == 0:
+                new_school_route.append((school, 0))
+            else:
+                new_school_route.append((school, round(constants.TRAVEL_TIMES[i.index(school)-1][school],2)))
 
-        constants.SCHOOL_ROUTE[key_count] = i
-        
-        new_times = list()
-        for idx, val in enumerate(i):
-            if idx > 0:
-                new_times.append(round(constants.TRAVEL_TIMES[i[idx-1]][i[idx]],2))
-        
-        constants.SCHOOL_ROUTE_TIME[key_count] = new_times
+        constants.SCHOOL_ROUTE[key_count] = new_school_route
         key_count += 1
         
         temp = copy.deepcopy(schools_subset[schools_subset['tt_ind'].isin(i)])
@@ -116,11 +110,7 @@ def solve_school_constraints(clustered_schools):
 
         if len(temp) == 1:
             
-#            print("ONLY ONE SCHOOL")
-#            print("################################")
-            
-            constants.SCHOOL_ROUTE[key_count] = list(temp['tt_ind'])
-            constants.SCHOOL_ROUTE_TIME[key_count] = [0]
+            constants.SCHOOL_ROUTE[key_count] = [(temp['tt_ind'].iloc[0], 0)]
             key_count += 1
 
             if new_clustered_schools.empty: 
@@ -133,7 +123,6 @@ def solve_school_constraints(clustered_schools):
                 new_clustered_schools = pd.concat([new_clustered_schools, temp])
 
         else:
-#            print("More than one school")
             travel_time_matrix, time_windows = get_constraints_info(temp)
             
             # Instantiate the data problem.
@@ -190,9 +179,4 @@ def solve_school_constraints(clustered_schools):
             else: 
                 print("---------------------- No assignment available")
 
-#            print("################################")
-                 
-
     return new_clustered_schools
-                  
-

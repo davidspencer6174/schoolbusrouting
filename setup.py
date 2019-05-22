@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import copy
 import constants
-from locations import School, Student
+from locations import Cluster
 from clustering import obtainClust_DBSCAN_AGGO_combined, partition_students
 from collections import defaultdict
 from constraint_solver import solve_school_constraints
@@ -105,35 +105,39 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     phonebook.loc[phonebook['School_type'] == 'elem', 'School_type'] = 0
     phonebook.loc[phonebook['School_type'] == 'middle', 'School_type'] = 1
     phonebook.loc[phonebook['School_type'] == 'high', 'School_type'] = 2
-
     phonebook = phonebook[phonebook.Prog.isin(constants.PROG_TYPES)]
     phonebook = phonebook.rename(index=str, columns={"Lat": "Lat", "Long": "Long"})
 
     schools_students_attend = phonebook["Cost_Center"].drop_duplicates().dropna()
     schools_students_attend = schools.loc[schools['Cost_Center'].isin(schools_students_attend)]
     schools_students_attend = pd.merge(schools_students_attend, phonebook[['Cost_Center', 'School_type']], on=['Cost_Center'], how='inner')
-    
+    schools_students_attend = schools_students_attend.drop_duplicates(subset="Cost_Center")
+    phonebook = pd.merge(phonebook, schools_students_attend[['Cost_Center', 'tt_ind']], on=['Cost_Center'], how='inner')
+    schools_students_attend = schools_students_attend.drop_duplicates(subset="tt_ind")
+    schools_students_attend = schools_students_attend.reset_index(drop=True)
+
     # Cluster schools and merge back into list of schools_students_attend
     clustered_schools = obtainClust_DBSCAN_AGGO_combined(schools_students_attend)
-    clustered_schools['early_start_time'] = clustered_schools['start_time_seconds'] - clustered_schools['bell_time_intervals']
     
     # Check requirements 
-    clustered_schools = solve_school_constraints(clustered_schools)    
+    clustered_schools['early_start_time'] = clustered_schools['start_time_seconds'] - clustered_schools['bell_time_intervals']
+    clustered_schools = solve_school_constraints(clustered_schools)   
+ 
     schools_students_attend = pd.merge(schools_students_attend, clustered_schools[['label', 'tt_ind']], on=['tt_ind'], how='inner').drop_duplicates()
     schools_students_attend = schools_students_attend.sort_values(['label'], ascending=[True])
     update_school_dropoff_info(schools_students_attend)
-    
-    
-#    # Geolocation based-approach
-#    clustered_schools = obtainClust_DBSCAN(schools_students_attend, constants.RADIUS, constants.MIN_PER_CLUSTER)
-#    schools_students_attend = pd.merge(schools_students_attend, clustered_schools, on=['Lat', 'Long'], how='inner').drop_duplicates()
-#    schools_students_attend = schools_students_attend.sort_values(['label', 'r1_start'], ascending=[True, False])
-    
+
     schoolcluster_students_map_df = partition_students(schools_students_attend, phonebook)
     update_verif_counters(schoolcluster_students_map_df)
+    return_clustered_schools = setup_clusters(schools_students_attend, schoolcluster_students_map_df)
+    return return_clustered_schools
 
-    return schools_students_attend, schoolcluster_students_map_df
-
+# Setup clusters: input all required files 
+def setup_clusters(cluster_schools_df, schoolcluster_students_df):
+    clustered_schools = defaultdict(int)
+    for idx in range(0, max(cluster_schools_df['label'])):
+        clustered_schools[idx] = Cluster(cluster_schools_df[cluster_schools_df['label'] == idx], schoolcluster_students_df[idx])
+    return clustered_schools
 
 # Setup the buses
 def setup_buses(bus_capacities):
@@ -151,54 +155,22 @@ def setup_buses(bus_capacities):
     cap_counts_list = sorted(cap_counts_list, key = lambda x:x[0])
     for i in range(len(cap_counts_list)):
         cap_counts_list[i] = list(cap_counts_list[i])
-    return cap_counts_list
+
+    # Setup contract buses
+    contract_cap_counts = setup_contract_buses(cap_counts_list)
+    return defaultdict(int, cap_counts_list), defaultdict(int, contract_cap_counts)
 
 # Setup contract buses
-def setup_contract_buses():
-    contract_cap_counts = copy.deepcopy(constants.CAP_COUNTS)
+def setup_contract_buses(cap_counts_list):
+    contract_cap_counts = copy.deepcopy(cap_counts_list)
     for i in range(0, len(contract_cap_counts)):
         contract_cap_counts[i][1] = 0 
     return contract_cap_counts
-
-# Setup clusters: input all required files 
-def setup_clusters(cluster_schools_df, schoolcluster_students_df):
-    
-    # Cluster to schools map
-    cluster_school_map = dict()
-    
-    for i in list(cluster_schools_df['label'].drop_duplicates()):
-        subset = cluster_schools_df.loc[cluster_schools_df['label'] == i].copy()  
-        schoollist = []
-        for row in subset.iterrows():
-            cost_center = str(int(row[1]['Cost_Center']))
-            school_ind = constants.CODES_INDS_MAP[constants.SCHOOLS_CODES_MAP[cost_center]]
-            schoollist.append(School(school_ind, cost_center, row[1]['School_Name']))
-        cluster_school_map[i] = schoollist
-
-    # School cluster to cluster of studentts map 
-    schoolcluster_students_map = dict()
-    
-    for key, value in schoolcluster_students_df.items():
-        list_of_clusters = []
-        for val in list(value['label'].drop_duplicates()):
-            subset = value.loc[value['label'] == val].copy()  
-            student_list = []
-            
-            for index, row in subset.iterrows():
-                stop = californiafy(row['AM_Stop_Address'])
-                stop_ind = constants.CODES_INDS_MAP[constants.STOPS_CODES_MAP[stop]]
-                cost_center = str(int(row['Cost_Center']))
-                school_ind = constants.CODES_INDS_MAP[constants.SCHOOLS_CODES_MAP[cost_center]]
-                this_student = Student(stop_ind, school_ind)
-                student_list.append(this_student)
-            list_of_clusters.append(student_list)
-        schoolcluster_students_map[key] = list_of_clusters
-
-    return cluster_school_map, schoolcluster_students_map
 
 # Set up the school_type map 
 def setup_schooltype_map(schools_students_attend):
     schooltype_map = dict()
     for index, row in schools_students_attend.iterrows():
         schooltype_map[row['tt_ind']] = row['School_type']
-    return schooltype_map 
+    return schooltype_map
+ 
