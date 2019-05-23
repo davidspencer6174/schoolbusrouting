@@ -19,8 +19,7 @@ def main():
     return clustered_routes 
 
 clustered_routes = main()
-clustered_routes = clean_and_combine(clustered_routes)
-
+clean_and_combine(clustered_routes)
 print_routes(clustered_routes)
 
 

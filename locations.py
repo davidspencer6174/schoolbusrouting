@@ -5,6 +5,7 @@ import operator
 from geopy.distance import geodesic
 import constants
 from collections import defaultdict
+from operator import add
 
 # School object 
 class School:
@@ -102,11 +103,22 @@ class Route:
                 constants.CONTRACT_CAP_COUNTS[bus] += 1
                 self.update_bus(bus)
 
-    # TODO: Delete schools that do need to be visited 
     # Clean routes 
     def clean_routes(self):
+        new_school_path = list()
+        for sch in self.school_path: 
+            if sch[0] in self.schools_to_visit:
+                new_school_path.append(sch)
+            else:
+                pass
+
+        self.school_path = [(sch[0], 0) if idx == 0 else (sch[0], round(constants.TRAVEL_TIMES[new_school_path[idx-1][0]][sch[0]]),2) for idx, sch in enumerate(new_school_path)]
+
+    # Combine routes
+    def combine_route(self, new_route):
         pass
-        
+
+
 # Clusters 
 class Cluster:
     def __init__(self, schools_info, students_info):
@@ -228,6 +240,11 @@ class Cluster:
         for route in self.routes_list:
             constants.CAP_COUNTS[route.bus_size] += 1
             
-    # Clean the routes within a cluster
+    # Clean routes in cluster
     def clean_routes_in_cluster(self):
+        for route in self.routes_list:
+            route.clean_routes()
+
+    # TODO: Combine routes within a cluster
+    def combine_routes_in_cluster(self):
         pass

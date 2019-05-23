@@ -78,7 +78,7 @@ def get_solutions(data, manager, routing, assignment, schools_subset):
             if idx == 0:
                 new_school_route.append((school, 0))
             else:
-                new_school_route.append((school, round(constants.TRAVEL_TIMES[i.index(school)-1][school],2)))
+                new_school_route.append((school, round(constants.TRAVEL_TIMES[i[i.index(school)-1]][school],2)))
 
         constants.SCHOOL_ROUTE[key_count] = new_school_route
         key_count += 1

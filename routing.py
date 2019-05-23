@@ -152,4 +152,7 @@ def get_possible_stops_path(cluster):
 	return stops_path[1:]
 
 def clean_and_combine(clusters):
-    pass
+    for clus in clusters.values(): 
+        clus.clean_routes_in_cluster()
+        clus.combine_routes_in_cluster()
+
