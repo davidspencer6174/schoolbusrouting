@@ -220,7 +220,13 @@ def start_combining(clustered_routes):
 				count = 0
 				iter_count += 1
 
-		if iter_count == 2:
+		if iter_count == 3:
 			break
-
+        
 	return clustered_routes
+
+def clean_and_combine_within_cluster(clusters):
+    for clus in clusters.values(): 
+        clus.clean_routes_in_cluster()
+        clus.combine_routes_in_cluster()
+
