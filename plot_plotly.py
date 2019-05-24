@@ -1,7 +1,6 @@
 import plotly
 import plotly.graph_objs as go
 from plotly.offline import *
-
 import pickle
 import pandas as pd
 import numpy as np 
