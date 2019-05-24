@@ -66,6 +66,8 @@ class Stop:
             print(self.type)
             print("Student is not the right age to be added to this stop")
             return False
+        if self.tt_ind != None and self.tt_ind != s.tt_ind:
+            print("Conflicting tt_inds at a stop")
         self.students.add(s)
         self.tt_ind = s.tt_ind
         self.occs += 1

@@ -114,7 +114,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
                                          message, ha='center', va='center',
                                          fontsize = 5))
     adjust_text(texts, precision = .1, text_from_points = False)
-    prefix = ("presentation_figures_matplotlib//")
+    prefix = ("0516figures//")
     plt.axis('off')
     if to_plot == None:
         fig.savefig(prefix + 'allvintagebalboa.eps', bbox_inches = 'tight',
@@ -128,7 +128,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
     
     
 
-loading = open("output//routesforpresentationb.obj", "rb")
+loading = open("output//8minutesdropoffgreedyb.obj", "rb")
 obj = pickle.load(loading)
 loading.close()
 

@@ -33,7 +33,6 @@ def greedy_assignment(route, buses):
         for bus in buses:
             if bus[1] > 0 and route_creating.is_acceptable(bus[0]):
                 route_creating.set_capacity(bus[0])
-                print("doin a subtraction")
                 bus[1] -= 1
                 break
         #If no bus was large enough, should be for one stop.
@@ -225,17 +224,17 @@ def assign_buses(routes, buses):
                     break
     return new_routes
 
-import pickle
-from setup import setup_buses
+#import pickle
+#from setup import setup_buses
 
-loading = open(("output//8minutesdropoffgreedy.obj"), "rb")
+#loading = open(("output//8minutesdropoffgreedy.obj"), "rb")
 #loading = open(("output//mxproutes.obj"), "rb")
 
-routes = pickle.load(loading)
-loading.close()
-constants.BUS_SEARCH_TIME = 1.0
-buses = setup_buses('data//dist_bus_capacities.csv')
-out = assign_buses(routes, buses)
+#routes = pickle.load(loading)
+#loading.close()
+#constants.BUS_SEARCH_TIME = 1.0
+#buses = setup_buses('data//dist_bus_capacities.csv')
+#out = assign_buses(routes, buses)
 
 
 #Results for existing routes and my routes as of 05/16:
