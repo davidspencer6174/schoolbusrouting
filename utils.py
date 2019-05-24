@@ -1,7 +1,6 @@
 import constants
 import itertools
 import numpy as np
-from diagnostics import printout, printout_google_maps
 
 #Used to get the data into a full address format        
 def californiafy(address):
@@ -125,17 +124,50 @@ def full_comparison(rp1, rp2):
                 for stop in r2.stops:
                     stop_inds.add(stop.tt_ind)
                 iso_stops_same.append(len(stop_inds))
-                if len(stop_inds) == 5: #what is happening here?
-                    for stop in r1.stops:
-                        if stop.school.school_name == None:
-                            print(stop.occs)
-                    for stop in r2.stops:
-                        print(stop.occs)
-                    print(r1.stops)
-                    print(r2.stops)
-                    #printout_google_maps(r1)
-                    #printout_google_maps(r2)
     print(str(tot) + " routes appear in both route plans.")
     print("Number of stops in these common routes:")
     iso_stops_same.sort()
     print(iso_stops_same)
+    
+def two_opt(route):
+    num_stops = len(route.stops)
+    orig_length = route.length
+    for ind1 in range(num_stops):
+        for ind2 in range(ind1+2, num_stops):
+            route.stops[ind1:ind2] = route.stops[ind1:ind2][::-1]
+            route.recompute_length()
+            if route.length < orig_length:
+                print("Improved")
+                two_opt(route)
+                return
+            route.stops[ind1:ind2] = route.stops[ind1:ind2][::-1]
+    route.recompute_length()
+          
+#Determines mean student travel time
+def mstt(route_plan):
+    trav_times = []
+    for route in route_plan:
+        trav_times.extend(route.student_travel_times())
+    trav_times = np.array(trav_times)
+    return np.mean(trav_times)
+    
+#Entries in to_do determine whether we make greedy moves, do two_opt,
+#and do Park/Kim's mixed-load procedure.
+#route_plan should be a list.
+def improvement_procedures(route_plan, to_do = [True, True, True]):
+    from greedymoves import make_greedy_moves
+    from mixedloads import mixed_loads
+    while True:
+        prev_num_routes = len(route_plan)
+        prev_mean_trav = mstt(route_plan)
+        if to_do[0]:
+            make_greedy_moves(route_plan)
+        if to_do[1]:
+            for route in route_plan:
+                two_opt(route)
+        if to_do[2]:
+            mixed_loads(route_plan)
+        if (len(route_plan) == prev_num_routes and
+            mstt(route_plan) == prev_mean_trav):
+            break
+    return route_plan
