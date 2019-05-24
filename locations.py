@@ -1,11 +1,8 @@
-import pandas as pd
 import numpy as np
 import copy
-import operator
 from geopy.distance import geodesic
 import constants
 from collections import defaultdict
-from operator import add
 
 # School object 
 class School:
@@ -23,12 +20,12 @@ class Student:
         self.age_type = constants.SCHOOLTYPE_MAP[school_ind]
         self.time_on_bus = None
     
-    # Calculate how much time a student spends on the bus
-    def update_time_on_bus(self, current_route):
-        school_ind = current_route.path.index(self.school_ind)
-        stop_ind = current_route.path.index(self.tt_ind)
-        new_time = current_route.path_info[school_ind:stop_ind]
-        self.time_on_bus = round(sum([i for i,j in new_time]), 2)
+    #TODO: update time on bus 
+    def update_time_on_bus(self, this_route):
+        school_route_time = 0
+        stops_route_time = 0
+        self.time_on_bus = school_route_time + stops_route_time
+        pass
 
 # Route object  
 class Route: 
@@ -38,7 +35,9 @@ class Route:
         self.schools_to_visit = set()
         self.students_list = list()
         self.bus_size = 0
-        self.pickup_students(list_of_students)
+        
+        if list_of_students != None:
+            self.pickup_students(list_of_students)
 
     # Update route variables 
     def update_bus(self, bus_cap):
@@ -90,7 +89,7 @@ class Route:
 
         if self.bus_size == 0 and not constants.CAP_COUNTS:
             self.assign_contract_route()
-    
+
     # Assign contract bus 
     def assign_contract_route(self):
         print('CONTRACT BUS USED')
@@ -113,11 +112,21 @@ class Route:
                 pass
 
         self.school_path = [(sch[0], 0) if idx == 0 else (sch[0], round(constants.TRAVEL_TIMES[new_school_path[idx-1][0]][sch[0]]),2) for idx, sch in enumerate(new_school_path)]
+        self.stops_path = [(self.stops_path[0][0], round(constants.TRAVEL_TIMES[self.school_path[-1][0]][self.stops_path[0][0]],2), self.stops_path[0][2])] + self.stops_path[1:]
 
-    # Combine routes
+        for stud in self.students_list:
+            stud.update_time_on_bus(self)
+
+    # Manually assignments when converting route formats
+    def assign_bus_manual(self, bus_size):
+        self.bus_size = bus_size
+    
+    def add_students_manual(self, list_of_students):
+        self.students_list = list_of_students
+
+    # TODO: Combine routes
     def combine_route(self, new_route):
         pass
-
 
 # Clusters 
 class Cluster:

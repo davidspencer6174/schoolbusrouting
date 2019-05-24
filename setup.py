@@ -130,12 +130,8 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     schoolcluster_students_map_df = partition_students(new_clustered_schools, phonebook)
     update_verif_counters(schoolcluster_students_map_df)
     
-#    count = 0 
-#    for i in schoolcluster_students_map_df: 
-#         count+= int(len(schoolcluster_students_map_df[i]))
-#    print("NUM OF SCHOOLS: " + str(len(schools_students_attend)))
-#    print("COUNT OF STUDENTS: " + str(count))
-
+    constants.PHONEBOOK = phonebook
+    
     return_clustered_schools = setup_clusters(schools_students_attend, schoolcluster_students_map_df)
     
     return return_clustered_schools

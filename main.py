@@ -20,8 +20,8 @@ def main():
 
 clustered_routes = main()
 clean_and_combine(clustered_routes)
-print_routes(clustered_routes)
-
+route_count = print_routes(clustered_routes)
+print(route_count)
 
 #with open('routes_returned_(2019-05-22 00:18:47.186591)', 'rb') as f:
 #    # The protocol version used is detected automatically, so we do not
