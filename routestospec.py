@@ -32,6 +32,8 @@ def dsroutes_to_spec(routes, filepath):
         for school in r.schools:
             schools.append(school.tt_ind)
         all_routes.append(r_formatted)
+        stops = stops[::-1]
+        schools = schools[::-1]
     saving = open(filepath, 'wb')
     pickle.dump(all_routes, saving)
     saving.close()
@@ -42,23 +44,37 @@ def spec_to_dsroute(spec_r, students, schools_students_map, all_schools):
     #First bring in all of the information
     
     #Information about stops
-    for stop_group in spec_r[0]:
+    for stop_group in spec_r[0][::-1]:
         for stop in stop_group[1]:
             stop_stud_type = from_spec_types[stop[1]]
             #stop_stud_type = stop[1]
             for school in all_schools:
                 if school.tt_ind == stop[0]:
                     stop_school = school
-            adding_stop = Stop(stop_school, stop_stud_type)
-            r.stops.append(adding_stop)
+            #adding_stop = Stop(stop_school, stop_stud_type)
+            adding_stop0 = Stop(stop_school, 'E')
+            adding_stop1 = Stop(stop_school, 'M')
+            adding_stop2 = Stop(stop_school, 'H')
+            #r.stops.append(adding_stop)
             for student in students:
                 if (student.school.tt_ind == stop_school.tt_ind and
-                    student.type == stop_stud_type and
+                    #student.type == stop_stud_type and
                     student.tt_ind == stop_group[0]):
-                    adding_stop.add_student(student)
+                    if student.type == 'E':
+                        adding_stop0.add_student(student)  
+                    if student.type == 'M':
+                        adding_stop1.add_student(student)
+                    if student.type == 'H':
+                        adding_stop2.add_student(student)
+            if adding_stop0.occs > 0:
+                r.stops.append(adding_stop0)
+            if adding_stop1.occs > 0:
+                r.stops.append(adding_stop1)
+            if adding_stop2.occs > 0:
+                r.stops.append(adding_stop2)
                     
     #School ordering
-    for tt_ind in spec_r[1]:
+    for tt_ind in spec_r[1][::-1]:
         for school in all_schools:
             if tt_ind == school.tt_ind:
                 r.schools.append(school)
@@ -108,5 +124,7 @@ def spec_to_dsroutes(filepath):
 
 #recovered_routes = spec_to_dsroutes("testing_routes_save.obj")
 
-willy_routes = spec_to_dsroutes('willy_routes.obj')
+#conv_routes = spec_to_dsroutes('miscellaneous//converted_routes_new.pickle')
+
+willy_routes = spec_to_dsroutes('miscellaneous//converted_routes_new.obj')
 #my_routes = spec_to_dsroutes('tmp_specdroutes.obj')
