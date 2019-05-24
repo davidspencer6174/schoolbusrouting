@@ -2,7 +2,7 @@ import constants
 import networkx as nx
 import numpy as np
 from setup import setup_buses, setup_stops, setup_students
-from busassignment import assign_buses
+from busassignment_bruteforce import assign_buses
 
 #Moves all stops of travel time index tt_ind from
 #route1 to route2. Returns False if student types or bell times are
@@ -231,27 +231,31 @@ def find_greedy_cycles(route_plan):
         find_greedy_cycles(route_plan)
           
 import pickle as pickle
-#Test code
-loading = open(("output//optmstt55mfurther.obj"), "rb")
-routes = pickle.load(loading)
-loading.close()
-print("Original number of routes is " + str(len(routes)))
-print("Original total travel time is " + str(sum([sum(r.student_travel_times()) for r in routes])))
-make_greedy_moves(routes)
-#constants.MAX_TIME = 3600
-for route in routes:
-    route.recompute_maxtime()
-print("New number of routes is " + str(len(routes)))
-print("New total travel time is " + str(sum([sum(r.student_travel_times()) for r in routes])))
-saving = open(("output//optmstt55mfurthergreedy.obj"), "wb")
-pickle.dump(routes, saving)
-saving.close()
-
-cap_counts = setup_buses('data//dist_bus_capacities.csv')
-result = assign_buses(routes, cap_counts)[1]
-saving = open(("output//optmstt55mfurthergreedyb.obj"), "wb")
-pickle.dump(result, saving)
-saving.close()
+#Determine whether to actually run anything or just import functions
+running = False
+if running:
+    loading = open(("output//8minutesdropoff.obj"), "rb")
+    routes = pickle.load(loading)
+    loading.close()
+    print("Original number of routes is " + str(len(routes)))
+    print("Original total travel time is " + str(sum([sum(r.student_travel_times()) for r in routes])))
+    make_greedy_moves(routes)
+    #constants.MAX_TIME = 3600
+    for route in routes:
+        route.recompute_maxtime()
+    print("New number of routes is " + str(len(routes)))
+    print("New total travel time is " + str(sum([sum(r.student_travel_times()) for r in routes])))
+    saving = open(("output//8minutesdropoffgreedy.obj"), "wb")
+    pickle.dump(routes, saving)
+    saving.close()
+        
+    cap_counts = setup_buses('data//dist_bus_capacities.csv')
+    result = assign_buses(routes, cap_counts)
+    saving = open(("output//8minutesdropoffgreedyb.obj"), "wb")
+    pickle.dump(result, saving)
+    saving.close()
+    print("Number of bused routes is " + str(len(result)))
+# =============================================================================
 
 
 

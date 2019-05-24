@@ -40,10 +40,10 @@ def printout(route):
             print(append_to_link("Go to latitude-longitude ", stops[i].tt_ind,
                                  slash=False))
         if stops[i].occs > 1:
-            print("Pick up " + str(stops[i].occs) +
+            print("Pick up " + str(stops[i].occs) + " " + stops[i].type +
                   " students who go to " + stops[i].school.school_name)
         else:
-            print("Pick up " + str(stops[i].occs) +
+            print("Pick up " + str(stops[i].occs) + " " + stops[i].type +
                   " student who goes to " + stops[i].school.school_name)
     for i in range(len(schools)):
         if i == 0 or (i > 0 and schools[i].tt_ind != schools[i - 1].tt_ind):
@@ -169,10 +169,8 @@ def diagnostics(route_iter):
     #        print("Route that goes to Vintage/Balboa")
     #        printout(r)
     
-loading = open("output//routesforpresentationb.obj", "rb")
-#loading = open("output//optmstt55mfurthergreedyb.obj", "rb")
-obj = pickle.load(loading)
-diagnostics(obj)
-#print_all(obj)
-loading.close()
+#loading = open("output//8minutesdropoffgreedyb.obj", "rb")
+#obj = pickle.load(loading)
+#diagnostics(obj)
+#loading.close()
             

@@ -1,4 +1,4 @@
-from busassignment import assign_buses
+from busassignment_bruteforce import assign_buses
 import constants
 import itertools
 import pickle
@@ -108,7 +108,7 @@ def existing_routes(phonebooks, all_geocodes, geocoded_stops,
                 else:
                     if constants.VERBOSE:
                         print("No time given for " + school)                    
-                ind_school_dict[school_ind] = School(school_ind, belltime)
+                ind_school_dict[school_ind] = School(school_ind, belltime, fields[2])
             this_student = Student(stop_ind, ind_school_dict[school_ind],
                                    age_type, fields)
             students.append(this_student)
@@ -253,12 +253,16 @@ longest = minute_lengths[-1]
 #plt.title("Route length estimates - existing routes")
 #plt.savefig('output//existing_routes_unbinned.eps')
 
+saving = open('output//mxproutes.obj', 'wb')
+pickle.dump(mxp_routes, saving)
+saving.close()
+
 stud_trav_times = stud_trav_time_array(mxp_routes)
 mean_stud_trav_time = np.mean(stud_trav_times)
 print("Mean student travel time is " + str(mean_stud_trav_time/60))
 
 cap_counts = setup_buses('data//dist_bus_capacities.csv')
-bused_mxp_routes = assign_buses(mxp_routes, cap_counts)[1]
+bused_mxp_routes = assign_buses(mxp_routes, cap_counts)
 print("Number of bused mxp routes: " + str(len(bused_mxp_routes)))
 stud_trav_times_bused_mxp = stud_trav_time_array(bused_mxp_routes)
 print("Mean student travel time for bused mxp routes: " + str(np.mean(stud_trav_times_bused_mxp)/60))
@@ -266,20 +270,25 @@ print("Standard deviation of student travel time: " + str(np.std(stud_trav_times
 route_lengths_bused_mxp = np.array([r.length for r in bused_mxp_routes])
 print("Mean route length for bused mxp routes: " + str(np.mean(route_lengths_bused_mxp)/60))
 print("Standard deviation of route length: " + str(np.std(route_lengths_bused_mxp)/60))
+saving = open('output//busedmxproutes.obj', 'wb')
+pickle.dump(bused_mxp_routes, saving)
+saving.close()
 
-cap_counts = setup_buses('data//dist_bus_capacities.csv')
-loading = open('output//routesforpresentationub.obj', 'rb')
-my_routes = pickle.load(loading)
-loading.close()
-my_bused_routes = assign_buses(my_routes, cap_counts)[1]
-print("My number of bused routes: " + str(len(my_bused_routes)))
-stud_trav_times_my_bused = stud_trav_time_array(my_bused_routes)
-print("Mean student travel time for my bused routes: " + str(np.mean(stud_trav_times_my_bused)/60))
-print("Standard deviation of student travel time: " + str(np.std(stud_trav_times_my_bused)/60))
-my_route_lengths = np.array([r.length for r in my_bused_routes])
-print("Mean route length for my mxp routes: " + str(np.mean(my_route_lengths)/60))
-print("Standard deviation of route length: " + str(np.std(my_route_lengths)/60))
-
+doing_mine = False
+if doing_mine:
+    cap_counts = setup_buses('data//dist_bus_capacities.csv')
+    loading = open('output//8minutesdropoffgreedy.obj', 'rb')
+    my_routes = pickle.load(loading)
+    loading.close()
+    my_bused_routes = assign_buses(my_routes, cap_counts)
+    print("My number of bused routes: " + str(len(my_bused_routes)))
+    stud_trav_times_my_bused = stud_trav_time_array(my_bused_routes)
+    print("Mean student travel time for my bused routes: " + str(np.mean(stud_trav_times_my_bused)/60))
+    print("Standard deviation of student travel time: " + str(np.std(stud_trav_times_my_bused)/60))
+    my_route_lengths = np.array([r.length for r in my_bused_routes])
+    print("Mean route length for my mxp routes: " + str(np.mean(my_route_lengths)/60))
+    print("Standard deviation of route length: " + str(np.std(my_route_lengths)/60))
+    
 
 
 
