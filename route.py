@@ -52,7 +52,7 @@ class Route:
         
     #Inserts a stop visit at position pos in the route.
     #The default position is the end.
-    #Does not do any checks.
+    #Only check is feasibility of school addition.
     def add_stop(self, stop, pos = -1):
         if not self.add_school(stop.school):
             return False
@@ -63,7 +63,7 @@ class Route:
             self.recompute_length()
             self.max_time = max(self.max_time,
                                 constants.SLACK*trav_time(stop, stop.school))
-            return
+            return True
         #Add the stop
         self.stops = self.stops[:pos] + [stop] + self.stops[pos:]
         #Maintain the travel time field and occupants field
@@ -72,6 +72,7 @@ class Route:
         self.occupants += stop.occs
         self.max_time = max(self.max_time,
                             constants.SLACK*trav_time(stop, stop.school))
+        return True
         
     def remove_stop(self, stop):
         self.stops.remove(stop)
@@ -128,8 +129,6 @@ class Route:
                 self.stops.insert(best_ind, stop)
         else:
             self.stops = [stop]
-            if len(self.schools) == 0:
-                print("why")
         self.recompute_length()
         self.occupants += stop.occs
         self.max_time = max(self.max_time,
