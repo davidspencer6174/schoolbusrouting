@@ -123,7 +123,7 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     # Store for future references
     update_school_dropoff_info(schools_students_attend)
     constants.SCHOOLS_STUDENTS_ATTEND = schools_students_attend
-    constants.STUDENT_PHONEBOOK = phonebook
+    constants.PHONEBOOK = phonebook
 
     return single_school_clusters
 

@@ -34,7 +34,7 @@ TRAVEL_TIMES = (np.load(PREFIX + "travel_times.npy")*1.5)
 
 # Store information about schools and students 
 SCHOOLS_STUDENTS_ATTEND = pd.DataFrame()
-STUDENT_PHONEBOOK = pd.DataFrame()
+PHONEBOOK = pd.DataFrame()
 
 # For dropoff/bell times purposes
 DROPOFF_TIME = dict()

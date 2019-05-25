@@ -220,7 +220,7 @@ def start_combining(clustered_routes):
 				count = 0
 				iter_count += 1
 
-		if iter_count == 3:
+		if iter_count == 1:
 			break
         
 	return clustered_routes

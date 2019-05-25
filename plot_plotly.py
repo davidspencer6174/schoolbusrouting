@@ -3,43 +3,55 @@ import plotly.graph_objs as go
 from plotly.offline import *
 import pickle
 import pandas as pd
-import numpy as np 
 
+mapbox_access_token = 'pk.eyJ1IjoiY3VoYXV3aHVuZyIsImEiOiJjanV5Z3lmeDIweTU2M3pqd2R2c244cWZiIn0.7UqrnYaqeh59icXyuDGT6Q'
 prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/mixed_load_data/"
+
 with open(prefix+'routes_returned.pickle', 'rb') as handle:
     routes_returned = pickle.load(handle)
 
-all_geocodesFile = prefix+'all_geocodes.csv'
-geocodes = pd.read_csv(all_geocodesFile)
+with open(prefix+'schoolnames_map.pickle', 'rb') as handle:
+    SCHOOLNAME_MAP = pickle.load(handle)
 
-stop_namesFile = prefix+'stop_names.csv'
-stop_names = pd.read_csv(stop_namesFile)
-
-mapbox_access_token = 'pk.eyJ1IjoiY3VoYXV3aHVuZyIsImEiOiJjanV5Z3lmeDIweTU2M3pqd2R2c244cWZiIn0.7UqrnYaqeh59icXyuDGT6Q'
+geocodes = pd.read_csv(prefix+'all_geocodes.csv')
+STOP_NAME = pd.read_csv(prefix+'stop_names.csv')
 LA_coord = [34.052235, -118.243683]
 
 def get_center_geolocs(total_geos):
     return [sum(total_geos.Lat)/len(total_geos), sum(total_geos.Long)/len(total_geos)]
 
 # Plot routes, stops and schools
-def plot_routes(schools_geo, stops_geo, routes, filename):
+def plot_routes(routes, filename):
     
-    points_geoloc = schools_geo[['Lat','Long']].append(stops_geo[['Lat','Long']]).round(6)
-    center_coords = get_center_geolocs(points_geoloc)
+    schools_geo = set()
+    stops_geo = set()
+    
+    for route in routes: 
+        schools_geo.update(route.schools_to_visit)
+        stops_geo.update([stop[0] for stop in route.stops_path])
+    
+    schools_geo_df = geocodes.iloc[list(schools_geo),:]
+    schools_geo_df.insert(0, "Name", [SCHOOLNAME_MAP[school] for school in schools_geo])
+    
+    stops_geo_df = geocodes.iloc[list(stops_geo),:]
+    stops_geo_df.insert(0, "Name", [STOP_NAME.iloc[stop]['ADDRESS'] for stop in stops_geo])
+
+    all_points = schools_geo_df[['Lat','Long']].append(stops_geo_df[['Lat','Long']]).round(6)
+    center_coords = get_center_geolocs(all_points)
         
     data = [
         # Plot schools 
         go.Scattermapbox(
             name='Schools cluster',
-            lat=schools_geo.Lat,
-            lon=schools_geo.Long,
+            lat=schools_geo_df.Lat,
+            lon=schools_geo_df.Long,
             mode='markers+text',
             marker=go.scattermapbox.Marker(
                 size=10,
                 color='rgb(255, 0, 0)',
                 opacity=0.7
             ),
-            text=schools_geo.Name,    
+            text=schools_geo_df.Name,    
             textposition="middle right",
             hoverinfo = 'text'
         ),
@@ -47,8 +59,8 @@ def plot_routes(schools_geo, stops_geo, routes, filename):
         # Plot stops
         go.Scattermapbox(
             name='Stops',
-            lat=stops_geo.Lat,
-            lon=stops_geo.Long,
+            lat=stops_geo_df.Lat,
+            lon=stops_geo_df.Long,
             mode='markers',
             marker=go.scattermapbox.Marker(
                 size=12,
@@ -62,22 +74,30 @@ def plot_routes(schools_geo, stops_geo, routes, filename):
     route_paths = list()
     for i, current_route in enumerate(routes):
         
-        points_geoloc = geocodes.iloc[current_route.path,: ]
-        diff = abs(len(current_route.path_info) - len(current_route.path))
-        stop_info = ["START"] * diff + current_route.path_info
+        points_geoloc = geocodes.iloc[[sch[0] for sch in current_route.school_path] + [stop[0] for stop in current_route.stops_path],: ]
+        points_geoloc = points_geoloc.round(6)
         
-        for j, stop in enumerate(current_route.path):
-            stop_info[j] = str(stop_names.loc[stop]["ADDRESS"]) + " -- " + str(stop_info[j])
+        school_info = list()
+        for j, sch in enumerate([sch[0] for sch in current_route.school_path]):
+            if j == 0:
+                school_info.append(str(SCHOOLNAME_MAP[sch]) + " -- START")
+            else:
+                school_info.append(str(SCHOOLNAME_MAP[sch]) + " -- " + str(current_route.stops_path[j]))
+
+        stop_info = list()
+        for j, stop in enumerate([stop[0] for stop in current_route.stops_path]):
+            stop_info.append(str(STOP_NAME.loc[stop]["ADDRESS"]) + " -- " + str(current_route.stops_path[j]))
         
+    
         route_paths.append(
             go.Scattermapbox(
                 visible = True,
                 opacity = 1,
-                name = "Route " + str(i),
+                name = "Route " + str(i), 
                 lat = list(points_geoloc.Lat),
                 lon = list(points_geoloc.Long),
                 mode = 'lines',
-                text = stop_info
+                text = school_info + stop_info
             )
         )
     
@@ -102,50 +122,3 @@ def plot_routes(schools_geo, stops_geo, routes, filename):
     fig = go.Figure(data=route_paths+data, layout=layout)
     plotly.offline.plot(fig, filename=str(filename)+'.html')
     
-# Plot school clusters
-def plot_school_clusters(schools_students_attend, filename):
-    
-    school_center = get_center_geolocs(schools_students_attend)
-    clus_number = max(schools_students_attend['label'])
-    school_cluster_list = list()
-    
-    for i in range(0, clus_number+1):
-        
-        subset = schools_students_attend[schools_students_attend['label'] == i]
-        color = list(np.random.choice(range(256), size=3))
-        
-        school_cluster_list.append(
-                go.Scattermapbox(
-                                name= "(" + str(i) + ') -- school cluster',
-                                lat=subset.Lat,
-                                lon=subset.Long,
-                                mode='markers',
-                                marker=go.scattermapbox.Marker(
-                                    color='rgb(' + str(color[0]) + ',' + str(color[1]) + ',' + str(color[2]) + ')',
-                                    size=10,
-                                    opacity=0.7,
-                                 ),
-                                text = subset.School_Name
-                            )
-                )
-
-    # Layout settings
-    layout = go.Layout(
-        title = filename,
-        autosize=True,
-        hovermode=None,
-        mapbox=go.layout.Mapbox(
-            accesstoken=mapbox_access_token,
-            bearing=0,
-            center=go.layout.mapbox.Center(
-                lat=school_center[0],
-                lon=school_center[1]
-            ),
-            pitch=0,
-            zoom=8.5,
-            style='light'
-        ),
-    )
-
-    fig = go.Figure(data=school_cluster_list, layout=layout)
-    plotly.offline.plot(fig, filename='school_clusters.html')
