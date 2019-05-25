@@ -25,15 +25,15 @@ class Student:
     
     # Calculate how much time a student spends on the bus
     def update_time_on_bus(self, current_route):
-        school_ind = current_route.path.index(self.school_ind)
-        stop_ind = current_route.path.index(self.tt_ind)
-        new_time = current_route.path_info[school_ind:stop_ind]
-        self.time_on_bus = round(sum([i for i,j in new_time]), 2)
+        total_path = current_route.schools_path + current_route.stops_path
+        school_ind = [sch[0] for sch in total_path].index(self.school_ind)
+        stop_ind = [stop[0] for stop in total_path].index(self.tt_ind)
+        self.time_on_bus = sum([stop[1] for stop in total_path[school_ind:stop_ind+1]])
 
 # Route object  
 class Route: 
-    def __init__(self, school_path, stops_path, list_of_students):
-        self.school_path = school_path
+    def __init__(self, schools_path, stops_path, list_of_students):
+        self.schools_path = schools_path
         self.stops_path = stops_path
         self.schools_to_visit = set()
         self.students_list = list()
@@ -49,7 +49,7 @@ class Route:
 
     # Get different info about route 
     def get_total_path(self):
-        return self.school_path + self.stops_path
+        return self.schools_path + self.stops_path
 
     def get_student_counts(self):
         count = np.sum([stop[2] for stop in self.stops_path])
@@ -105,32 +105,25 @@ class Route:
 
     # Clean routes and convert times
     def clean_routes(self):
-        new_school_path = list()
-        for sch in self.school_path: 
+        new_schools_path = list()
+        for sch in self.schools_path: 
             if sch[0] in self.schools_to_visit:
-                new_school_path.append(sch)
+                new_schools_path.append(sch)
             else:
                 pass
 
         # Modify times from seconds to minutes
-        self.school_path = [(sch[0], 0) if idx == 0 else (sch[0], round(constants.TRAVEL_TIMES[new_school_path[idx-1][0]][sch[0]]),2) for idx, sch in enumerate(new_school_path)]
-        if len(self.school_path) > 1: 
-            self.school_path = [(sch[0], sch[1]/60, sch[2]) for sch in self.school_path[1:]]
-
-        self.stops_path = [(stop[0], stop[1]/60, stop[2]) for stop in self.stops_path]
+        self.schools_path = [(sch[0], 0) if idx == 0 else (sch[0], round(constants.TRAVEL_TIMES[new_schools_path[idx-1][0]][sch[0]],2)) for idx, sch in enumerate(new_schools_path)]
+        self.stops_path = [(stop[0], round(stop[1]/60,2), stop[2]) for stop in self.stops_path]
 
         for stud in self.students_list:
             stud.update_time_on_bus(self)
-
-    # Combine routes
-    def combine_route(self, new_route):
-        pass
 
 # Clusters 
 class Cluster:
     def __init__(self, schools_info, students_info):
         self.routes_list = list()
-        self.school_path = list()
+        self.schools_path = list()
         self.schools_info_df = schools_info
         self.students_info_df = students_info
         self.students_list = list()
@@ -144,7 +137,7 @@ class Cluster:
         [[stops_visited_1.add(j[0]) for j in route.stops_path] for route in self.routes_list]
         [[stops_visited_2.add(j[0]) for j in route.stops_path] for route in other.routes_list]
 
-        if self.school_path == other.school_path and stops_visited_1 == stops_visited_2:
+        if self.schools_path == other.schools_path and stops_visited_1 == stops_visited_2:
             return True
         else:
             return False
@@ -163,11 +156,11 @@ class Cluster:
     # Time to travel through all schools
     def get_school_route_time(self):
         tot_time = 0
-        if len(self.school_path) == 1:
+        if len(self.schools_path) == 1:
             return tot_time
         else: 
-            for idx, school in enumerate(self.school_path[1:]):
-                tot_time += self.school_path[idx+1][1] + constants.DROPOFF_TIME[school[0]]
+            for idx, school in enumerate(self.schools_path[1:]):
+                tot_time += self.schools_path[idx+1][1] + constants.DROPOFF_TIME[school[0]]
             return tot_time 
 
     # Combine the clusters  
@@ -212,10 +205,10 @@ class Cluster:
             
             if school_route:
                 if len(school_route) == 1:
-                    self.school_path = [(school_route[0], 0)]
+                    self.schools_path = [(school_route[0], 0)]
                 else:
-                    updated_school_path = [(school_route[0], 0)] + [(school, round(constants.TRAVEL_TIMES[school_route[school_route.index(school)-1]][school], 2)) for idx, school in enumerate(school_route[1:])]
-                    self.school_path = updated_school_path
+                    updated_schools_path = [(school_route[0], 0)] + [(school, round(constants.TRAVEL_TIMES[school_route[school_route.index(school)-1]][school], 2)) for idx, school in enumerate(school_route[1:])]
+                    self.schools_path = updated_schools_path
                 return True
             else:
                 return False
@@ -279,6 +272,5 @@ class Cluster:
         for route in self.routes_list:
             route.clean_routes()
 
-    # TODO: Combine routes within a cluster
-    def combine_routes_in_cluster(self):
-        pass
+
+

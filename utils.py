@@ -18,14 +18,14 @@ def californiafy(address):
 # Convert routes to common
 def convert_to_common(route):
     list_of_stops = list()
-    list_of_visited_schools = [sch[0] for sch in route.school_path]
+    list_of_visited_schools = [sch[0] for sch in route.schools_path]
     for stop in route.stops_path:
         schools_at_stop = set()
         for stud in route.students_list:
             if stud.tt_ind == stop[0]:
                 schools_at_stop.add((stud.school_ind, stud.age_type))
         list_of_stops.append((stop[0], schools_at_stop))
-    route_output = (list_of_stops, list_of_visited_schools, route.bus_size)    
+    route_output = (list_of_stops, list_of_visited_schools, None)    
     return route_output
     
 # A route plan is stored as a list of routes.

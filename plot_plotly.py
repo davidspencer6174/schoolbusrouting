@@ -74,11 +74,11 @@ def plot_routes(routes, filename):
     route_paths = list()
     for i, current_route in enumerate(routes):
         
-        points_geoloc = geocodes.iloc[[sch[0] for sch in current_route.school_path] + [stop[0] for stop in current_route.stops_path],: ]
+        points_geoloc = geocodes.iloc[[sch[0] for sch in current_route.schools_path] + [stop[0] for stop in current_route.stops_path],: ]
         points_geoloc = points_geoloc.round(6)
         
         school_info = list()
-        for j, sch in enumerate([sch[0] for sch in current_route.school_path]):
+        for j, sch in enumerate([sch[0] for sch in current_route.schools_path]):
             if j == 0:
                 school_info.append(str(SCHOOLNAME_MAP[sch]) + " -- START")
             else:
