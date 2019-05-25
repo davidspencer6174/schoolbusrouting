@@ -103,6 +103,7 @@ class Route:
                 self.update_bus(bus)
 
     # Clean routes 
+    # Clean routes and convert times
     def clean_routes(self):
         new_school_path = list()
         for sch in self.school_path: 
@@ -111,8 +112,12 @@ class Route:
             else:
                 pass
 
+        # Modify times from seconds to minutes
         self.school_path = [(sch[0], 0) if idx == 0 else (sch[0], round(constants.TRAVEL_TIMES[new_school_path[idx-1][0]][sch[0]]),2) for idx, sch in enumerate(new_school_path)]
-        self.stops_path = [(self.stops_path[0][0], round(constants.TRAVEL_TIMES[self.school_path[-1][0]][self.stops_path[0][0]],2), self.stops_path[0][2])] + self.stops_path[1:]
+        if len(self.school_path) > 1: 
+            self.school_path = [(sch[0], sch[1]/60, sch[2]) for sch in self.school_path[1:]]
+
+        self.stops_path = [(stop[0], stop[1]/60, stop[2]) for stop in self.stops_path]
 
         for stud in self.students_list:
             stud.update_time_on_bus(self)
