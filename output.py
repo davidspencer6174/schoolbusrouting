@@ -10,7 +10,7 @@ def print_routes(clusters):
         school_cluster_counts[len(clusters[idx].schools_list)] += 1 
 #        print("Cluster (" + str(idx) + ") -- " + str([school.school_name for school in clusters[idx].schools_list]))
         for route in clusters[idx].routes_list:
-#            print(str(route.school_path) + str(route.stops_path))
+#            print(str(route.schools_path) + str(route.stops_path))
             tot_stud_counts += sum([sum(stop[2]) for stop in route.stops_path])
             
             route_count += 1 

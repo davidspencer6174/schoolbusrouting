@@ -20,7 +20,7 @@ def route_cluster(cluster):
 	stops_info = get_stops_info(get_possible_stops_path(cluster), cluster)
 	list_of_students = sorted(copy.deepcopy(cluster.students_list), key=lambda x: [stop[0] for stop in stops_info].index(x.tt_ind))
 
-	last_stop = cluster.school_path[-1]
+	last_stop = cluster.schools_path[-1]
 	for idx, stop in enumerate(stops_info):
 		stops_path.append(stop)
 		stud_count = (np.array([j[2] for j in stops_path])).sum(axis=0)
@@ -33,7 +33,7 @@ def route_cluster(cluster):
 		if (cluster.get_school_route_time() + sum([i[1] for i in stops_path]) > constants.MAX_TIME) or \
 			((stud_count[0]/MOD_BUS[0])+(stud_count[1]/MOD_BUS[1])+(stud_count[2]/MOD_BUS[2])) > 1:
 
-			last_stop = cluster.school_path[-1]
+			last_stop = cluster.schools_path[-1]
 			if len(stops_path) == 1:
 				stops_path_list.append(stops_path)
 				stops_path = list()
@@ -50,7 +50,7 @@ def route_cluster(cluster):
 
 	idx = 0 
 	while idx < len(stops_path_list):
-		new_route = Route(cluster.school_path, stops_path_list[idx], list_of_students)
+		new_route = Route(cluster.schools_path, stops_path_list[idx], list_of_students)
 		new_route.assign_bus_to_route()
 
 		# TODO: CHECK IF THIS IS NEEDED 
@@ -112,7 +112,7 @@ def get_stops_info(possible_stops_path, cluster):
 
 		# Get distance between stops
 		if idx == 0:
-			dist = round(constants.TRAVEL_TIMES[cluster.school_path[-1][0]][stop], 2)
+			dist = round(constants.TRAVEL_TIMES[cluster.schools_path[-1][0]][stop], 2)
 		else:
 			dist = round(constants.TRAVEL_TIMES[possible_stops_path[idx-1]][stop], 2)
 
@@ -125,7 +125,7 @@ def get_possible_stops_path(cluster):
 	stops_path, visited = list(), list()
 	index = 0
 
-	total_indexes = [cluster.school_path[-1][0]] + list(set([stud.tt_ind for stud in cluster.students_list]))
+	total_indexes = [cluster.schools_path[-1][0]] + list(set([stud.tt_ind for stud in cluster.students_list]))
 	stops_path.append(total_indexes[index])
 
 	# Setup mini travel time marix

@@ -1,6 +1,7 @@
 from routing import start_routing, clean_and_combine
 from setup import setup_data
 from output import print_routes
+from utils import unpack_routes, convert_to_common
 import pickle
 
 def main():
@@ -22,8 +23,18 @@ clustered_routes = main()
 clean_and_combine(clustered_routes)
 route_count = print_routes(clustered_routes)
 
+unpacked_routes = unpack_routes(clustered_routes)
 
-#with open('routes_returned_(2019-05-22 00:18:47.186591)', 'rb') as f:
+converted_routes= list()
+for route in unpacked_routes: 
+    converted_routes.append(convert_to_common(route))
+
+
+with open('temp.pickle', 'wb') as f:
+    # Pickle the 'data' dictionary using the highest protocol available.
+    pickle.dump(converted_routes, f, pickle.HIGHEST_PROTOCOL)
+
+#with open('inter_format_post_imp_exp', 'rb') as f:
 #    # The protocol version used is detected automatically, so we do not
 #    # have to specify it.
-#    explicit_routes = pickle.load(f)
+#    testing = pickle.load(f)
