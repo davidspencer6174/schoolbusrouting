@@ -4,4 +4,6 @@
 *.txt
 *.spydata
 *.html
+*.pyc
+*.DS_Store
 tags

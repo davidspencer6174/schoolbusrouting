@@ -64,10 +64,15 @@ def unpack_routes(clustered_routes):
     return unpacked_routes 
 
 # Return routes for a specific school(s)
-def get_routes_for_specific_school(schools, clustered_routes):
-    unpacked_routes = unpack_routes(clustered_routes)
+def get_routes_for_specific_school(schools, unpacked_routes):
+#    unpacked_routes = unpack_routes(clustered_routes)
     routes_to_return = list()
     for route in unpacked_routes:
         if schools.issubset(route.schools_to_visit):
             routes_to_return.append(route)
     return routes_to_return
+
+#
+#
+#new_test = balb[6].stops_path[0:3] + [(722, 7.55, [1,0,0]), (326, 5.91, [1,0,0]), (6063, 4.99, [9,0,0])]
+#new_balb = copy.deepcopy(balb)

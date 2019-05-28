@@ -113,7 +113,7 @@ class Route:
                 pass
 
         # Modify times from seconds to minutes
-        self.schools_path = [(sch[0], 0) if idx == 0 else (sch[0], round(constants.TRAVEL_TIMES[new_schools_path[idx-1][0]][sch[0]],2)) for idx, sch in enumerate(new_schools_path)]
+        self.schools_path = [(sch[0], 0) if idx == 0 else (sch[0], round(constants.TRAVEL_TIMES[new_schools_path[idx-1][0]][sch[0]]/60,2)) for idx, sch in enumerate(new_schools_path)]
         self.stops_path = [(stop[0], round(stop[1]/60,2), stop[2]) for stop in self.stops_path]
 
         for stud in self.students_list:
