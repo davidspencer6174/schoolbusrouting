@@ -38,7 +38,9 @@ class Route:
         self.schools_to_visit = set()
         self.students_list = list()
         self.bus_size = 0
-        self.pickup_students(list_of_students)
+        
+        if list_of_students != None:
+            self.pickup_students(list_of_students)
 
     # Update route variables 
     def update_bus(self, bus_cap):
@@ -118,6 +120,17 @@ class Route:
 
         for stud in self.students_list:
             stud.update_time_on_bus(self)
+            
+    # Manually assignments when converting route formats
+    def assign_bus_manual(self, bus_size):
+        self.bus_size = bus_size
+    
+    def add_students_manual(self, list_of_students):
+        self.students_list = list_of_students
+        
+        for stud in self.students_list: 
+            self.schools_to_visit.add(stud.school_ind)
+
 
 # Clusters 
 class Cluster:

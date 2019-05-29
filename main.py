@@ -1,11 +1,13 @@
 from routing import start_routing, start_combining
 from setup import setup_data
-from output import print_routes, get_route_stats
-from utils import unpack_routes, convert_to_common
+from output import print_routes
+from utils import unpack_routes, convert_to_common, convert_from_common, get_route_stats
 import pickle
 import datetime 
 import matplotlib.pyplot as plt
 from statistics import stdev 
+
+global PHONEBOOK 
 
 def main():
    
@@ -37,26 +39,44 @@ def main():
 #    # have to specify it.
 #    explicit_routes = pickle.load(f)
 
-converted_routes= list()
-for route in unpacked_routes: 
-    converted_routes.append(convert_to_common(route))
+with open('one_spec.obj', 'rb') as f:
+    # The protocol version used is detected automatically, so we do not
+    # have to specify it.
+    number_one = pickle.load(f)
+
+with open('two_spec.obj', 'rb') as f:
+    # The protocol version used is detected automatically, so we do not
+    # have to specify it.
+    number_two = pickle.load(f)
+
+
+one_converted_routes= list()
+for route in number_one: 
+    new_route, PHONEBOOK = convert_from_common(route, PHONEBOOK)
+    one_converted_routes.append(new_route)
+
 #
-#with open('unpacked_routes('+str(datetime.datetime.now())+')', 'wb') as f:
-#    pickle.dump(unpacked_routes, f, pickle.HIGHEST_PROTOCOL)
+#
+#student_times, bus_size_counts = get_route_stats(one_converted_routes)
+#student_times.mean()
+#stdev(student_times)
+#
+#plt.hist(student_times, bins=20)
+#plt.title('Student travel time distribution (Explicit clustering)')
+#plt.ylabel('Number of students')
+#plt.xlabel('Travel time (m)')
+#
+#plt.hist(bus_size_counts, bins=10)
+#plt.title('Bus utilization percentage distribution (Pre-defined clustering)')
+#plt.ylabel('Number of buses')
+#plt.xlabel('Percentage of capacity occupied')
 
-with open('unpacked_routes(2019-05-27 20:51:10.458234)', 'rb') as f:
-    unpacked_routes = pickle.load(f)
 
-student_times, bus_size_counts = get_route_stats(unpacked_routes)
-student_times.mean()
-stdev(student_times)
 
-plt.hist(student_times, bins=20)
-plt.title('Student travel time distribution (Explicit clustering)')
-plt.ylabel('Number of students')
-plt.xlabel('Travel time (m)')
 
-plt.hist(bus_size_counts, bins=10)
-plt.title('Bus utilization percentage distribution (Pre-defined clustering)')
-plt.ylabel('Number of buses')
-plt.xlabel('Percentage of capacity occupied')
+
+
+
+
+
+
