@@ -161,7 +161,7 @@ def start_combining(clustered_routes):
 		route_counts_for_clusters = list()
 		nearest_clusters = clustered_routes[count].find_closest_school_clusters(clustered_routes)
 		total_num_of_routes = sum([len(clustered_routes[idx].routes_list) for idx in clustered_routes])
-
+        
 		if constants.VERBOSE:
 			print('-----------------------')
 			print("Iter-count: " + str(iter_count) + " -- Count: " + str(count))

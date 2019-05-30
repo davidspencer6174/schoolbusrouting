@@ -42,6 +42,7 @@ DROPOFF_TIME = dict()
 # For verification purposes 
 STUDENT_CLUSTER_COUNTER = dict()
 STUDENT_STOP_COUNTER = dict()
+SCHOOLTYPE_MAP = dict()
 
 # tt_ind related
 DF_TRAVEL_TIMES = pd.DataFrame(data=np.transpose(constants.TRAVEL_TIMES))

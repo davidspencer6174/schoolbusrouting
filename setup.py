@@ -49,9 +49,9 @@ def update_school_dropoff_info(schools_students_attend):
     start_time = dict()
     
     for _, row in schools_students_attend.iterrows():
-        dropoff_dict[row['tt_ind']] = row['dropoff_time']
-        dropoff_interval[row['tt_ind']] = row['bell_time_intervals']
-        start_time[row['tt_ind']] = row['start_time']
+        dropoff_dict[row['school_tt_ind']] = row['dropoff_time']
+        dropoff_interval[row['school_tt_ind']] = row['bell_time_intervals']
+        start_time[row['school_tt_ind']] = row['start_time']
         
     constants.DROPOFF_TIME = dropoff_dict 
 
@@ -60,12 +60,12 @@ def update_school_dropoff_info(schools_students_attend):
 # Filter and wrangle through data 
 def setup_data(stops, zipdata, schools, phonebook, bell_times):
     
-    #  prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
-    #  stops = prefix+'stop_geocodes_fixed.csv'
-    #  zipdata =prefix+'zipData.csv'
-    #  schools = prefix+'school_geocodes_fixed.csv'
-    #  phonebook = prefix+'totalPhoneBook.csv'
-    #  bell_times = prefix+'bell_times.csv'
+#      prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
+#      stops = prefix+'stop_geocodes_fixed.csv'
+#      zipdata =prefix+'zipData.csv'
+#      schools = prefix+'school_geocodes_fixed.csv'
+#      phonebook = prefix+'totalPhoneBook.csv'
+#      bell_times = prefix+'bell_times.csv'
 
     stops = pd.read_csv(stops, low_memory=False)
     zipdata = pd.read_csv(zipdata, low_memory=False)
@@ -79,7 +79,7 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     for row in schools.iterrows():
         school_index_list.append(constants.CODES_INDS_MAP[constants.SCHOOLS_CODES_MAP[str(row[1]['Cost_Center'])]])
 
-    schools['tt_ind'] = school_index_list
+    schools['school_tt_ind'] = school_index_list
     schools = edit_bell_times(schools)
     
     phonebook = pd.read_csv(phonebook, dtype={"RecordID": str, 'Prog': str, 'Mod_Grade': int, 'Cost_Center': str, "AM_Trip": str, "AM_Route": str, 'Lat': float, 'Long': float}, low_memory=False)
@@ -109,13 +109,16 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     schools_students_attend = schools.loc[schools['Cost_Center'].isin(schools_students_attend)]
     schools_students_attend = pd.merge(schools_students_attend, phonebook[['Cost_Center', 'School_type']], on=['Cost_Center'], how='inner')
     schools_students_attend = schools_students_attend.drop_duplicates(subset="Cost_Center")
-    phonebook = pd.merge(phonebook, schools_students_attend[['Cost_Center', 'tt_ind']], on=['Cost_Center'], how='inner')
-    schools_students_attend = schools_students_attend.drop_duplicates(subset="tt_ind")
+    phonebook = pd.merge(phonebook, schools_students_attend[['Cost_Center', 'school_tt_ind']], on=['Cost_Center'], how='inner')
+    schools_students_attend = schools_students_attend.drop_duplicates(subset="school_tt_ind")
     schools_students_attend = schools_students_attend.reset_index(drop=True)
     schools_students_attend['early_start_time'] = schools_students_attend['start_time_seconds'] - schools_students_attend['bell_time_intervals']
 
+    # phonebook stops_tt_ind
+    phonebook['stops_tt_ind'] = phonebook['AM_Stop_Address'].apply(lambda x: constants.CODES_INDS_MAP[constants.STOPS_CODES_MAP[californiafy(x)]])
+
     # Setup school_age_map 
-    setup_school_age_map(schools_students_attend)
+    schooltype_map = setup_school_age_map(schools_students_attend)
 
     # Setup single school clusters
     single_school_clusters = setup_clusters(schools_students_attend, phonebook)
@@ -124,15 +127,16 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
     update_school_dropoff_info(schools_students_attend)
     constants.SCHOOLS_STUDENTS_ATTEND = schools_students_attend
     constants.PHONEBOOK = phonebook
-
+    constants.SCHOOLTYPE_MAP = schooltype_map
+    
     return single_school_clusters
 
 # Setup single school clusters
 def setup_clusters(schools_students_attend, phonebook):
     single_school_clusters = dict()
     for idx, school in schools_students_attend.iterrows():
-        students_in_school = phonebook[phonebook['tt_ind'].isin([school['tt_ind']])].copy()
-        school_to_insert = schools_students_attend[schools_students_attend['tt_ind'] == school['tt_ind']].drop_duplicates(subset='tt_ind').copy()
+        students_in_school = phonebook[phonebook['school_tt_ind'].isin([school['school_tt_ind']])].copy()
+        school_to_insert = schools_students_attend[schools_students_attend['school_tt_ind'] == school['school_tt_ind']].drop_duplicates(subset='school_tt_ind').copy()
         single_school_clusters[idx] = Cluster(school_to_insert, students_in_school)      
     return single_school_clusters
 
@@ -168,5 +172,5 @@ def setup_contract_buses(cap_counts_list):
 def setup_school_age_map(schools_students_attend):
     schooltype_map = dict()
     for _, row in schools_students_attend.iterrows():
-        schooltype_map[row['tt_ind']] = row['School_type']
+        schooltype_map[row['school_tt_ind']] = row['School_type']
     return schooltype_map 

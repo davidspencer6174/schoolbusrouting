@@ -161,10 +161,10 @@ class Cluster:
         self.schools_list = list()
 
         for _, row in self.students_info_df.iterrows():
-            self.students_list += [Student(constants.CODES_INDS_MAP[str(round(row['Lat'],6)) + ";" + str(round(row['Long'],6))], row['tt_ind'])] 
+            self.students_list += [Student(constants.CODES_INDS_MAP[str(round(row['Lat'],6)) + ";" + str(round(row['Long'],6))], row['school_tt_ind'])] 
         
         for _, row in self.schools_info_df.iterrows():
-            self.schools_list += [School(row['tt_ind'], row['Cost_Center'], row['School_Name'])]
+            self.schools_list += [School(row['school_tt_ind'], row['Cost_Center'], row['School_Name'])]
         
     # Time to travel through all schools
     def get_school_route_time(self):
