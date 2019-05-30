@@ -24,6 +24,8 @@ class Route:
         self.occupants = 0
         self.valid_school_orderings = []
         self.max_time = constants.MAX_TIME
+        self.e_no_h = False
+        self.h_no_e = False
         #If no bus is assigned, the default capacity is infinite.
         #This is denoted by None.
         #Otherwise, this variable should be modified to reflect
@@ -41,6 +43,8 @@ class Route:
         self.backup_length = self.length
         self.backup_max_time = self.max_time
         self.backup_school_orderings = copy.copy(self.valid_school_orderings)
+        self.backup_e_no_h = self.e_no_h
+        self.backup_h_no_e = self.h_no_e
         
     def restore(self):
         self.stops = copy.copy(self.backup_stops)
@@ -49,6 +53,8 @@ class Route:
         self.length = self.backup_length
         self.max_time = self.backup_max_time
         self.valid_school_orderings = copy.copy(self.backup_school_orderings)
+        self.e_no_h = self.backup_e_no_h
+        self.h_no_e = self.backup_h_no_e
         
     #Inserts a stop visit at position pos in the route.
     #The default position is the end.
@@ -56,6 +62,11 @@ class Route:
     def add_stop(self, stop, pos = -1):
         if not self.add_school(stop.school):
             return False
+        #Maintain the age type information
+        if stop.e > 0 and stop.h == 0:
+            self.e_no_h = True
+        if stop.h > 0 and stop.e == 0:
+            self.h_no_e = True
         if pos == -1:
             self.stops.append(stop)
             #Maintain the travel time field and occupants field
@@ -96,6 +107,7 @@ class Route:
             return
         self.recompute_length()
         self.recompute_occupants()
+        self.recompute_type_info()
         self.recompute_maxtime()
         
     def get_route_length(self):
@@ -104,7 +116,7 @@ class Route:
     #Performs an insertion of a stop such that the cost is minimized.
     #TODO: Allow for addition to the end to interface with
     #reorderings of the schools
-    #Returns true if the insertion is valid w.r.t. route length.
+    #Returns true if the insertion is valid w.r.t. route length and schools.
     def insert_mincost(self, stop):
         if not self.add_school(stop.school):
             return False
@@ -129,6 +141,11 @@ class Route:
                 self.stops.insert(best_ind, stop)
         else:
             self.stops = [stop]
+        #Maintain the age type information
+        if stop.e > 0 and stop.h == 0:
+            self.e_no_h = True
+        if stop.h > 0 and stop.e == 0:
+            self.h_no_e = True
         self.recompute_length()
         self.occupants += stop.occs
         self.max_time = max(self.max_time,
@@ -153,9 +170,15 @@ class Route:
     #Outputs (valid, time) where valid is true if the belltimes
     #line up appropriately and time gives the amount of time
     #required to use this ordering.
+    #valid will also be false if two of the schools are outside
+    #of the acceptable maximum school distance.
     def time_check(self, school_perm):
         if tuple(school_perm) in memoized_timechecks:
             return memoized_timechecks[tuple(school_perm)]
+        for school1 in school_perm:
+            for school2 in school_perm:
+                if trav_time(school1, school2) > constants.MAX_SCHOOL_DIST:
+                    return (False, 0)
         time = 0
         mintime = school_perm[0].start_time - constants.EARLIEST
         maxtime = school_perm[0].start_time - constants.LATEST
@@ -232,6 +255,15 @@ class Route:
         for stop in self.stops:
             self.occupants += stop.occs
             
+    def recompute_type_info(self):
+        self.e_no_h = False
+        self.h_no_e = False
+        for stop in self.stops:
+            if stop.e > 0 and stop.h == 0:
+                self.e_no_h = True
+            if stop.h > 0 and stop.e == 0:
+                self.h_no_e = True
+            
     def recompute_maxtime(self):
         self.max_time = constants.MAX_TIME
         for stop in self.stops:
@@ -269,22 +301,28 @@ class Route:
             print(self.length)
             print("Failed sanity check")
         #School not visited or mixed student types
-        e_found = False
-        h_found = False
+        e_no_h = False
+        h_no_e = False
         for s in self.stops:
+            e_found = False
+            h_found = False
             for student in s.students:
                 if student.type == 'E':
                     e_found = True
                 if student.type == 'H':
                     h_found = True
-                if e_found and h_found:
-                    if verbose:
-                        print("Elementary and high on same route")
-                    return False
                 if student.school not in self.schools:
                     if verbose:
                         print("School not visited")
                     return False
+            if e_found and not h_found:
+                e_no_h = True
+            if h_found and not e_found:
+                h_no_e = True
+            if e_no_h and h_no_e:
+                if verbose:
+                    print("Student age types not feasible")
+                return False
         #Too many students and there is a bus assigned and
         #there are multiple stops (sometimes, a single stop
         #has too many students for any bus to take, so we
@@ -320,12 +358,9 @@ class Route:
         m = to_add[1]
         h = to_add[2]
         for stop in self.stops:
-            if stop.type == "E":
-                e += stop.occs
-            if stop.type == "M":
-                m += stop.occs
-            if stop.type == "H":
-                h += stop.occs
+            e += stop.e
+            m += stop.m
+            h += stop.h
         mod_caps = constants.CAPACITY_MODIFIED_MAP[cap]
         return ((e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2]) <= 1)
     

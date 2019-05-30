@@ -144,17 +144,17 @@ def setup_buses(bus_capacities):
 #cost centers at the same location together.
 def setup_stops(schools_students_map):
     stops = set()
-    ttind_age_stop_map = dict()
+    ttind_stop_map = dict()
     for cost_cent in schools_students_map:
         for student in schools_students_map[cost_cent]:
-            dict_key = (student.tt_ind, student.type)
-            if student.school not in ttind_age_stop_map:
-                ttind_age_stop_map[student.school] = dict()
-            if dict_key not in ttind_age_stop_map[student.school]:
-                new_stop = Stop(student.school, student.type)
-                ttind_age_stop_map[student.school][dict_key] = new_stop
-                stops.add(ttind_age_stop_map[student.school][dict_key])
-                student.school.unrouted_stops[student.type].add(new_stop)
-            ttind_age_stop_map[student.school][dict_key].add_student(student)
+            dict_key = student.tt_ind
+            if student.school not in ttind_stop_map:
+                ttind_stop_map[student.school] = dict()
+            if dict_key not in ttind_stop_map[student.school]:
+                new_stop = Stop(student.school)
+                ttind_stop_map[student.school][dict_key] = new_stop
+                stops.add(ttind_stop_map[student.school][dict_key])
+                student.school.unrouted_stops.add(new_stop)
+            ttind_stop_map[student.school][dict_key].add_student(student)
     return stops
                 

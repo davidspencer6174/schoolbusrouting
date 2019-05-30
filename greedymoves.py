@@ -16,12 +16,10 @@ def perform_move(route1, route2, tt_ind):
     for stop in route1.stops:
         if stop.tt_ind == tt_ind:
             stops_to_move.add(stop)
-    route2_types = [s.type for s in route2.stops]
-    route2_has_e = ("E" in route2_types)
-    route2_has_h = ("H" in route2_types)
+    #Check feasibility with respect to ages
     for stop in stops_to_move:
-        if ((route2_has_e and stop.type == "H") or
-            (route2_has_h and stop.type == "E")):
+        if (route2.e_no_h and stop.h > 0 and stop.e == 0 or
+            route2.h_no_e and stop.e > 0 and stop.h == 0):
             return False
     #Now should be valid with respect to ages
     #May still be invalid with respect to school
