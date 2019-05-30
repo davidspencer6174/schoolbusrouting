@@ -1,6 +1,9 @@
+import constants
 from locations import School, Student
+import matplotlib.pyplot as plt
 import numpy as np
 import pickle
+from utils import stud_trav_time_array
 
 geocodes = open("data//all_geocodes.csv", "r")
 codes = []
@@ -22,7 +25,14 @@ def printout(route):
     stops = route.stops
     schools = route.schools
     print("Estimated time: " + str(route.length/60) + " minutes.")
-    stop_types = [s.type for s in stops]
+    stop_types = set()
+    for s in stops:
+        if s.e > 0:
+            stop_types.add('E')
+        if s.m > 0:
+            stop_types.add('M')
+        if s.h > 0:
+            stop_types.add('H')
     type_printout = "Types of stops picked up: "
     if "E" in stop_types:
         type_printout += "elementary, "
@@ -40,10 +50,10 @@ def printout(route):
             print(append_to_link("Go to latitude-longitude ", stops[i].tt_ind,
                                  slash=False))
         if stops[i].occs > 1:
-            print("Pick up " + str(stops[i].occs) + " " + stops[i].type +
+            print("Pick up " + str(stops[i].occs) +
                   " students who go to " + stops[i].school.school_name)
         else:
-            print("Pick up " + str(stops[i].occs) + " " + stops[i].type +
+            print("Pick up " + str(stops[i].occs) +
                   " student who goes to " + stops[i].school.school_name)
     for i in range(len(schools)):
         if i == 0 or (i > 0 and schools[i].tt_ind != schools[i - 1].tt_ind):
@@ -168,6 +178,60 @@ def diagnostics(route_iter):
     #    if to_print:
     #        print("Route that goes to Vintage/Balboa")
     #        printout(r)
+    
+def metrics(route_plan):
+    print("Number of routes: " + str(len(route_plan)))
+    lengths = np.array([r.length for r in route_plan])
+    print("Mean route length: " + str(np.mean(lengths)))
+    print("Stdev of route length: " + str(np.std(lengths)))
+    trav_times = stud_trav_time_array(route_plan)
+    print("Mean student travel time: " + str(np.mean(trav_times)))
+    print("Stdev of student travel time: " + str(np.std(trav_times)))
+    e_and_h = 0
+    for r in route_plan:
+        e_no_h = False
+        h_no_e = False
+        for stop in r.stops:
+            if stop.e > 0 and stop.h == 0:
+                e_no_h = True
+            if stop.h > 0 and stop.e == 0:
+                h_no_e = True
+        if h_no_e and e_no_h:
+            e_and_h += 1
+    print("Number of routes which are not age-feasible: " + str(e_and_h))
+    
+def display_trav_times(route_plan, filename, rplanname):
+    trav_times = stud_trav_time_array(route_plan)/60
+    fig = plt.hist(trav_times,
+                   bins = np.arange(0, np.max(trav_times), 5))
+    plt.title("Student travel time distribution (" + rplanname + ")")
+    plt.xlabel("Travel time (m)")
+    plt.ylabel("Number of students")
+    plt.savefig(filename)
+    
+def display_utilization(route_plan, filename, rplanname):
+    utilizations = []
+    for r in route_plan:
+        e = 0
+        m = 0
+        h = 0
+        for stop in r.stops:
+            for s in stop.students:
+                if s.type == "E":
+                    e += 1
+                if s.type == "M":
+                    m += 1
+                if s.type == "H":
+                    h += 1
+        mod_caps = constants.CAPACITY_MODIFIED_MAP[r.unmodified_bus_capacity]
+        utilizations.append(e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2])
+    utilizations = np.array(utilizations)*100
+    fig = plt.hist(utilizations,
+                   bins = range(0, 110, 10))
+    plt.title("Bus utilization percentage distribution (" + rplanname + ")")
+    plt.xlabel("Percentage of capacity occupied")
+    plt.ylabel("Number of buses")
+    plt.savefig(filename)
     
 #loading = open("output//8minutesdropoffgreedyb.obj", "rb")
 #obj = pickle.load(loading)

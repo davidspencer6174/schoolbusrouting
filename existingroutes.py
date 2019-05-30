@@ -189,12 +189,11 @@ def existing_routes(phonebooks, all_geocodes, geocoded_stops,
             student_placed = False
             for stop in route.stops:
                 if (stop.tt_ind == this_student.tt_ind and
-                    stop.school == this_student.school and
-                    stop.type == this_student.type):
+                    stop.school == this_student.school):
                     stop.add_student(this_student)
                     student_placed = True
             if not student_placed:
-                new_stop = Stop(this_student.school, this_student.type)
+                new_stop = Stop(this_student.school)
                 new_stop.add_student(this_student)
                 route.add_stop(new_stop)
         else:
@@ -327,26 +326,3 @@ if doing_mine:
 #plt.ylabel("Number of routes in plan")
 #plt.title("Number of routes for varying default max minutes parameter")
 #plt.savefig('output//timecomparison.eps')
-
-
-
-
-# =============================================================================
-# for r in mxp_routes:
-#     e = 0
-#     m = 0
-#     h = 0
-#     student_to_keep = None
-#     for s in r.stops:
-#         for student in s.students:
-#             if student.type == 'E':
-#                 e += 1
-#             if student.type == 'M':
-#                 m += 1
-#             if student.type == 'H':
-#                 h += 1
-#             student_to_keep = student
-#     if e*m+e*h+m*h > 0:
-#         print(str(e) + " " + str(m) + " " + str(h))
-#         print(student.fields[11])
-# =============================================================================

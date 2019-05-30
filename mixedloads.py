@@ -23,12 +23,10 @@ def mixed_loads(route_list):
             for route_to_add_to in route_list:
                 if route_to_add_to == route_to_delete:
                     continue
-                valid_type = True
-                for s2 in route_to_add_to.stops:
-                    if set([s2.type, stop.type]) == set(['H', 'E']):
-                        valid_type = False
-                        break
-                if valid_type and route_to_add_to.insert_mincost(stop):
+                if (route_to_add_to.e_no_h and stop.h > 0 and stop.e == 0 or
+                    route_to_add_to.h_no_e and stop.e > 0 and stop.h == 0):
+                    continue
+                if route_to_add_to.insert_mincost(stop):
                     added = True
                     break
                 #If the insertion failed, delete it

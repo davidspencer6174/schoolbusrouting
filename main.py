@@ -9,7 +9,6 @@ import random
 from savingsbasedroutegeneration import clarke_wright_savings
 from setup import setup_buses, setup_stops, setup_students
 from generateroutes import generate_routes
-from validation import full_verification
 from busassignment_bruteforce import assign_buses
 import numpy as np
 from utils import improvement_procedures, stud_trav_time_array
@@ -69,14 +68,14 @@ def main(method, partial_route_plan = None, permutation = None,
     
 routes_returned = None
 
-def permutation_approach():
+def permutation_approach(iterations = 1000):
     #Uncomment latter lines to use an existing permutation
     best_perm = None
     #loading_perm = open(("output//lastperm55m.obj"), "rb")
-    #loading_perm = open(("output//8minutesdropoffperm.obj"), "rb")
-    #best_perm = pickle.load(loading_perm)
-    #loading_perm.close()
-    routes_returned = main("mine", permutation = best_perm)
+    loading_perm = open(("output//newagerestrictionperm.obj"), "rb")
+    best_perm = pickle.load(loading_perm)
+    loading_perm.close()
+    routes_returned = main("mine", permutation = best_perm, improve = True, buses = True)
     all_stops = set()
     for route in routes_returned:
         for stop in route.stops:
@@ -88,13 +87,14 @@ def permutation_approach():
     stud_trav_times = stud_trav_time_array(routes_returned)
     mean_stud_trav_time = np.mean(stud_trav_times)
     best_mstt = mean_stud_trav_time
-    best_score = best_num_routes + 10*best_mstt/60
+    best_score = best_num_routes + 6*best_mstt/60
     
     best = routes_returned
     print(str(best_num_routes) + " " + str(mean_stud_trav_time/60))
     successes = []
-    #while True:
-    for test in range(1000):
+    for test in range(iterations):
+        if test % 100 == 0:
+            print(test)
         #Try a few swaps
         new_perm = copy.copy(best_perm)
         num_to_swap = random.randint(1, 40)
@@ -106,11 +106,11 @@ def permutation_approach():
             ind2 = random.randint(0, len(new_perm) - 1)
             new_perm[ind1], new_perm[ind2] = new_perm[ind2], new_perm[ind1]
         #Test the route
-        new_routes_returned = main("mine", permutation = new_perm)
+        new_routes_returned = main("mine", permutation = new_perm, improve = True, buses = True)
         new_num_routes = len(new_routes_returned)
         new_time = np.sum(np.array([r.length for r in new_routes_returned]))
         new_mstt = np.mean(stud_trav_time_array(new_routes_returned))
-        new_score = new_num_routes + 10*new_mstt/60
+        new_score = new_num_routes + 6*new_mstt/60
         if (new_score < best_score):
             print("New best")
             print(new_score)
@@ -120,15 +120,24 @@ def permutation_approach():
             best_time = new_time
             best_score = new_score
             best = new_routes_returned
-            saving = open(("output//widerinterval.obj"), "wb")
+            saving = open(("output//newagerestriction0529.obj"), "wb")
             pickle.dump(best, saving)
             saving.close()
-            saving = open(("output//widerinterval.obj"), "wb")
+            saving = open(("output//newagerestrictionperm.obj"), "wb")
             pickle.dump(best_perm, saving)
             saving.close()
             successes.append(num_to_swap)
             print(successes)
         print(str(new_num_routes) + " " + str(new_mstt/60))
+    final_routes = main("mine", permutation = best_perm, improve = True)
+    saving = open("output//newagerestriction.obj", "wb")
+    pickle.dump(final_routes, saving)
+    saving.close()
+    cap_counts = setup_buses('data//dist_bus_capacities.csv')
+    final_bused_routes = assign_buses(final_routes, cap_counts)
+    saving = open("output//newagerestrictionb.obj", "wb")
+    pickle.dump(final_bused_routes, saving)
+    saving.close()
         
 best_results = []
 
@@ -177,6 +186,6 @@ def vary_params():
               str(len(routes_returned)) + " " + 
               str(mean_stud_trav_time/60))
 
-routes = main("savings", improve = True, buses = True)        
-#permutation_approach()
+#routes = main("savings", improve = True, buses = True)        
+permutation_approach(300)
 #vary_params()

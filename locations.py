@@ -17,10 +17,7 @@ class School:
     def __init__(self, tt_ind, start_time, school_name = None):
         self.tt_ind = tt_ind
         self.start_time = start_time
-        self.unrouted_stops = dict()
-        self.unrouted_stops['E'] = set()
-        self.unrouted_stops['M'] = set()
-        self.unrouted_stops['H'] = set()
+        self.unrouted_stops = set()
         self.school_name = school_name
 
 class Student:
@@ -44,10 +41,12 @@ class Stop:
     
     #A stop is just a set of students at a stop who
     #attend a particular school.
-    def __init__(self, school, stud_type):
+    def __init__(self, school):
         self.students = set()
         self.school = school
-        self.type = stud_type
+        self.e = 0
+        self.m = 0
+        self.h = 0
         self.tt_ind = None
         self.occs = 0
         #We will assign each stop a value; routes will strive
@@ -61,11 +60,12 @@ class Stop:
         self.dependent = None
         
     def add_student(self, s):
-        if s.type != self.type:
-            print(s.type)
-            print(self.type)
-            print("Student is not the right age to be added to this stop")
-            return False
+        if s.type == 'E':
+            self.e += 1
+        if s.type == 'M':
+            self.m += 1
+        if s.type == 'H':
+            self.h += 1
         if self.tt_ind != None and self.tt_ind != s.tt_ind:
             print("Conflicting tt_inds at a stop")
         self.students.add(s)
@@ -78,7 +78,7 @@ class Stop:
         if self.dependent != None and removed_stop != self.dependent:
             return
         self.value = -1000
-        for stop in self.school.unrouted_stops[self.type]:
+        for stop in self.school.unrouted_stops:
             if self == stop:
                 continue
             value = (trav_time(self, self.school)*constants.SCH_DIST_WEIGHT +
