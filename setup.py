@@ -178,5 +178,6 @@ def setup_schooltype_map(schools_students_attend):
     schooltype_map = dict()
     for index, row in schools_students_attend.iterrows():
         schooltype_map[row['tt_ind']] = row['School_type']
+    constants.SCHOOLTYPE_MAP = schooltype_map
     return schooltype_map
  
