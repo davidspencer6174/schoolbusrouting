@@ -30,11 +30,16 @@ for route in unpacked_routes:
     converted_routes.append(convert_to_common(route))
 
 
-with open('temp.pickle', 'wb') as f:
-    # Pickle the 'data' dictionary using the highest protocol available.
-    pickle.dump(converted_routes, f, pickle.HIGHEST_PROTOCOL)
+#with open('temp.pickle', 'wb') as f:
+#    # Pickle the 'data' dictionary using the highest protocol available.
+#    pickle.dump(converted_routes, f, pickle.HIGHEST_PROTOCOL)
 
 #with open('inter_format_post_imp_exp', 'rb') as f:
 #    # The protocol version used is detected automatically, so we do not
 #    # have to specify it.
 #    testing = pickle.load(f)
+
+
+def disp(route):
+    print(route.schools_path)
+    print(route.stops_path)

@@ -4,7 +4,7 @@ import copy
 import constants
 from locations import Cluster
 from clustering import obtainClust_DBSCAN_AGGO_combined, partition_students
-from collections import defaultdict
+from collections import defaultdict, Counter
 from constraint_solver import solve_school_constraints
 
 def californiafy(address):
@@ -125,13 +125,15 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
  
     schools_students_attend = pd.merge(schools_students_attend, new_clustered_schools[['label', 'tt_ind']], on=['tt_ind'], how='inner').drop_duplicates()
     schools_students_attend = schools_students_attend.sort_values(['label'], ascending=[True])
+    schooltype_map = setup_schooltype_map(schools_students_attend)
+    phonebook['School_type'] = phonebook['tt_ind'].apply(lambda x: schooltype_map[x])
+    
     update_school_dropoff_info(schools_students_attend)
 
     schoolcluster_students_map_df = partition_students(new_clustered_schools, phonebook)
     update_verif_counters(schoolcluster_students_map_df)
-    
+
     constants.PHONEBOOK = phonebook
-    
     return_clustered_schools = setup_clusters(schools_students_attend, schoolcluster_students_map_df)
     
     return return_clustered_schools
@@ -139,7 +141,7 @@ def setup_data(stops, zipdata, schools, phonebook, bell_times):
 # Setup clusters: input all required files 
 def setup_clusters(cluster_schools_df, schoolcluster_students_df):
     return_clustered_schools = defaultdict(int)
-    for idx in cluster_schools_df['label']:        
+    for idx in dict(Counter(cluster_schools_df['label'])).keys():      
         return_clustered_schools[idx] = Cluster(cluster_schools_df[cluster_schools_df['label'] == idx], schoolcluster_students_df[idx])
     return return_clustered_schools
 
