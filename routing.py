@@ -53,7 +53,6 @@ def route_cluster(cluster):
 		new_route = Route(cluster.schools_path, stops_path_list[idx], list_of_students)
 		new_route.assign_bus_to_route()
 
-		# TODO: CHECK IF THIS IS NEEDED 
 		# # If no bus can fit students, then split route
 		# if new_route.bus_size == 0:
 		# 	splitted_routes = split_route(new_route, [])
@@ -64,6 +63,10 @@ def route_cluster(cluster):
 		routes_returned.append(new_route)
 
 		idx += 1 
+
+    # TODO: Add david's post improvement procedures here
+
+
 
 	return routes_returned
 

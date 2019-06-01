@@ -1,13 +1,11 @@
 from routing import start_routing, start_combining
 from setup import setup_data
 from output import print_routes
-from utils import convert_from_common, get_route_stats
+from utils import convert_to_common, convert_from_common, get_route_stats
 import pickle
-import datetime 
 import matplotlib.pyplot as plt
 from statistics import stdev 
-
-global PHONEBOOK 
+import copy
 
 def main():
    
@@ -25,38 +23,13 @@ def main():
     combined_clustered_routes = start_combining(clustered_route)
     return combined_clustered_routes
 
-combined_clustered_routes = main()
+#combined_clustered_routes = main()
 #unpacked_routes = unpack_routes(combined_clustered_routes)
 #
 #converted_routes= list()
 #for idx in combined_clustered_routes: 
 #    for routes in combined_clustered_routes[idx].routes_list:
 #        converted_routes.append(convert_to_common(routes))
-
-with open('one_spec.obj', 'rb') as f:
-    # The protocol version used is detected automatically, so we do not
-    # have to specify it.
-    number_one = pickle.load(f)
-
-with open('two_spec.obj', 'rb') as f:
-    # The protocol version used is detected automatically, so we do not
-    # have to specify it.
-    number_two = pickle.load(f)
-
-one_converted_routes= list()
-for route in number_one: 
-    new_route = convert_from_common(route)
-    one_converted_routes.append(new_route)
-
-student_times, bus_size_counts = get_route_stats(one_converted_routes)
-
-two_converted_routes = list()
-for route in number_two:
-    new_route = convert_from_common(route)
-    two_converted_routes.append(new_route)
-    
-student_times_2, bus_size_counts_2 = get_route_stats(two_converted_routes)
-
 
 
 

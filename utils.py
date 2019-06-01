@@ -51,7 +51,7 @@ def convert_to_common(route):
         schools_at_stop = set()
         for stud in route.students_list:
             if stud.tt_ind == stop[0]:
-                schools_at_stop.add((stud.school_ind, stud.age_type))
+                schools_at_stop.add(stud.school_ind)
         list_of_stops.append((stop[0], schools_at_stop))
     route_output = (list_of_stops, list_of_visited_schools, None)    
     return route_output
@@ -62,7 +62,6 @@ def convert_to_common(route):
 # Convert routes from common 
 def convert_from_common(route):
     
-    new_route = fix_school_types(route)
     list_of_students = list()
     stops_path = list()
     schools_path = [(sch, 0) if idx == 0 else (sch, round(constants.TRAVEL_TIMES[route[1][idx-1]][sch],2)) for idx, sch in enumerate(route[1])]
@@ -70,18 +69,12 @@ def convert_from_common(route):
     list_of_students = list()
 
     for idx, stop in enumerate(route[0]):
-        
-        school_types = set()
-        school_types.update([x[1] for x in stop[1]])
-        
+                
         stop_subset_pb = subset_phonebook[subset_phonebook["stops_tt_ind"] == stop[0]]
-        stop_subset_pb = stop_subset_pb[stop_subset_pb['School_type'].isin(list(school_types))]
-        
         stud_stop_count = [0] * 3
         
         for idx_2, stud in stop_subset_pb.iterrows():
-
-            stud_stop_count[stud.School_type] += 1
+            stud_stop_count[constants.SCHOOLTYPE_MAP[stud.school_tt_ind]] += 1
             list_of_students.append(Student(stop[0], stud.school_tt_ind))
         
         if idx == 0:
