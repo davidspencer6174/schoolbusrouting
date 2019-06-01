@@ -1,11 +1,7 @@
 from routing import start_routing, start_combining
 from setup import setup_data
-from output import print_routes
-from utils import convert_to_common, convert_from_common, get_route_stats
-import pickle
-import matplotlib.pyplot as plt
-from statistics import stdev 
-import copy
+from ds_setup import setup_ds_students
+import ds_constants
 
 def main():
    
@@ -23,7 +19,7 @@ def main():
     combined_clustered_routes = start_combining(clustered_route)
     return combined_clustered_routes
 
-#combined_clustered_routes = main()
+combined_clustered_routes = main()
 #unpacked_routes = unpack_routes(combined_clustered_routes)
 #
 #converted_routes= list()

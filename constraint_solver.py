@@ -30,12 +30,12 @@ def find_optimal_wait_time(time_windows):
     return max_time+10
 
 def get_constraints_info(schools_subset):
-    schools_subset.drop_duplicates(subset ="tt_ind", keep = 'first', inplace = True) 
+    schools_subset.drop_duplicates(subset ="school_tt_ind", keep = 'first', inplace = True) 
     base_time = min(schools_subset.early_start_time)
     schools_subset = schools_subset.sort_values(['early_start_time'], ascending=[True])
     time_windows = list(zip(schools_subset.start_time_seconds.astype(int)-schools_subset.bell_time_intervals.astype(int)-int(base_time), schools_subset.start_time_seconds.astype(int)-int(base_time)))
-    dropoff_mat = constants.DF_TRAVEL_TIMES.iloc[schools_subset.tt_ind,:]
-    dropoff_mat = dropoff_mat.iloc[:,schools_subset.tt_ind]
+    dropoff_mat = constants.DF_TRAVEL_TIMES.iloc[schools_subset.school_tt_ind,:]
+    dropoff_mat = dropoff_mat.iloc[:,schools_subset.school_tt_ind]
     travel_time_matrix = dropoff_mat.values.astype(np.int64).tolist()
     return travel_time_matrix, time_windows
 
@@ -44,7 +44,7 @@ def get_solutions(data, manager, routing, assignment, schools_subset):
     total_time = 0
     time_dimension = routing.GetDimensionOrDie('Time')
     total_route_list = list()
-    school_indexes = list(schools_subset['tt_ind'])
+    school_indexes = list(schools_subset['school_tt_ind'])
     
     for vehicle_id in range(data['num_vehicles']):        
         index = routing.Start(vehicle_id)
@@ -89,7 +89,7 @@ def solve_school_constraints(schools_info_df):
     schools_info_df.sort_values(by=['early_start_time'])
 
     if len(schools_info_df) == 1:
-        school_route = [schools_info_df.iloc[0]['tt_ind']]
+        school_route = [schools_info_df.iloc[0]['school_tt_ind']]
         return school_route
 
     else:

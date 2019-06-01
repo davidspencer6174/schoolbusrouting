@@ -37,7 +37,7 @@ class Route:
         self.stops_path = stops_path
         self.schools_to_visit = set()
         self.students_list = list()
-        self.bus_size = 0
+        self.bus_size = None 
         
         if list_of_students != None:
             self.pickup_students(list_of_students)
@@ -114,9 +114,9 @@ class Route:
             else:
                 pass
 
-        # Modify times from seconds to minutes
-        self.schools_path = [(sch[0], 0) if idx == 0 else (sch[0], round(constants.TRAVEL_TIMES[new_schools_path[idx-1][0]][sch[0]]/60,2)) for idx, sch in enumerate(new_schools_path)]
-        self.stops_path = [(stop[0], round(stop[1]/60,2), stop[2]) for stop in self.stops_path]
+        # # Modify times from seconds to minutes
+        # self.schools_path = [(sch[0], 0) if idx == 0 else (sch[0], round(constants.TRAVEL_TIMES[new_schools_path[idx-1][0]][sch[0]]/60,2)) for idx, sch in enumerate(new_schools_path)]
+        # self.stops_path = [(stop[0], round(stop[1]/60,2), stop[2]) for stop in self.stops_path]
 
         for stud in self.students_list:
             stud.update_time_on_bus(self)
@@ -198,11 +198,13 @@ class Cluster:
         from routing import route_cluster
         if self.check_school_route_constraints():
             routes_returned = route_cluster(self)
+            self.routes_list = routes_returned
 
-            if self.verify_routed_cluster(routes_returned):
-                self.routes_list = routes_returned
-            else:
-                print("Routes generated are faulty")
+            # if self.verify_routed_cluster(routes_returned):
+            #     self.routes_list = routes_returned
+            # else:
+            #     print("Routes generated are faulty")
+            
         else:
             print("School constraints not met")
             return False
@@ -284,6 +286,3 @@ class Cluster:
     def clean_routes_in_cluster(self):
         for route in self.routes_list:
             route.clean_routes()
-
-
-

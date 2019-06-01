@@ -1,16 +1,16 @@
 import numpy as np 
-import pandas as pd 
 import constants
 from locations import Route
-from geopy.distance import geodesic
 import copy
 from collections import defaultdict
-import math
+from convert_improve import convert_and_improve
 
 # Begin routing 
 def start_routing(single_school_clusters):
 	for idx, _ in enumerate(single_school_clusters):
-			single_school_clusters[idx].create_routes_for_cluster()
+		print("Processing cluster: " + str(idx))
+		single_school_clusters[idx].create_routes_for_cluster()
+		print('---------------------------')
 	return single_school_clusters
 
 # Perform routing for a cluster
@@ -51,7 +51,7 @@ def route_cluster(cluster):
 	idx = 0 
 	while idx < len(stops_path_list):
 		new_route = Route(cluster.schools_path, stops_path_list[idx], list_of_students)
-		new_route.assign_bus_to_route()
+		# new_route.assign_bus_to_route()
 
 		# # If no bus can fit students, then split route
 		# if new_route.bus_size == 0:
@@ -61,14 +61,10 @@ def route_cluster(cluster):
 		# 	routes_returned.append(new_route)
 
 		routes_returned.append(new_route)
+		idx += 1
 
-		idx += 1 
-
-    # TODO: Add david's post improvement procedures here
-
-
-
-	return routes_returned
+	new_routes = convert_and_improve(routes_returned)
+	return new_routes
 
 # Recursively split routes
 def split_route(current_route, routes_to_return):
@@ -177,7 +173,7 @@ def start_combining(clustered_routes):
 
 			if combined_cluster:
 				route_counts_for_clusters.append((len(clustered_routes[count].routes_list) + len(clustered_routes[test_clus[0]].routes_list), len(combined_cluster.routes_list)))
-				combined_cluster.add_buses_back()
+				# combined_cluster.add_buses_back()
 			else:
 				route_counts_for_clusters.append((-1,0)) 
 
@@ -192,10 +188,10 @@ def start_combining(clustered_routes):
 				for clus in clustered_routes.values():
 					if clus == clustered_routes[nearest_clusters[index_to_use][0]]:
 
-						clustered_routes[count].add_buses_back()
+						# clustered_routes[count].add_buses_back()
 						clustered_routes[count] = copy.deepcopy(clustered_routes[count].combine_clusters(copy.deepcopy(clus)))
 
-						clustered_routes[nearest_clusters[index_to_use][0]].add_buses_back()
+						# clustered_routes[nearest_clusters[index_to_use][0]].add_buses_back()
 						clustered_routes.pop(nearest_clusters[index_to_use][0])
 
 						# Reset keys 
@@ -223,7 +219,7 @@ def start_combining(clustered_routes):
 				count = 0
 				iter_count += 1
         
-		if iter_count == 1:
+		if iter_count == 3:
 			break
 
 	return clean_routes(clustered_routes)
