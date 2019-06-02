@@ -1,6 +1,7 @@
 import ds_constants
 import itertools
 import numpy as np
+import copy 
 
 #Used to get the data into a full address format        
 def californiafy(address):
@@ -130,6 +131,7 @@ def full_comparison(rp1, rp2):
     print(iso_stops_same)
     
 def two_opt(ds_route):
+    print("--------- Two-opt")
     num_stops = len(ds_route.stops)
     orig_length = ds_route.length
     for ind1 in range(num_stops):
@@ -155,6 +157,9 @@ def mstt(ds_route_plan):
 #and do Park/Kim's mixed-load procedure.
 #ds_route_plan should be a list.
 def improvement_procedures(route_plan, to_do = [True, True, True]):
+    print(" -- Running Improvement Procedures")
+    print("Ori route length: " + str(len(route_plan)))
+    ori_route_plan = copy.deepcopy(route_plan)
     from ds_greedymoves import make_greedy_moves
     from ds_mixedloads import mixed_loads
     while True:
@@ -170,4 +175,5 @@ def improvement_procedures(route_plan, to_do = [True, True, True]):
         if (len(route_plan) == prev_num_ds_routes and
             mstt(route_plan) == prev_mean_trav):
             break
+    print("END route length: " + str(len(route_plan)))
     return route_plan

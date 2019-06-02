@@ -85,6 +85,7 @@ def identify_greedy_moves(route_plan, subset = None, slack = 0):
 #Simple approach to make all of the greedy moves given as
 #feasible by identify_greedy_moves.
 def make_greedy_moves(route_plan, subset = None):
+    print("--------- Make greedy moves")
     if subset == None:
         subset = route_plan
     improved = False

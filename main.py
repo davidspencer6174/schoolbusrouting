@@ -20,14 +20,11 @@ def main():
     return combined_clustered_routes
 
 combined_clustered_routes = main()
-#unpacked_routes = unpack_routes(combined_clustered_routes)
-#
+
 #converted_routes= list()
 #for idx in combined_clustered_routes: 
 #    for routes in combined_clustered_routes[idx].routes_list:
 #        converted_routes.append(convert_to_common(routes))
-
-
 
 #student_times.mean()
 #stdev(student_times)
@@ -41,13 +38,3 @@ combined_clustered_routes = main()
 #plt.title('Bus utilization percentage distribution (Pre-defined clustering)')
 #plt.ylabel('Number of buses')
 #plt.xlabel('Percentage of capacity occupied')
-
-
-
-
-
-
-
-
-
-

@@ -23,15 +23,16 @@ def route_cluster(cluster):
 	last_stop = cluster.schools_path[-1]
 	for idx, stop in enumerate(stops_info):
 		stops_path.append(stop)
-		stud_count = (np.array([j[2] for j in stops_path])).sum(axis=0)
+		# stud_count = (np.array([j[2] for j in stops_path])).sum(axis=0)
 
-		if constants.CAP_COUNTS:
-			MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[max(constants.CAP_COUNTS.keys())])
-		else: 
-			MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[max(constants.CAP_COUNTS.keys())])
+		# if constants.CAP_COUNTS:
+		# 	MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[max(constants.CAP_COUNTS.keys())])
+		# else: 
+		# 	MOD_BUS = (constants.CAPACITY_MODIFIED_MAP[max(constants.CAP_COUNTS.keys())])
 
-		if (cluster.get_school_route_time() + sum([i[1] for i in stops_path]) > constants.MAX_TIME) or \
-			((stud_count[0]/MOD_BUS[0])+(stud_count[1]/MOD_BUS[1])+(stud_count[2]/MOD_BUS[2])) > 1:
+		if (cluster.get_school_route_time() + sum([i[1] for i in stops_path]) > constants.MAX_TIME):
+			#  or \
+			# ((stud_count[0]/MOD_BUS[0])+(stud_count[1]/MOD_BUS[1])+(stud_count[2]/MOD_BUS[2])) > 1:
 
 			last_stop = cluster.schools_path[-1]
 			if len(stops_path) == 1:
@@ -63,7 +64,9 @@ def route_cluster(cluster):
 		routes_returned.append(new_route)
 		idx += 1
 
+	print('check routes_returned')
 	new_routes = convert_and_improve(routes_returned)
+	print('check new routes')
 	return new_routes
 
 # Recursively split routes
