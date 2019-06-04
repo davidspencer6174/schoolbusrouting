@@ -21,7 +21,7 @@ def print_routes(clusters):
             route_count += 1 
         print("-----------------------------")
     
-    print("Total Rote Counts:" + str(route_count))
+    print("Total Route Counts:" + str(route_count))
 
 # with open(prefix+'schoolnames_map.pickle', 'rb') as handle:
 #     schoolnames_map = pickle.load(handle)

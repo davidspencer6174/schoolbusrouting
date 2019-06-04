@@ -130,6 +130,10 @@ class Route:
         
         for stud in self.students_list: 
             self.schools_to_visit.add(stud.school_ind)
+            
+    # TODO: check validity of routes 
+    def check_routes_valid(self):
+        pass
 
 
 # Clusters 

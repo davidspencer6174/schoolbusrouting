@@ -86,12 +86,6 @@ def fix_school_types(route):
     route_output = (new_stops, route[1], route[2])
     return route_output
 
-# Compare routes 
-def compare_routes_produced(group1, group2):
-    identical, similar, not_similar = list(), list(), list()
-    
-    
-    return identical, similar, not_similar 
     
     
     
