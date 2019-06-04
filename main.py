@@ -186,6 +186,11 @@ def vary_params():
               str(len(routes_returned)) + " " + 
               str(mean_stud_trav_time/60))
 
-#routes = main("savings", improve = True, buses = True)        
-permutation_approach(300)
+savings_routes = main("savings", improve = True, buses = True)        
+#permutation_approach(1000)
 #vary_params()
+
+
+#loading = open(("output//newagerestriction0529.obj"), "rb")
+#routes = pickle.load(loading)
+#loading.close()

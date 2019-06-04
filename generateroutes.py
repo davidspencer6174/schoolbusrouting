@@ -52,7 +52,7 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
     #We will process the stops in order of distance
     #from their schools
     #The second and part of the tuple improves
-    #determinizm of the sorting algorithm.
+    #determinism of the sorting algorithm.
     all_stops = sorted(all_stops, key = lambda s: (-trav_time(s, s.school),
                                                    s.school.school_name))
     if permutation != None:
@@ -64,7 +64,7 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
 #        ind2 = randint(0, len(all_stops) - 1)
 #        all_stops[ind1], all_stops[ind2] = all_stops[ind2], all_stops[ind1]
 #    #all_stops = sorted(all_stops, key = lambda s: (len(s.school.unrouted_stops['E'])+len(s.school.unrouted_stops['M'])+len(s.school.unrouted_stops['H'])))
-    routes = set()
+    routes = []
     near_schools = determine_school_proximities(schools)
     if partial_route_plan != None:
         apply_partial_route_plan(partial_route_plan, all_stops, routes)
@@ -137,5 +137,5 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
             if best_stop.h > 0 and best_stop.e == 0:
                 h_no_e = True
         #print(len(current_route.stops))
-        routes.add(current_route)
+        routes.append(current_route)
     return list(routes)

@@ -12,10 +12,10 @@ def perform_move(route1, route2, tt_ind):
     #Trivial case
     if route1 == route2:
         return True
-    stops_to_move = set()
+    stops_to_move = []
     for stop in route1.stops:
         if stop.tt_ind == tt_ind:
-            stops_to_move.add(stop)
+            stops_to_move.append(stop)
     #Check feasibility with respect to ages
     for stop in stops_to_move:
         if (route2.e_no_h and stop.h > 0 and stop.e == 0 or
@@ -59,9 +59,9 @@ def identify_greedy_moves(route_plan, subset = None, slack = 0):
             original_r2_length = route2.length
             #original_r1_travel = sum(route1.student_travel_times())
             #original_r2_travel = sum(route2.student_travel_times())
-            tt_inds = set()
+            tt_inds = []
             for stop in route1.stops:
-                tt_inds.add(stop.tt_ind)
+                tt_inds.append(stop.tt_ind)
             for tt_ind in tt_inds:
                 if perform_move(route1, route2, tt_ind):
                     savings = original_r1_length - route1.length
