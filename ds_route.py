@@ -75,29 +75,32 @@ class ds_route:
         return True
         
     def remove_stop(self, stop):
-        self.stops.remove(stop)
-        school = stop.school
-        school_still_needed = False
-        for other_stop in self.stops:
-            if other_stop.school == school:
-                school_still_needed = True
-                break
-        if not school_still_needed:
-            self.schools = copy.copy(self.schools)
-            self.schools.remove(school)
-            #If there is nothing left, our length is 0
-            #TODO: Figure out the right way to deal with this
-            if len(self.schools) == 0:
-                self.length = 0
+        if stop in self.stops:
+            self.stops.remove(stop)
+            school = stop.school
+            school_still_needed = False
+            for other_stop in self.stops:
+                if other_stop.school == school:
+                    school_still_needed = True
+                    break
+            if not school_still_needed:
+                self.schools = copy.copy(self.schools)
+                self.schools.remove(school)
+                #If there is nothing left, our length is 0
+                #TODO: Figure out the right way to deal with this
+                if len(self.schools) == 0:
+                    self.length = 0
+                    return
+                self.enumerate_school_orderings()
+            #ds_route will no longer be used in this case
+            if len(self.stops) == 0:
                 return
-            self.enumerate_school_orderings()
-        #ds_route will no longer be used in this case
-        if len(self.stops) == 0:
-            return
-        self.recompute_length()
-        self.recompute_type_info()
-        self.recompute_occupants()
-        self.recompute_maxtime()
+            self.recompute_length()
+            self.recompute_type_info()
+            self.recompute_occupants()
+            self.recompute_maxtime()
+        else:
+            pass
         
     def get_ds_route_length(self):
         return self.length
@@ -331,12 +334,9 @@ class ds_route:
         m = to_add[1]
         h = to_add[2]
         for stop in self.stops:
-            if stop.type == "E":
-                e += stop.occs
-            if stop.type == "M":
-                m += stop.occs
-            if stop.type == "H":
-                h += stop.occs
+            e += stop.e
+            m += stop.m
+            h += stop.h
         mod_caps = ds_constants.CAPACITY_MODIFIED_MAP[cap]
         return ((e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2]) <= 1)
     
