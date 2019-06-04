@@ -50,6 +50,8 @@ CAPACITY_MODIFIED_MAP[10000] = [10000, 10000, 10000]
 #Assumed multiplier due to discrepancies betweeen OSRM estimated
 #travel time and Google Maps estimated travel time
 TT_MULT = 1.5
+#Testing number of buses that would result if travel times were 0
+#TT_MULT = 0.0
 
 #If a student lives too far away from school, multiply the
 #allowable route time by some slack to allow for still
@@ -82,13 +84,13 @@ MAX_SCHOOL_DIST = 947.033
 #Cutoff below which a stop will not be accepted
 #Goal is to reduce mean travel time
 #EVALUATION_CUTOFF = -1000
-EVALUATION_CUTOFF = -194.853
+EVALUATION_CUTOFF = -236.319
 
 #Weights to determine value of a stop
 #SCH_DIST_WEIGHT = 0.85
 #STOP_DIST_WEIGHT = 0.2
-SCH_DIST_WEIGHT = .8732616
-STOP_DIST_WEIGHT = .1650857
+SCH_DIST_WEIGHT = 1.18602
+STOP_DIST_WEIGHT = .15649
 
 #Seconds before belltime to determine valid arrival
 #Valid arrival times are [belltime-EARLIEST, belltime-LATEST]

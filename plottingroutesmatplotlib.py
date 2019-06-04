@@ -114,7 +114,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
                                          message, ha='center', va='center',
                                          fontsize = 5))
     adjust_text(texts, precision = .1, text_from_points = False)
-    prefix = ("0516figures//")
+    prefix = ("output//0528presentation//routeplots//")
     plt.axis('off')
     if to_plot == None:
         fig.savefig(prefix + 'allvintagebalboa.eps', bbox_inches = 'tight',
@@ -128,7 +128,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
     
     
 
-loading = open("output//8minutesdropoffgreedyb.obj", "rb")
+loading = open("output//for0528routesfullopt.obj", "rb")
 obj = pickle.load(loading)
 loading.close()
 
@@ -137,7 +137,7 @@ for ind in range(len(obj)):
     r = obj[ind]
     to_store = False
     for school in r.schools:
-        to_store = ("BALBOA" in school.school_name and "LAKE" not in school.school_name)
+        to_store = to_store or ("BALBOA" in school.school_name and "LAKE" not in school.school_name)
         to_store = to_store or ("VINTAGE" in school.school_name)
     if to_store:
         vb_routes.append((r, ind))

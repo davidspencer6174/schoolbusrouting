@@ -44,9 +44,11 @@ def spec_to_dsroute(spec_r, students, schools_students_map, all_schools):
     for stop_group in spec_r[0][::-1]:
         for stop in stop_group[1]:
             #stop_stud_type = stop[1]
+            stop_school = None
             for school in all_schools:
                 if school.tt_ind == stop:
                     stop_school = school
+            assert stop_school != None, "Error: no corresponding school found"
             adding_stop = Stop(stop_school)
             #r.stops.append(adding_stop)
             for student in students:
@@ -100,14 +102,15 @@ def spec_to_dsroutes(filepath):
         
     return resulting_routes
 
-loading = open("output//newagerestriction0529.obj", "rb")
-testing_routes = pickle.load(loading)
-loading.close()
-dsroutes_to_spec(testing_routes, "0529_routes_newformat.obj")
+#loading = open("output//newagerestriction0529.obj", "rb")
+#testing_routes = pickle.load(loading)
+#loading.close()
+#dsroutes_to_spec(testing_routes, "0602_routes_newformat.obj")
 
-recovered_routes = spec_to_dsroutes("0529_routes_newformat.obj")
+
+#recovered_routes = spec_to_dsroutes("0529_routes_newformat.obj")
 
 #conv_routes = spec_to_dsroutes('miscellaneous//converted_routes_new.pickle')
 
-#willy_routes = spec_to_dsroutes('miscellaneous//converted_routes_new.obj')
+willy_routes = spec_to_dsroutes('miscellaneous//new_routes.obj')
 #my_routes = spec_to_dsroutes('tmp_specdroutes.obj')
