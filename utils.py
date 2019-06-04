@@ -29,6 +29,21 @@ def isomorphic(stop1, stop2):
     return(stop1.school.tt_ind == stop2.school.tt_ind and
            stop1.tt_ind == stop2.tt_ind)
 
+#Returns a set of tuples
+#(s1.tt_ind, s1.school.tt_ind, s2.tt_ind, s2.school.tt_ind)
+#containing all stops for which s1 and s2 are in the same route.
+#Note: there will be double-counting due to swapping s1 and s2.
+def stop_pairs(route_plan):
+    out = set()
+    for r in route_plan:
+        for stop1 in r.stops:
+            for stop2 in r.stops:
+                if stop1 == stop2:
+                    continue
+                out.add((stop1.tt_ind, stop1.school.tt_ind,
+                         stop2.tt_ind, stop2.school.tt_ind))
+    return out
+
 #Checks to see which routes in the first route plan share at least
 #one stop with the passed-in route.
 #Does not require pointer equality for stops, only object value
@@ -41,6 +56,25 @@ def overlapping_routes(route_plan, route):
                 if isomorphic(stop1, stop2):
                     out.add(compare_route)
     return out
+
+#A route in rp1 shares an edge with a route in rp2 if they
+#pick up at least one common student. The common stop
+#similarity is defined to be max(len(rp1, rp2))/(total # edges).
+def common_stop_similarity(rp1, rp2):
+    num_edges = 0
+    for r in rp1:
+        overlaps = overlapping_routes(rp2, r)
+        num_edges += len(overlaps)
+    return max(len(rp1), len(rp2))/(num_edges)
+
+#For each route plan, construct the stop_pairs object as
+#defined by that function.
+#Then compute the overlap between these sets of pairs using
+#|intersection|/|union|.
+def common_stop_pairs(rp1, rp2):
+    rp1pairs = stop_pairs(rp1)
+    rp2pairs = stop_pairs(rp2)
+    return len(rp1pairs.intersection(rp2pairs))/len(rp1pairs.union(rp2pairs))
 
 def full_comparison(rp1, rp2):
     tot = 0

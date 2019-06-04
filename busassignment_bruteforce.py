@@ -10,7 +10,6 @@ global start_time
 #enough space for the biggest bus to take it. Then assign the
 #smallest bus that can take those stops. Repeat until all stops
 #are taken.
-#TODO: Implement
 def greedy_assignment(route, buses):
     routes = []
     picked_up = [False for stop in route.stops]
@@ -35,9 +34,12 @@ def greedy_assignment(route, buses):
                 route_creating.set_capacity(bus[0])
                 bus[1] -= 1
                 break
+        if route_creating.unmodified_bus_capacity != None:
+            routes.append(route_creating)
+            print("onto next")
+            continue
         #If no bus was large enough, should be for one stop.
-        assert (route_creating.unmodified_bus_capacity != None or
-                len(route_creating.stops) == 1)
+        assert (len(route_creating.stops) == 1)
         to_use_bus = 0
         for bus in buses:
             if bus[1] > 0:

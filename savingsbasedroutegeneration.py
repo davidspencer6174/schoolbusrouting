@@ -26,7 +26,7 @@ def savings(route1, route2):
     route2.restore()
     if not feasibility:
         return -1e10
-    return orig_cost - new_cost + 0*(new_num_schools - orig_num_schools)
+    return (orig_cost - new_cost)
 
 def update(stop1, stop2, stop_info_map, savings_matrix):
     route1 = stop_info_map[stop1][1]
@@ -45,8 +45,7 @@ def clarke_wright_savings(schools):
     ind_stop_map = dict()
     stop_ind_counter = 0
     for school in schools:
-        for stop in (set().union(school.unrouted_stops['E'], school.unrouted_stops['M'],
-                     school.unrouted_stops['H'])):
+        for stop in school.unrouted_stops:
             new_route = Route()
             new_route.add_stop(stop)
             routes.append(new_route)
@@ -62,6 +61,20 @@ def clarke_wright_savings(schools):
                    stop_info_map, savings_matrix)
     while True:
         to_merge = np.unravel_index(savings_matrix.argmax(), savings_matrix.shape)
+        #to_merge = (None, None)
+        #bests = np.array([max(np.max(savings_matrix[i,:]),
+        #             np.max(savings_matrix[:,i])) for i in range(stop_ind_counter)])
+        #seconds = np.array([max(np.max(savings_matrix[i,:]*np.array([savings_matrix[i,:] < bests[i]])*np.array([savings_matrix[:,i] < bests[i]])),
+        #               np.max(savings_matrix[:,i]*np.array([savings_matrix[i,:] < bests[i]])*np.array([savings_matrix[:,i] < bests[i]])))
+        #               for i in range(stop_ind_counter)])
+        #to_merge_oneind = np.argmax((bests - .3*seconds)-(bests < 0)*10000000)
+        #to_merge_oneind = np.argmin(np.array(seconds) + 1e10*(np.array(bests) < 0))
+        #print(np.max(bests - seconds))
+        #if (np.max(savings_matrix[to_merge_oneind,:]) >
+        #    np.max(savings_matrix[:,to_merge_oneind])):
+        #    to_merge = (to_merge_oneind, np.argmax(savings_matrix[to_merge_oneind, :]))
+        #else:
+        #    to_merge = (np.argmax(savings_matrix[:, to_merge_oneind]), to_merge_oneind)
         print(to_merge)
         print(savings_matrix[to_merge[0], to_merge[1]])
         if savings_matrix[to_merge[0], to_merge[1]] < 0:
@@ -80,8 +93,10 @@ def clarke_wright_savings(schools):
             #print(len(route1.stops))
         for i in range(stop_ind_counter):
             for stop in route1.stops:
-                update(stop, ind_stop_map[i], stop_info_map, savings_matrix)
-                update(ind_stop_map[i], stop, stop_info_map, savings_matrix)
+                if savings_matrix[stop_info_map[stop][0], i] > -100000:
+                    update(stop, ind_stop_map[i], stop_info_map, savings_matrix)
+                if savings_matrix[i, stop_info_map[stop][0]] > -100000:
+                    update(ind_stop_map[i], stop, stop_info_map, savings_matrix)
     out_routes = set()
     for stop in stop_info_map:
         out_routes.add(stop_info_map[stop][1])
