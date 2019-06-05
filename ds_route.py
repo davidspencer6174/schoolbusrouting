@@ -143,6 +143,7 @@ class ds_route:
                 self.stops.insert(best_ind, stop)
         else:
             self.stops = [stop]
+        
         self.recompute_length()
         self.occupants += stop.occs
         self.max_time = max(self.max_time,

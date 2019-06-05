@@ -3,8 +3,24 @@ import pandas as pd
 import constants 
 from collections import defaultdict
 
+
+def verify_route(route):
+    
+    total_time = 0
+    stud_count = (np.array([j[2] for j in route.stops_path])).sum(axis=0)
+
+    for school in route.schools_path:
+        total_time += school[1]
+    for stop in route.stops_path:
+        total_time += stop[1]
+
+    # if total_time > constants.MAX_TIME or 
+
+    
+
+
 # Go through routes and verify route
-def verify_routes(routes_returned): 
+def verify_all_routes(routes_returned): 
 
     # Initialize variables 
     student_stop_count_checker = defaultdict(int) 
