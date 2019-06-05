@@ -30,12 +30,36 @@ class Student:
     #examine the saved routes.
     #For now, ridership probability is not used, but it will be
     #needed if we try to implement overbooking.
-    def __init__(self, tt_ind, school, age_type, fields, rider_prob = 1.0):
+    def __init__(self, tt_ind, school, age_type, fields, needs = None):
         self.tt_ind = tt_ind
         self.school = school
         self.type = age_type
         self.fields = fields
-        self.rider_prob = rider_prob
+        self.needs = dict()
+        
+    #Key-value pair where the key encapsulates the type of need.
+    #Usually, the value is empty.
+    #Needs:
+    #'W' means the student needs a wheelchair, and thus 5 extra minutes.
+    #'L' means the student is nonambulatory and needs a lift bus
+    #but has no wheelchair, and thus 2 extra minutes.
+    #'A' means adult supervision is required, but not one-on-one.
+    #'I' means one-on-one supervision is required.
+    #(a private nurse and HCA are treated the same way here).
+    #'M' means a machine is required, and therefore the student needs
+    #to be in a back seat (so only 2 such students can be on a bus)
+    #Two such machines are suction machines and oxygen machines.
+    #'T' means a time limit other than the default is required.
+    #In this case, the value will be the number of seconds allowed.
+    def add_need(self, need, value = True):
+        self.needs[need] = value
+        
+    def has_need(self, need):
+        if need not in self.needs:
+            return False
+        return self.needs[need]
+        
+    
         
 class Stop:
     
