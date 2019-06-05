@@ -5,7 +5,7 @@ from time import process_time
 
 global start_time
 
-#Fallback for when assingment to a route takes too long.
+#Fallback for when assignment to a route takes too long.
 #Just try adding stops to a route in order until there's not
 #enough space for the biggest bus to take it. Then assign the
 #smallest bus that can take those stops. Repeat until all stops

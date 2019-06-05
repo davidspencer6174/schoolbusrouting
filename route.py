@@ -357,12 +357,30 @@ class Route:
         e = to_add[0]
         m = to_add[1]
         h = to_add[2]
+        #Two types of supervisors that each take as much space as 2 H.
+        #HCA/private nurses (different, but treated same) are for
+        #individual students.
+        #General supervisors can cover the whole bus.
+        hca = 0
+        sup_required = False
         for stop in self.stops:
-            e += stop.e
-            m += stop.m
-            h += stop.h
+            for stud in self.students:
+                #Machine: takes up a full bench.
+                if stud.has_need('M'):
+                    h += 2
+                    continue
+                e += (stud.type == 'E')
+                m += (stud.type == 'M')
+                h += (stud.type == 'H')
+                #HCA, private nurse, supervisor: takes up a full bench.
+                if stud.has_need('I'):
+                    hca += 1
+                if stud.has_need('A'):
+                    sup_required = True
         mod_caps = constants.CAPACITY_MODIFIED_MAP[cap]
-        return ((e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2]) <= 1)
+        prop_occupied = (e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2] +
+                         (hca+sup_required)*2/mod_caps[2])
+        return (prop_occupied <= 1)
     
     #Check whether it is feasible to add more students of type
     #stud_type to the route given the bus capacity
