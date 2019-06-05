@@ -176,13 +176,13 @@ def try_hold(route, num_buses, buses):
     return (False, None, None)
         
         
+
 def assign_buses(routes, buses):
     global start_time
     routes = list(routes)
     routes.sort(key = lambda x:x.occupants)
     new_routes = []
     for route_ind, route in enumerate(routes):
-                
         print(str(route_ind) + "/" + str(len(routes)))
         print("Used " + str(len(new_routes)) + " buses.")
         print("Assigning a route with " + str(len(route.stops)) + " stops.")
@@ -201,7 +201,6 @@ def assign_buses(routes, buses):
                 print("****************Punting*******************")
                 out = None
                 break
-            
         if out == None:
             greedy_routes = greedy_assignment(route, buses)
             for subroute in greedy_routes:
@@ -227,7 +226,30 @@ def assign_buses(routes, buses):
                     break
     return new_routes
 
-from ds_setup import setup_buses
-prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
-buses = setup_buses(prefix+'dist_bus_capacities.csv')
-final_routes = assign_buses(improved_apple, buses)
+#import pickle
+#from setup import setup_buses
+
+#loading = open(("output//8minutesdropoffgreedy.obj"), "rb")
+#loading = open(("output//mxproutes.obj"), "rb")
+
+#routes = pickle.load(loading)
+#loading.close()
+#ds_constants.BUS_SEARCH_TIME = 1.0
+#buses = setup_buses('data//dist_bus_capacities.csv')
+#out = assign_buses(routes, buses)
+
+
+#Results for existing routes and my routes as of 05/16:
+#My routes:
+#0.0s 670 buses
+#0.001s 669 buses
+#1.0s 661 buses, mean travel time 25.59m
+#10.0s 661 buses
+#100.0s 660 buses
+
+#Existing routes:
+#0.0s 658 buses
+#0.001s 655 buses
+#1.0s 649 buses, mean travel time 25.88m
+#10.0s 649 buses
+#100.0s 649 buses

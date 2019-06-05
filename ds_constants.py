@@ -93,9 +93,8 @@ STOP_DIST_WEIGHT = .1650857
 
 #Seconds before belltime to determine valid arrival
 #Valid arrival times are [belltime-EARLIEST, belltime-LATEST]
-EARLIEST = 1800
+EARLIEST = 10000000 
 LATEST = 600
-
 
 #Constants to govern weighting of importance of
 #distance from school in single-load initialization

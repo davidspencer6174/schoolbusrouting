@@ -121,8 +121,6 @@ def setup_ds_students(phonebooks, all_geocodes, geocoded_stops,
         
     return students, schools_students_map, all_schools
 
-
-
 #bus_capacities is an input csv file where the first
 #column is bus ID and the second is capacity.
 def setup_buses(bus_capacities):
@@ -158,7 +156,7 @@ def setup_ds_stops(schools_students_map):
             if student.school not in ttind_age_stop_map:
                 ttind_age_stop_map[student.school] = dict()
             if dict_key not in ttind_age_stop_map[student.school]:
-                new_stop = ds_Stop(student.school, student.type)
+                new_stop = ds_Stop(student.school)
                 ttind_age_stop_map[student.school][dict_key] = new_stop
                 stops.add(ttind_age_stop_map[student.school][dict_key])
                 student.school.unds_routed_stops[student.type].add(new_stop)
