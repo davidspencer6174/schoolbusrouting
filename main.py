@@ -1,6 +1,6 @@
 from routing import start_routing, start_combining
 from setup import setup_data
-from ds_setup import setup_ds_students, setup_buses
+from ds_setup import setup_ds_students, setup_ds_buses
 from wh_routestospec import wh_routes_to_spec
 from ds_routestospec import spec_to_ds_routes
 import ds_constants

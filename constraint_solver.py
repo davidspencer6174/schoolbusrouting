@@ -152,7 +152,7 @@ def solve_school_constraints(schools_info_df):
             if len(school_route[0]) == 1:
                 school_route = [school_route[0]]
             else:
-                school_route = school_route[0]
+                school_route = school_route[0][::-1]
             return school_route
             
         else: 

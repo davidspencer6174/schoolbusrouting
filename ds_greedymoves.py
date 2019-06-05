@@ -1,7 +1,7 @@
 import constants
 import networkx as nx
 import numpy as np
-from ds_setup import setup_buses, setup_stops, setup_students
+from ds_setup import setup_ds_stops, setup_ds_students
 
 #Moves all stops of travel time index tt_ind from
 #route1 to route2. Returns False if student types or bell times are
