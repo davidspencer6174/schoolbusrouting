@@ -51,6 +51,7 @@ class Student:
     #Two such machines are suction machines and oxygen machines.
     #'T' means a time limit other than the default is required.
     #In this case, the value will be the number of seconds allowed.
+    #'F' means the student needs to be the final student on the route.
     def add_need(self, need, value = True):
         self.needs[need] = value
         
