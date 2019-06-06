@@ -112,5 +112,8 @@ def spec_to_dsroutes(filepath):
 
 #conv_routes = spec_to_dsroutes('miscellaneous//converted_routes_new.pickle')
 
-willy_routes = spec_to_dsroutes('miscellaneous//new_routes.obj')
+willy_routes = spec_to_dsroutes('miscellaneous//willy_routes_0604.obj')
+saving = open("plans_to_compare//willy.obj", "wb")
+pickle.dump(willy_routes, saving)
+saving.close()
 #my_routes = spec_to_dsroutes('tmp_specdroutes.obj')

@@ -217,6 +217,14 @@ def existing_routes(phonebooks, all_geocodes, geocoded_stops,
     print("Number of routes when dividing up attribution: " + str(total_routes))
     return routes_map
 
+#There's an issue: the program does not add stops to routes if
+#there is no feasible school ordering, but not all of the
+#existing routes have a feasible school ordering.
+#As such, temporarily widen the window to ensure that the
+#stops will still get added to the routes.
+old_earliest = constants.EARLIEST
+constants.EARLIEST = 10000
+
 prefix = "data//"
 output = existing_routes([prefix+'phonebook_parta.csv',
                          prefix+'phonebook_partb.csv'],
@@ -272,6 +280,9 @@ print("Standard deviation of route length: " + str(np.std(route_lengths_bused_mx
 saving = open('output//busedmxproutes.obj', 'wb')
 pickle.dump(bused_mxp_routes, saving)
 saving.close()
+
+#Set the window back to what it should be
+constants.EARLIEST = old_earliest
 
 doing_mine = False
 if doing_mine:
