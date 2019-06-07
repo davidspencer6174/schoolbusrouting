@@ -8,7 +8,7 @@ def mixed_loads(route_list):
     #Iterate over all routes and check whether they
     #can be removed.
     # print("Old number of routes: " + str(len(route_list)))
-    print("--------- Mixed-Loads")
+    # print("--------- Mixed-Loads")
     i = 0
     while i < len(route_list):
         if (len(route_list) - i) % 50 == 0:

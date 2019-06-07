@@ -53,6 +53,13 @@ class Route:
     def get_total_path(self):
         return self.schools_path + self.stops_path
 
+    # 
+    def get_route_length(self):
+        tot_time = [sch[1] if idx == 0 else sch[1] + \
+                    constants.DROPOFF_TIME[sch] for idx, sch in enumerate(self.schools_path)] + \
+                    sum([stop[1] for stop in self.stops_path])
+        return tot_time
+
     def get_student_counts(self):
         count = np.sum([stop[2] for stop in self.stops_path])
         return count 
@@ -106,7 +113,7 @@ class Route:
                 self.update_bus(bus)
 
     # Clean routes and convert times
-    def clean_routes(self):
+    def clean_route(self):
         new_schools_path = list()
         for sch in self.schools_path: 
             if sch[0] in self.schools_to_visit:
@@ -134,7 +141,6 @@ class Route:
     # TODO: check validity of routes 
     def check_routes_valid(self):
         pass
-
 
 # Clusters 
 class Cluster:
@@ -289,4 +295,4 @@ class Cluster:
      # Clean routes in cluster
     def clean_routes_in_cluster(self):
         for route in self.routes_list:
-            route.clean_routes()
+            route.clean_route()

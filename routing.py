@@ -63,10 +63,7 @@ def route_cluster(cluster):
 
 		routes_returned.append(new_route)
 		idx += 1
-
-	print('check routes_returned')
 	new_routes = convert_and_improve(routes_returned)
-	print('check new routes')
 	return new_routes
 
 # Recursively split routes
@@ -222,7 +219,7 @@ def start_combining(clustered_routes):
 				count = 0
 				iter_count += 1
         
-		if iter_count == 3:
+		if iter_count == 1:
 			break
 
 	return clean_routes(clustered_routes)

@@ -77,30 +77,29 @@ class ds_route:
     def remove_stop(self, stop):
         if stop in self.stops:
             self.stops.remove(stop)
-            school = stop.school
-            school_still_needed = False
-            for other_stop in self.stops:
-                if other_stop.school == school:
-                    school_still_needed = True
-                    break
-            if not school_still_needed:
-                self.schools = copy.copy(self.schools)
-                self.schools.remove(school)
-                #If there is nothing left, our length is 0
-                #TODO: Figure out the right way to deal with this
-                if len(self.schools) == 0:
-                    self.length = 0
-                    return
-                self.enumerate_school_orderings()
-            #ds_route will no longer be used in this case
-            if len(self.stops) == 0:
+
+        school = stop.school
+        school_still_needed = False
+        for other_stop in self.stops:
+            if other_stop.school == school:
+                school_still_needed = True
+                break
+        if not school_still_needed:
+            self.schools = copy.copy(self.schools)
+            self.schools.remove(school)
+            #If there is nothing left, our length is 0
+            #TODO: Figure out the right way to deal with this
+            if len(self.schools) == 0:
+                self.length = 0
                 return
-            self.recompute_length()
-            self.recompute_type_info()
-            self.recompute_occupants()
-            self.recompute_maxtime()
-        else:
-            pass
+            self.enumerate_school_orderings()
+        #ds_route will no longer be used in this case
+        if len(self.stops) == 0:
+            return
+        self.recompute_length()
+        self.recompute_type_info()
+        self.recompute_occupants()
+        self.recompute_maxtime()
         
     def get_ds_route_length(self):
         return self.length
@@ -113,7 +112,6 @@ class ds_route:
                 self.e_no_h = True
             if stop.h > 0 and stop.e == 0:
                 self.h_no_e = True
-
 
     #Performs an insertion of a stop such that the cost is minimized.
     #TODO: Allow for addition to the end to interface with

@@ -1,10 +1,7 @@
 import pandas as pd 
-import numpy as np
 from collections import defaultdict
 import constants
-import pickle
 from plot_plotly import plot_routes
-
 
 prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/mixed_load_data/"
 

@@ -10,11 +10,9 @@ with open('/Users/cuhauwhung/Desktop/one_unpacked_routes.pickle', 'rb') as f:
 with open('/Users/cuhauwhung/Desktop/two_unpacked_routes.pickle', 'rb') as f:
     number_two = pickle.load(f)
 
-
 def disp(route):
     print(route.schools_path)
     print(route.stops_path)
-
 
 def is_equal(route_1, route_2):
     

@@ -57,6 +57,6 @@ def convert_route_from_common(route):
     new_route = Route(schools_path, stops_path, None)
     new_route.add_students_manual(list_of_students)
     new_route.assign_bus_manual(route[2])
-    new_route.clean_routes()
+    new_route.clean_route()
     
     return new_route
