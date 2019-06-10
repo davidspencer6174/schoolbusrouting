@@ -25,24 +25,46 @@ def main():
 combined_clustered_routes = main()
 
 
+stop_counts = defaultdict(int)
+for idx in combined_clustered_routes:
+    clus = combined_clustered_routes[idx]
+    num_stops = 0
+    for route in clus.routes_list:
+        num_stops += len(route.stops_path)
+        print(len(route.stops_path))
+    stop_counts[idx] = num_stops
+    
+# 65 and 84
+routes_1 = combined_clustered_routes[65].routes_list
+routes_2 = combined_clustered_routes[84].routes_list
 
-import pickle
-with open('two_spec_pre_improve.obj', 'rb') as fp:
-    spec_routes = pickle.load(fp)
+spec_1 = wh_routes_to_spec(routes_1)    
+spec_2 = wh_routes_to_spec(routes_2)    
 
-from utils import unpack_routes
-unpacked_routes = unpack_routes(combined_clustered_routes)
-spec_routes = wh_routes_to_spec(unpacked_routes)
-ds_routes = spec_to_ds_routes(spec_routes)
-improved_routes = improvement_procedures(ds_routes)
+with open("check_1", "wb") as output_file:
+    pickle.dump(spec_1, output_file)
+    
+with open("check_2", "wb") as output_file:
+    pickle.dump(spec_2, output_file)
 
-from ds_setup import setup_ds_buses
-from bus_assignment_brute_force import assign_buses
-from ds_diagnostics import diagnostics
-prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
-buses = setup_ds_buses(prefix+'dist_bus_capacities.csv')
-assign_buses(improved_routes, buses)
-diagnostics(improved_routes)
+
+#import pickle
+#with open('two_spec_pre_improve.obj', 'rb') as fp:
+#    spec_routes = pickle.load(fp)
+#
+#from utils import unpack_routes
+#unpacked_routes = unpack_routes(combined_clustered_routes)
+#spec_routes = wh_routes_to_spec(unpacked_routes)
+#ds_routes = spec_to_ds_routes(spec_routes)
+#improved_routes = improvement_procedures(ds_routes)
+#
+#from ds_setup import setup_ds_buses
+#from bus_assignment_brute_force import assign_buses
+#from ds_diagnostics import diagnostics
+#prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
+#buses = setup_ds_buses(prefix+'dist_bus_capacities.csv')
+#assign_buses(improved_routes, buses)
+#diagnostics(improved_routes)
 
 
 
