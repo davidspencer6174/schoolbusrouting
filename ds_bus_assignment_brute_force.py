@@ -227,7 +227,7 @@ def assign_buses(routes, buses):
                     break
     return new_routes
 
-from ds_setup import setup_buses
-prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
-buses = setup_buses(prefix+'dist_bus_capacities.csv')
-final_routes = assign_buses(improved_apple, buses)
+# from ds_setup import setup_buses
+# prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
+# buses = setup_buses(prefix+'dist_bus_capacities.csv')
+# final_routes = assign_buses(improved_apple, buses)
