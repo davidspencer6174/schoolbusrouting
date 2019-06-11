@@ -4,6 +4,8 @@ from locations import Route
 import copy
 from collections import defaultdict
 from convert_improve import convert_and_improve
+import pickle
+import random
 
 # Begin routing 
 def start_routing(single_school_clusters):
@@ -64,10 +66,10 @@ def route_cluster(cluster):
 		routes_returned.append(new_route)
 		idx += 1
 
-	print('check routes_returned')
-	new_routes = convert_and_improve(routes_returned)
-	print('check new routes')
-	return new_routes
+#	print('check routes_returned')
+#	new_routes = convert_and_improve(routes_returned)
+#	print('check new routes')
+	return routes_returned
 
 # Recursively split routes
 def split_route(current_route, routes_to_return):
@@ -153,82 +155,149 @@ def get_possible_stops_path(cluster):
 
 	return stops_path[1:]
 
-# Start combining clusters
-def start_combining(clustered_routes):
+# Use the all pairs combining method
+def all_pairs_start_combining(clustered_routes):
+	counts_mat, improved_counts = create_init_mat(clustered_routes)
+	clusters = combine_clusters(clustered_routes, counts_mat, improved_counts)
+	return clusters
 
-	count, iter_count = 0, 0 
-	index_to_use = 0 
+# combine clusters based on number of routes produced 
+def combine_clusters(clusters, counts_mat, improved_counts):
 
-	while True:
-		route_counts_for_clusters = list()
-		nearest_clusters = clustered_routes[count].find_closest_school_clusters(clustered_routes)
-		total_num_of_routes = sum([len(clustered_routes[idx].routes_list) for idx in clustered_routes])
-        
-		if constants.VERBOSE:
-			print('-----------------------')
-			print("Iter-count: " + str(iter_count) + " -- Count: " + str(count))
-			print("NUM CLUS: " + str(len(clustered_routes)) + " -- NUM OF ROUTES BEGIN: " + str(total_num_of_routes))
+	improving = True
+
+	while improving:
+		# Find index where would improve most  
+		begin_num = len(clusters)
 		
-		# Get statisitcs [(sum_of_seperate, combined_clusters)....()]
-		for _, test_clus in enumerate(nearest_clusters):
-			
-			combined_cluster = clustered_routes[count].combine_clusters(clustered_routes[test_clus[0]])
-
-			if combined_cluster:
-				route_counts_for_clusters.append((len(clustered_routes[count].routes_list) + len(clustered_routes[test_clus[0]].routes_list), len(combined_cluster.routes_list)))
-				# combined_cluster.add_buses_back()
-			else:
-				route_counts_for_clusters.append((-1,0)) 
-
-		# Once we have obtain the route counts, we check best option and modify clustered_routes_list
-		try:
-			diff_counters = [i[0]-i[1] if i[1] != None else np.nan for i in route_counts_for_clusters]
-			index_to_use = np.nanargmax(diff_counters)
-
-			if diff_counters[index_to_use] > 0: 
-
-				# Remove clus from original dict
-				for clus in clustered_routes.values():
-					if clus == clustered_routes[nearest_clusters[index_to_use][0]]:
-
-						# clustered_routes[count].add_buses_back()
-						clustered_routes[count] = copy.deepcopy(clustered_routes[count].combine_clusters(copy.deepcopy(clus)))
-
-						# clustered_routes[nearest_clusters[index_to_use][0]].add_buses_back()
-						clustered_routes.pop(nearest_clusters[index_to_use][0])
-
-						# Reset keys 
-						clustered_routes = {i: clustered_routes[k] for i, k in enumerate(sorted(clustered_routes.keys()))}
-						break
-
-				# Break conditions
-				end_total_num_of_routes = sum([len(clustered_routes[idx].routes_list) for idx in clustered_routes]) 
-
-				if constants.VERBOSE:
-					print("REDUCE AMOUNT: " + str(diff_counters[index_to_use]))
-					print("NUMBER OF ROUTES END: " + str(end_total_num_of_routes))
-
-				if end_total_num_of_routes != total_num_of_routes - diff_counters[index_to_use]:
-					print("NUMBERS DON'T MATCH UP") 
-
-		# If no combinations
-		except ValueError:
-			print("VALUE ERROR: No combinations could be done")
-
-		count += 1 
-
-		if count >= len(clustered_routes):
-			if total_num_of_routes >= sum([len(clustered_routes[idx].routes_list) for idx in clustered_routes]):
-				count = 0
-				iter_count += 1
+		num_routes = 0 
+		for clus in clusters.values():
+			num_routes += len(clus.routes_list)
         
-		if iter_count == 3:
+		print("BEGIN: # clusters: " + str(begin_num) + ' -- ' + ' # routes: ' + str(num_routes))
+		max_val = max(map(max, improved_counts))
+        
+		if max_val == 0:
+			improving = False
 			break
 
-	return clean_routes(clustered_routes)
+		print("Max val: " + str(max_val))
+		pos_indexes = np.where(improved_counts == max_val)
+		pos_indexes = np.asarray(pos_indexes).T.tolist() 
+		index_to_use = random.choice(pos_indexes)
+
+		# Update clusters and matrices  
+		clusters, counts_mat, improved_counts = update_info(index_to_use, clusters, counts_mat, improved_counts)
+		end_num = len(clusters)
+
+		num_routes = 0 
+		for clus in clusters.values():
+			num_routes += len(clus.routes_list)
+
+		print("END: # clusters: " + str(end_num) + ' -- ' + ' # routes: ' + str(num_routes))
+		print(' ------------------------- ')
+		
+	return clusters
+
+def update_info(index_to_use, clusters, counts_mat, improved_counts):
+	x, y = index_to_use[0], index_to_use[1]
+	new_cluster = copy.deepcopy(clusters[x])
+	new_cluster = new_cluster.combine_clusters(copy.deepcopy(clusters[y]))
+	clusters[x] = new_cluster
+	clusters.pop(y)
+
+	# reindex dictionary
+	for i in range(y, max(clusters.keys())):
+		clusters[i] = clusters[i+1]
+		clusters.pop(i+1)
+
+	counts_mat = np.delete(counts_mat, y, 0)
+	counts_mat = np.delete(counts_mat, y, 1)
+
+	count_indexes = list()
+
+	for idx, clus in enumerate(clusters.values()):
+
+		test_cluster = copy.deepcopy(new_cluster)
+
+		if idx == x: 
+			count_indexes.append(len(test_cluster.routes_list))
+		else:
+			test_cluster = test_cluster.combine_clusters(clus)
+
+			if test_cluster:
+				count_indexes.append(len(test_cluster.routes_list))
+			else: 
+				count_indexes.append(np.nan)
+
+	counts_mat[x,:] = list([0] * (x)) + list(count_indexes[x:])
+	counts_mat[:,x] = list(count_indexes[:x+1]) + list([0] * (counts_mat.shape[0] - x - 1))
+	
+	# re-create improved counts matrix 
+	n = len(clusters)
+	improved_counts = np.zeros((n,n))
+
+	for i in range(0, n):
+		for j in range(0,n):
+			if i < j: 
+				improved_counts[i][j] = counts_mat[i][i] + counts_mat[j][j] - counts_mat[i][j]
+			elif i == j:
+				improved_counts[i][j] = 0 	 
+
+	return clusters, counts_mat, improved_counts
+
+# Create matrices 
+def create_init_mat(clusters):
+	# n = len(clusters)
+	# counts_mat = np.zeros((n, n))
+	# improved_counts = np.zeros((n,n))
+		
+	# # Create counts matrix 
+	# for i in range(0, n):
+	#     for j in range(0, n):
+	#         print(i,j)
+	#         if i < j: 
+	#             temp_1 = copy.deepcopy(clusters[i])
+	#             temp_2 = copy.deepcopy(clusters[j])
+	#             new_cluster = temp_1.combine_clusters(temp_2)
+	#             counts_mat[i][j] = return_count_vals(new_cluster)
+
+	#         elif i == j: 
+	#             counts_mat[i][j] = len(clusters[i].routes_list)
+
+	# # Create improved counts matrix 
+	# for i in range(0, n):
+	# 	for j in range(0,n):
+	# 		print("Second: " + str((i,j)))
+	# 		if i < j: 
+	# 			improved_counts[i][j] = counts_mat[i][i] + counts_mat[j][j] - counts_mat[i][j]
+	# 		elif i == j:
+	# 			improved_counts[i][j] = 0 	
+
+	prefix = "/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/mixed_load_data/"
+	# with open(prefix+"counts_mat.pickle", "wb") as output_file:
+	# 	pickle.dump(counts_mat, output_file)
+
+	# with open(prefix+"improved_counts.pickle", "wb") as output_file:
+	# 	pickle.dump(improved_counts, output_file)
+
+	with open(prefix+"counts_mat.pickle", "rb") as input_file:
+		counts_mat = pickle.load(input_file)
+
+	with open(prefix+"improved_counts.pickle", "rb") as input_file_2:
+		improved_counts = pickle.load(input_file_2)
+		
+	return counts_mat, improved_counts  
+
+# Helper function
+def return_count_vals(new_cluster):
+	if new_cluster:
+		return len(new_cluster.routes_list)
+	else:
+		return np.nan
 
 # Clean routes
 def clean_routes(clustered_routes):
-    for clus in clustered_routes.values(): 
-        clus.clean_routes_in_cluster()
-    return clustered_routes
+	for clus in clustered_routes.values(): 
+		clus.clean_routes_in_cluster()
+	return clustered_routes

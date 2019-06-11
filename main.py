@@ -1,4 +1,4 @@
-from routing import start_routing, start_combining
+from routing import start_routing, all_pairs_start_combining 
 from setup import setup_data
 from ds_setup import setup_ds_students, setup_ds_buses
 from wh_routestospec import wh_routes_to_spec
@@ -18,11 +18,13 @@ def main():
                                         prefix+'bell_times.csv')
 
     # Perform routing 
-    clustered_route = start_routing(single_school_clusters)
-    combined_clustered_routes = start_combining(clustered_route)
+    clustered_routes = start_routing(single_school_clusters)
+    combined_clustered_routes = all_pairs_start_combining(clustered_routes)
     return combined_clustered_routes
 
 combined_clustered_routes = main()
+
+
 
 # converted_routes= list()
 # for idx in combined_clustered_routes: 

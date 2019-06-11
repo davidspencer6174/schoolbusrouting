@@ -194,7 +194,7 @@ class Cluster:
             return combined_cluster
 
         else:
-            print("Clusters cannot be combined due to school time constraints")
+            # print("Clusters cannot be combined due to school time constraints")
             return None
 
     # Create the routes for a given cluster using schools_set and stops_set
@@ -232,7 +232,7 @@ class Cluster:
             else:
                 return False
         else:
-            print("Age types don't work")
+            # print("Age types don't work")
             return False 
 
     # Verification with csv files 
