@@ -77,6 +77,11 @@ SCHOOL_DROPOFF_TIME = 480.0
 #solution for a route before giving up and using the greedy method
 BUS_SEARCH_TIME = 10.0
 
+#Amount of time to stop for a wheelchair student and for a
+#nonambulatory lift student who does not have a wheelchair
+WHEELCHAIR_STOP_TIME = 300.0
+LIFT_STOP_TIME = 120.0
+
 #Farthest away a school can be from another school and
 #still have its stops flagged as candidates to combine
 MAX_SCHOOL_DIST = 947.033

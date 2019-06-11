@@ -19,6 +19,18 @@ class School:
         self.start_time = start_time
         self.unrouted_stops = set()
         self.school_name = school_name
+        
+class Bus:
+    
+    #capacity denotes the unmodified capacity of a bus.
+    #num_wheelchair denotes the number of wheelchair spots
+    #lift denotes whether a lift is required
+    def __init__(self, capacity, num_wheelchair, lift):
+        self.capacity = capacity
+        #If someone has a wheelchair, a lift should be required
+        assert lift or num_wheelchair == 0
+        self.num_wheelchair = num_wheelchair
+        self.lift = lift
 
 class Student:
     
@@ -36,6 +48,7 @@ class Student:
         self.type = age_type
         self.fields = fields
         self.needs = dict()
+        self.stop = None
         
     #Key-value pair where the key encapsulates the type of need.
     #Usually, the value is empty.
@@ -96,6 +109,7 @@ class Stop:
         self.students.add(s)
         self.tt_ind = s.tt_ind
         self.occs += 1
+        s.stop = self
         return True
     
     def update_value(self, removed_stop):
