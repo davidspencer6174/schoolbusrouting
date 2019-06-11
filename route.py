@@ -2,7 +2,7 @@ import constants
 import copy
 import itertools
 import numpy as np
-from locations import School, Stop, Student
+from locations import Bus, School, Stop, Student
 
 #Returns travel time from loc1 to loc2
 def trav_time(loc1, loc2):
@@ -26,11 +26,11 @@ class Route:
         self.max_time = constants.MAX_TIME
         self.e_no_h = False
         self.h_no_e = False
+        self.special_ed_students = set()
         #If no bus is assigned, the default capacity is infinite.
         #This is denoted by None.
-        #Otherwise, this variable should be modified to reflect
-        #the actual capacity.
-        self.unmodified_bus_capacity = None
+        #Otherwise, this variable should hold the relevant Bus object.
+        self.bus = None
         
     #This is a backup used during the mixed-load post improvement
     #procedure when it is determined that a bus cannot be deleted,
@@ -43,6 +43,7 @@ class Route:
         self.backup_length = self.length
         self.backup_max_time = self.max_time
         self.backup_school_orderings = copy.copy(self.valid_school_orderings)
+        self.backup_special_ed_students = copy.copy(self.special_ed_students)
         self.backup_e_no_h = self.e_no_h
         self.backup_h_no_e = self.h_no_e
         
@@ -53,6 +54,7 @@ class Route:
         self.length = self.backup_length
         self.max_time = self.backup_max_time
         self.valid_school_orderings = copy.copy(self.backup_school_orderings)
+        self.special_ed_students = copy.copy(self.backup_special_ed_students)
         self.e_no_h = self.backup_e_no_h
         self.h_no_e = self.backup_h_no_e
         
@@ -83,6 +85,11 @@ class Route:
         self.occupants += stop.occs
         self.max_time = max(self.max_time,
                             constants.SLACK*trav_time(stop, stop.school))
+        for student in stop.students:
+            if len(student.needs) > 0:
+                self.special_ed_students.add(student)
+                if "T" in student.needs:
+                    self.max_time = min(self.max_time, student.needs["T"])
         return True
         
     def remove_stop(self, stop):
@@ -102,6 +109,9 @@ class Route:
                 self.length = 0
                 return
             self.enumerate_school_orderings()
+        for student in stop.students:
+            if len(student.needs) > 0:
+                self.special_ed_students.remove(student)
         #Route will no longer be used in this case
         if len(self.stops) == 0:
             return
@@ -114,8 +124,6 @@ class Route:
         return self.length
     
     #Performs an insertion of a stop such that the cost is minimized.
-    #TODO: Allow for addition to the end to interface with
-    #reorderings of the schools
     #Returns true if the insertion is valid w.r.t. route length and schools.
     def insert_mincost(self, stop):
         if not self.add_school(stop.school):
@@ -141,6 +149,11 @@ class Route:
                 self.stops.insert(best_ind, stop)
         else:
             self.stops = [stop]
+        for student in stop.students:
+            if len(student.needs) > 0:
+                self.special_ed_students.add(student)
+                if "T" in student.needs:
+                    self.max_time = min(self.max_time, student.needs["T"])
         #Maintain the age type information
         if stop.e > 0 and stop.h == 0:
             self.e_no_h = True
@@ -214,7 +227,20 @@ class Route:
             result = self.time_check(perm)
             if result[0]:
                 self.valid_school_orderings.append([list(perm), result[1]])
-        
+    
+    #Determining pickup time for wheelchair/lift students
+    def sped_waiting_time():
+        wheelchair_stops = set()
+        lift_stops = set()
+        for stud in self.special_ed_students:
+            if stud.has_need("W"):
+                wheelchair_stops.add(stud.stop)
+            if stud.has_need("L"):
+                lift_stops.add(stud.stop)
+        lift_stops = lift_stops.difference(wheelchair_stops)
+        return (constants.WHEELCHAIR_STOP_TIME*len(wheelchair_stops) +
+                constants.LIFT_STOP_TIME*len(lift_stops))
+       
     #If there is ever uncertainty about the length field, recompute length
     #Important: This reorders the schools to minimize the length.
     #As such, it may undo work by optimize_student_travel_times.
@@ -237,7 +263,8 @@ class Route:
                 best_length = possible_length
                 self.schools = possible_schools[0]
         self.length = best_length
-        return best_length
+        self.length += self.sped_waiting_time()
+        return self.length
     
     #In cases where we don't want to look at school reorderings, just
     #recompute the length in the straightforward way.
@@ -249,6 +276,7 @@ class Route:
         for i in range(0, len(self.schools) - 1):
             self.length += trav_time(self.schools[i], self.schools[i+1])
             self.length += constants.SCHOOL_DROPOFF_TIME
+        self.length += self.sped_waiting_time()
     
     def recompute_occupants(self):
         self.occupants = 0
@@ -269,6 +297,11 @@ class Route:
         for stop in self.stops:
             self.max_time = max(self.max_time, constants.SLACK*
                                             trav_time(stop, stop.school))
+        #In the case where a student has a special need, everything
+        #else is overriden.
+        for student in self.special_ed_students:
+            if student.has_need("T") != None:
+                self.max_time = min(self.max_time, student.has_need("T"))
         
     #Determines whether the route is feasible with
     #respect to constraints.
@@ -327,9 +360,8 @@ class Route:
         #there are multiple stops (sometimes, a single stop
         #has too many students for any bus to take, so we
         #assume that stop is handled alone)
-        #TODO: Modify this for mixed-age buses
-        if (self.unmodified_bus_capacity != None and
-            not self.is_acceptable(self.unmodified_bus_capacity) and
+        if (self.bus != None and
+            not self.is_acceptable(self.bus) and
             len(self.stops) > 1):
             if verbose:
                 print("Too full")
@@ -340,12 +372,46 @@ class Route:
             if verbose:
                 print("Bell times contradict")
             return False
+        #Next, check special ed feasibility.
+        #Adult and individual supervision are already accounted for
+        #in capacity check.
+        #Modified travel time is already accounted for during
+        #computation of max travel time.
+        #Maximum number of machine students is 2
+        machine_students = 0
+        wheelchair_students = 0
+        lift_needed = False
+        for stud in self.special_ed_students:
+            if stud.has_need("M"):
+                machine_students += 1
+            if stud.has_need("W"):
+                wheelchair_students += 1
+                lift_needed = True
+            if stud.has_need("L"):
+                lift_needed = True
+            if stud.has_need("F"):
+                if stud.stop != self.stops[-1]:
+                    if verbose:
+                        print("A student who needs to be the last stop is an earlier stop")
+                    return False
+        if machine_students > 2:
+            if verbose:
+                print("Too many students who need machines")
+            return False
+        if lift_needed and self.bus != None and not self.bus.lift:
+            if verbose:
+                print("Lift is needed, but the bus has no lift")
+            return False
+        if wheelchair_students > self.bus.num_wheelchair:
+            if verbose:
+                print("Not enough wheelchair spots on bus")
+            return False
         return True
     
     #Given a capacity, checks the age of the student and
     #stores the corresponding capacity
-    def set_capacity(self, cap):
-        self.unmodified_bus_capacity = cap
+    def set_bus(self, bus):
+        self.bus = bus
     
     #Accepts a bus array of length 3
     #The first number is the allowable number of elementary students
@@ -353,7 +419,8 @@ class Route:
     #Returns whether it is valid to assign the bus to the route
     #to_add field allows checking whether it would be acceptable in
     #the presence of an addition.
-    def is_acceptable(self, cap, to_add = [0, 0, 0]):
+    def is_acceptable(self, bus, to_add = [0, 0, 0]):
+        cap = bus.capacity
         e = to_add[0]
         m = to_add[1]
         h = to_add[2]
@@ -383,12 +450,12 @@ class Route:
         return (prop_occupied <= 1)
     
     #Check whether it is feasible to add more students of type
-    #stud_type to the route given the bus capacity
-    def can_add(self, cap, stud_type, num_students = 1):
+    #stud_type to the route given the bus
+    def can_add(self, bus, stud_type, num_students = 1):
         to_add = [(stud_type == "E")*num_students,
                   (stud_type == "M")*num_students,
                   (stud_type == "H")*num_students]
-        return self.is_acceptable(cap, to_add)
+        return self.is_acceptable(bus, to_add)
     
     #Returns a list of travel times from stop to
     #school, one per student.
