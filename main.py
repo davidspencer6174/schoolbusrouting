@@ -17,12 +17,11 @@ def main(method, partial_route_plan = None, permutation = None,
          improve = False, buses = False):
     #prefix = "C://Users//David//Documents//UCLA//SchoolBusResearch//data//csvs//"
     prefix = "data//"
-    output = setup_students([prefix+'phonebook_parta.csv',
-                             prefix+'phonebook_partb.csv'],
-                             prefix+'all_geocodes.csv',
-                             prefix+'stop_geocodes_fixed.csv',
-                             prefix+'school_geocodes_fixed.csv',
-                             prefix+'bell_times.csv')
+    output = setup_students(prefix+'SpEdProcessed.csv',
+                            prefix+'all_geocodes.csv',
+                            prefix+'stop_geocodes_fixed.csv',
+                            prefix+'school_geocodes_fixed.csv',
+                            prefix+'bell_times.csv')
     students = output[0]
     schools_students_map = output[1]
     all_schools = output[2]
