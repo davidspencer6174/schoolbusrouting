@@ -1,4 +1,5 @@
 import constants
+from route import Route
 
 #Returns travel time from loc1 to loc2
 def trav_time(loc1, loc2):
@@ -24,13 +25,16 @@ class Bus:
     
     #capacity denotes the unmodified capacity of a bus.
     #num_wheelchair denotes the number of wheelchair spots
-    #lift denotes whether a lift is required
-    def __init__(self, capacity, num_wheelchair, lift):
+    #lift denotes whether the bus has a lift
+    def __init__(self, capacity, num_wheelchair_min, num_wheelchair_max, lift):
         self.capacity = capacity
-        #If someone has a wheelchair, a lift should be required
-        assert lift or num_wheelchair == 0
-        self.num_wheelchair = num_wheelchair
+        self.num_wheelchair_min = num_wheelchair_min
+        self.num_wheelchair_max = num_wheelchair_max
         self.lift = lift
+        
+    #TODO: Write this to check whether the bus can handle a given route
+    def can_handle(self, r):
+        return False
 
 class Student:
     

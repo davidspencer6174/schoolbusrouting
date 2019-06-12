@@ -1,5 +1,5 @@
 import constants
-from locations import School, Stop, Student
+from locations import Bus, School, Stop, Student
 from utils import californiafy, timesecs
 
 #students_file: a format I am using for special ed students
@@ -113,22 +113,22 @@ def setup_students(students_filename, all_geocodes, geocoded_stops,
 
 #bus_capacities is an input csv file where the first
 #column is bus ID and the second is capacity.
-def setup_buses(bus_capacities):
-    cap_counts_dict = dict()  #map from capacities to # of buses of that capacity
-    caps = open(bus_capacities, 'r')
-    for bus in caps.readlines():
-        fields = bus.split(";")
-        cap = int(fields[1])
-        if cap not in cap_counts_dict:
-            cap_counts_dict[cap] = 0
-        cap_counts_dict[cap] += 1
-    caps.close()
-    #now turn into a list sorted by capacity
-    cap_counts_list = list(cap_counts_dict.items())
-    cap_counts_list = sorted(cap_counts_list, key = lambda x:x[0])
-    for i in range(len(cap_counts_list)):
-        cap_counts_list[i] = list(cap_counts_list[i])
-    return cap_counts_list
+def setup_buses(bus_filename):
+    buses = []
+    bus_file = open(bus_filename, 'r')
+    bus_file.readlines()  #header
+    for bus_info in bus_file.readlines:
+        fields = bus_info.split(";")
+        cap = bus_info[1]
+        lift = (bus_info[2] == 'Y')
+        if len(fields) == 5:
+            min_wheel = int(bus_info[3])
+            max_wheel = int(bus_info[4])
+        bus = Bus(cap, min_wheel, max_wheel, lift)
+        buses.add(bus)
+    bus_file.close()
+    buses = sorted(buses, key = lambda x:x.capacity)
+    return buses
 
 #Sets up the stops based on the output of setup_students
 #Populates unrouted_stops in the Schools
