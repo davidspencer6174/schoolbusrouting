@@ -25,21 +25,20 @@ route_count = print_routes(clustered_routes)
 
 unpacked_routes = unpack_routes(clustered_routes)
 
-converted_routes= list()
-for route in unpacked_routes: 
-    converted_routes.append(convert_to_common(route))
+from wh_routestospec import wh_routes_to_spec
+from ds_routestospec import spec_to_ds_routes
+from ds_utils import improvement_procedures
 
+spec_routes = wh_routes_to_spec(unpacked_routes)
+ds_routes = spec_to_ds_routes(spec_routes)
+improved_ds = improvement_procedures(ds_routes)
 
-#with open('temp.pickle', 'wb') as f:
-#    # Pickle the 'data' dictionary using the highest protocol available.
-#    pickle.dump(converted_routes, f, pickle.HIGHEST_PROTOCOL)
+from ds_setup import setup_ds_buses
+from ds_bus_assignment_brute_force import assign_buses
 
-#with open('inter_format_post_imp_exp', 'rb') as f:
-#    # The protocol version used is detected automatically, so we do not
-#    # have to specify it.
-#    testing = pickle.load(f)
+prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
+buses = setup_ds_buses(prefix+'dist_bus_capacities.csv')
+final_routes = assign_buses(improved_ds, buses)
 
-
-def disp(route):
-    print(route.schools_path)
-    print(route.stops_path)
+from ds_diagnostics import metrics 
+metrics(final_routes)
