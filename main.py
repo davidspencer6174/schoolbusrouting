@@ -26,7 +26,7 @@ def main(method, partial_route_plan = None, permutation = None,
     schools_students_map = output[1]
     all_schools = output[2]
     stops = setup_stops(schools_students_map)
-    cap_counts = setup_buses(prefix+'dist_bus_capacities.csv')
+    cap_counts = setup_buses(prefix+'dist_bus_capacities_sped.csv')
     #So far, we are using 0 of each contract size.
     #This may get incremented when the schools get routed.
     #contr_counts = [[8, 0], [12, 0], [25, 0], [39, 0], [65, 0]]
