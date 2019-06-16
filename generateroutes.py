@@ -95,7 +95,7 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
         #Now we will try to add a stop
         while True:
             oldlength = current_route.length
-            current_route.backup()
+            current_route.backup("generation")
             #best_score = -100000
             best_score = constants.EVALUATION_CUTOFF
             best_stop = None
@@ -123,11 +123,11 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
                         if score > best_score:
                             best_score = score
                             best_stop = stop
-                    current_route.restore()
+                        current_route.restore("generation")
             if best_stop == None:
                 break
-            if not current_route.insert_mincost(best_stop):
-                print("Something went wrong")
+            msg = "Failed to insert stop after insertion was verified"
+            assert current_route.insert_mincost(best_stop), msg
             best_stop.school.unrouted_stops.remove(best_stop)
             all_stops.remove(best_stop)
             for stop in best_stop.school.unrouted_stops:

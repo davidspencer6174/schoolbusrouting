@@ -15,7 +15,7 @@ def mixed_loads(route_list):
                 print((len(route_list) - i))
         route_to_delete = route_list[i]
         for route in route_list:
-            route.backup()
+            route.backup("mixed_loads")
         stops = route_to_delete.stops
         succeeded = True
         for stop in stops:
@@ -29,9 +29,6 @@ def mixed_loads(route_list):
                 if route_to_add_to.insert_mincost(stop):
                     added = True
                     break
-                #If the insertion failed, delete it
-                elif stop in route_to_add_to.stops:
-                    route_to_add_to.remove_stop(stop)
             if not added:
                 succeeded = False
                 break
@@ -40,5 +37,5 @@ def mixed_loads(route_list):
             print("Successfully deleted a route")
         else:
             for route in route_list:
-                route.restore()
+                route.restore("mixed_loads")
             i += 1

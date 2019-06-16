@@ -48,7 +48,7 @@ def identify_greedy_moves(route_plan, subset = None, slack = 0):
         subset = route_plan
     all_moves = []
     for route in route_plan:
-        route.backup()
+        route.backup("identify_greedy_moves")
     for route1 in route_plan:
         for route2 in route_plan:
             if route1 not in subset and route2 not in subset:
@@ -79,8 +79,8 @@ def identify_greedy_moves(route_plan, subset = None, slack = 0):
                     #if (savings + .0005*(original_r2_travel + original_r1_travel)
                     #    > costs + .0005*(new_r1_travel + new_r2_travel) + .1):
                     #    all_moves.append((route1, route2, tt_ind, feasible))
-                route1.restore()
-                route2.restore()
+                route1.restore("identify_greedy_moves")
+                route2.restore("identify_greedy_moves")
     return all_moves
 
 #Simple approach to make all of the greedy moves given as
@@ -112,121 +112,6 @@ def make_greedy_moves(route_plan, subset = None):
     for route in to_delete:
         print("Saved one")
         route_plan.remove(route)
-        
-#DFS to find a single cycle which is valid in that it does
-#not visit the same route twice or any of the modified routes
-def find_cycle(G, current_moves, inds, modified = set(),
-               cur_modified = set(), so_far = []):
-    if len(so_far) > 100:
-        return None
-    if len(cur_modified) > 150:
-        print("strange")
-    if len(so_far) == 0:
-        for n in G.nodes:
-            if constants.VERBOSE and n % 100 == 0:
-                print(n)
-            #Node that has already been changed - don't try it
-            if current_moves[n][0] in modified or current_moves[n][1] in modified:
-                #print(str(n) + " modified " + str(current_moves[n][0]) +
-                #      " " + str(current_moves[n][1]) + " " + str(len(modified)))
-                continue
-            new_set = set()
-            new_set.add(current_moves[n][1])
-            new_moves = [current_moves[n]]
-            if find_cycle(G, current_moves, inds, modified = modified,
-                          cur_modified = new_set, so_far = new_moves) != None:
-                return new_moves
-    if len(so_far) > 0:
-        n = inds[so_far[-1]]
-        for new_node in G.neighbors(n):
-            move = current_moves[new_node]
-            if move[1] not in modified and move[1] not in cur_modified:
-                so_far.append(move)
-                cur_modified.add(move[1])
-                if find_cycle(G, current_moves, inds, modified,
-                              cur_modified, so_far) != None:
-                    return so_far
-                del so_far[-1]
-                cur_modified.remove(move[1])
-            if move == so_far[0]:
-                old_time = 0
-                for to_check in cur_modified:
-                    old_time += to_check.length
-                for to_move in so_far:
-                    perform_move(to_move[0], to_move[1], to_move[2])
-                new_time = 0
-                for to_check in cur_modified:
-                    new_time += to_check.length
-                if new_time < old_time - .01:      
-                    for to_check in cur_modified:
-                        to_check.backup()
-                    return so_far
-                #print("False alarm " + str(old_time - new_time))
-                for to_check in cur_modified:
-                    to_check.restore()
-                return None
-    return None
-
-
-def find_greedy_cycles(route_plan):
-    current_moves = identify_greedy_moves(route_plan, slack = 100)
-    for route in route_plan:
-        route.backup()
-    
-    #Dictionary from routes to indices
-    inds = dict()
-    for i in range(len(current_moves)):
-        inds[current_moves[i]] = i
-    
-    #In this graph, an edge from move 1 to move 2 indicates that
-    #the route in the middle remains feasible when these moves
-    #are both carried out.
-    G = nx.DiGraph()
-    for i in range(len(current_moves)):
-        G.add_node(i)
-    
-    if constants.VERBOSE:
-        print(len(current_moves))
-    counter = 0
-    for move1 in current_moves:
-        counter += 1
-        if counter % 1000 == 0:
-            print(counter)
-        for move2 in current_moves:
-            if move1[1] != move2[0]:  #Moves are not attached
-                continue
-            #In the case where both moves have the same tt_ind, might as
-            #well move from the first to the third and skip the middleman.
-            #This avoids issues with noncommutative moves.
-            if move1[2] == move2[2]:
-                continue
-            perform_move(move1[0], move1[1], move1[2])
-            perform_move(move2[0], move2[1], move2[2])
-            if move2[0].length <= move2[0].max_time:
-                G.add_edge(inds[move1], inds[move2])
-            move1[0].restore()
-            move1[1].restore()
-            move2[1].restore()
-    if constants.VERBOSE:
-        print(nx.number_of_edges(G))
-        print("Done evaluating moves")
-
-    modified = set()
-    improved = False
-    while True:
-        result = find_cycle(G, current_moves, inds, modified = modified)
-        if result != None:
-            improved = True
-            if constants.VERBOSE:
-                print("Found an improvement of length " + str(len(result)))
-                print("Total length: " + str(np.sum(np.array([r.length for r in route_plan]))))
-            for move in result:
-                modified.add(move[0])
-            print(len(modified))
-        else:
-            break
-    if improved:
-        find_greedy_cycles(route_plan)
           
 import pickle as pickle
 #Determine whether to actually run anything or just import functions

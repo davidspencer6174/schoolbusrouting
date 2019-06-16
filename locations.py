@@ -31,10 +31,46 @@ class Bus:
         self.num_wheelchair_min = num_wheelchair_min
         self.num_wheelchair_max = num_wheelchair_max
         self.lift = lift
+        self.r = None
         
     #TODO: Write this to check whether the bus can handle a given route
     def can_handle(self, r):
+        hca = 0
+        sup_required = False
+        machine = 0
+        for stop in self.stops:
+            for stud in self.students:
+                #Machine: takes up a full bench.
+                if stud.has_need('M'):
+                    h += 2
+                    machine += 1
+                    continue
+                e += (stud.type == 'E')
+                m += (stud.type == 'M')
+                h += (stud.type == 'H')
+                #HCA, private nurse, supervisor: takes up a full bench.
+                if stud.has_need('I'):
+                    hca += 1
+                if stud.has_need('A'):
+                    sup_required = True
+        if machine > 2:
+            return False
+        #If it's a regular bus, need to consider student ages
+        if self.capacity in constants.CAPACITY_MODIFIED_MAP:           
+            mod_caps = constants.CAPACITY_MODIFIED_MAP[self.capacity]
+            h += 2*(hca + sup_required)
+            prop_occupied = (e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2] +
+                            (hca+sup_required)*2/mod_caps[2])
+            return (prop_occupied)
         return False
+    
+    #Assigns the bus to a route
+    def assign(self, r):
+        assert r == None, "Cannot assign a bus to multiple routes"
+        possible = self.can_handle(self, r)
+        if possible:
+            self.r = r
+        return possible
 
 class Student:
     
@@ -73,8 +109,9 @@ class Student:
         self.needs[need] = value
         
     def has_need(self, need):
-        if need not in self.needs:
-            return False
+        return need in self.needs
+
+    def need_value(self, need):
         return self.needs[need]
         
     
@@ -83,8 +120,11 @@ class Stop:
     
     #A stop is just a set of students at a stop who
     #attend a particular school.
+    #students contains all students, special_ed_students keeps track
+    #of the special ed students
     def __init__(self, school):
         self.students = set()
+        self.special_ed_students = set()
         self.school = school
         self.e = 0
         self.m = 0
@@ -111,10 +151,28 @@ class Stop:
         if self.tt_ind != None and self.tt_ind != s.tt_ind:
             print("Conflicting tt_inds at a stop")
         self.students.add(s)
+        if len(s.needs) > 0:
+            self.special_ed_students.add(s)
         self.tt_ind = s.tt_ind
         self.occs += 1
         s.stop = self
         return True
+    
+    #Determine how many students have a particular need
+    def count_needs(self, need):
+        tot = 0
+        for stud in self.special_ed_students:
+            if stud.has_need(need):
+                tot += 1
+        return tot
+    
+    #Figure out how much extra time is needed for wheelchair/lift
+    def extra_time(self):
+        if self.count_needs("W") > 0:
+            return constants.WHEELCHAIR_STOP_TIME
+        if self.count_needs("L") > 0:
+            return constants.LIFT_STOP_TIME
+        return 0
     
     def update_value(self, removed_stop):
         #If our dependent was not removed, no need to update
