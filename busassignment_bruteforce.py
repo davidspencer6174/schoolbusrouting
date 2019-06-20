@@ -69,14 +69,9 @@ def check_possibilities(route, buses_using, partial_routes, picked_up,
     if route_ind == len(buses_using) and False in picked_up:
         return (False, None, 1e10)
     #If the bus has too many students and multiple stops, return infeasibility
-    if (not partial_routes[route_ind].is_acceptable(buses_using[route_ind]) and
+    if (not buses_using[route_ind].can_handle(partial_routes[route_ind]) and
         len(partial_routes[route_ind].stops) > 1):
         return (False, None, 1e10)
-    #This one may cause issues with single-stop full-bus routes:
-    #If the remaining buses do not have enough capacity, return infeasibility
-    #if (sum([picked_up[i]*(1-route.stops[i].occs) for i in range(len(picked_up))]) >
-    #    sum(buses_using[route_ind:]) - partial_routes[route_ind].occupants):
-    #    return (False, None, 1e10)
     #If the last bus has passed a stop that needs to be picked up, return infeasibility
     if route_ind == len(buses_using) - 1 and False in picked_up[:min_stop_ind]:
         return (False, None, 1e10)
@@ -147,53 +142,120 @@ def check_possibilities(route, buses_using, partial_routes, picked_up,
 #Returns a tuple where the first entry is whether it's possible
 #and the second and third entries are None if it's impossible and
 #the list of routes and the list of buses used if it's possible.
-def try_hold(route, num_buses, buses):
+def try_hold(route, num_buses, buses, picked_up):
     #First generate buses_using, a list of the n largest buses
     orig_num_buses = num_buses
-    buses_using = []
-    ind = -1
-    while num_buses > 0:
-        if buses[ind][1] >= num_buses:
-            for i in range(num_buses):
-                buses_using.append(buses[ind][0])
-            break
-        for i in range(buses[ind][1]):
-            buses_using.append(buses[ind][0])
-        num_buses -= buses[ind][1]
-        ind -= 1
-    #First, check whether it's even close to possible -
-    #should save some time.
-    #May cause errors wrt high-occupancy single stops, though
-    #if sum(buses_using) < route.occupants:
-    #    return (False, None, None)
-    #Now check the possibilities
+    buses_using = buses[len(buses)-num_buses:]
     out = check_possibilities(route, buses_using,
                               [Route() for i in range(orig_num_buses)],
-                              [False for i in range(len(route.stops))],
+                              picked_up,
                               0, 0, [])
     if out[0]:
         return (out[0], out[1], buses_using)
     return (False, None, None)
         
-        
+     
+#Assigns wheelchair students to buses, and when possible adds
+#as many non-wheelchair students as it can.
+#routes_so_far
+def assign_lift(route, buses, picked_up):
+    new_route = Route()
+    for stop_ind, stop in enumerate(route.stops):
+        if picked_up[stop_ind]:
+            continue
+        #If this is a wheelchair stop, see whether we can add it to the route
+        if stop.count_needs("W") > 0 or stop.count_needs("L") > 0:
+            new_route.add_stop(stop)
+            picked_up[stop_ind] = True
+            possible = False
+            for bus in buses:
+                if bus.route == None and bus.lift and bus.can_handle(new_route):
+                    possible = True
+                    break
+            if not possible:
+                new_route.remove_stop(stop)
+                picked_up[stop_ind] = False
+    #Now as many wheelchair students as can fit on one
+    #bus have been picked up. Add other students if possible
+    for stop_ind, stop in enumerate(route.stops):
+        if picked_up[stop_ind]:
+            continue
+        if stop.count_needs("W") == 0 and stop.count_needs("L") == 0:
+            if not new_route.add_stop(stop):
+                continue
+            picked_up[stop_ind] = True
+            possible = False
+            for bus in buses:
+                if bus.route == None and bus.lift and bus.can_handle(new_route):
+                    possible = True
+                    break
+            if not possible:
+                new_route.remove_stop(stop)
+                picked_up[stop_ind] = False
+    for bus in buses:
+        if bus.lift and bus.can_handle(new_route):
+            assert bus.assign(new_route)
+            break
+    #Keep stops in the same order. This ensures that the travel time
+    #doesn't increase, violating regulations.
+    new_route.stops.sort(key = lambda s: route.stops.index(s))
+    new_route.recompute_length()
+    buses.remove(new_route.bus)
+    #If we failed to pick up all wheelchair students,
+    #need to continue assigning wheelchair buses.
+    recursive_routes = []
+    for stop_ind, stop in enumerate(route.stops):
+        if (not picked_up[stop_ind] and
+            (stop.count_needs("W") > 0 or stop.count_needs("L") > 0)):
+            recursive_routes = assign_lift(route, buses, picked_up)
+    recursive_routes.append(new_route)
+    return recursive_routes
+   
 
 def assign_buses(routes, buses):
     global start_time
+    buses.sort(key = lambda x: x.capacity)
     routes = list(routes)
     routes.sort(key = lambda x:x.occupants)
     new_routes = []
     for route_ind, route in enumerate(routes):
+        #Reporting
         print(str(route_ind) + "/" + str(len(routes)))
         print("Used " + str(len(new_routes)) + " buses.")
         print("Assigning a route with " + str(len(route.stops)) + " stops.")
+        
+        picked_up = [False for i in range(len(route.stops))]
+        #Before entering the recursive procedure, assign buses for
+        #wheelchair students if any exist.
+        for stud in route.special_ed_students:
+            if stud.has_need("W") or stud.has_need("L"):
+                l_routes = assign_lift(route, buses, picked_up)
+                new_routes.extend(l_routes)
+                break
+        #It's possible that the wheelchair buses were
+        #able to pick up all of the students.
+        if False not in picked_up:
+            continue
+        
+        #Due to checks in the brute force bus assignment
+        #procedure that rely on a certain order of processing
+        #for possible permutations, it's necessary to pass
+        #in a route none of whose stops have been picked up.
+        #Therefore, create a virtual route with all of the
+        #unvisited stops.
+        virtual_route = Route()
+        for (stop_ind, stop) in enumerate(route.stops):
+            if not picked_up[stop_ind]:
+                virtual_route.add_stop(stop)
+        picked_up = [False for i in range(len(virtual_route.stops))]
         num_buses = 0
         out = None
         start_time = process_time()
-        while True:
+        while False in picked_up:
             num_buses += 1
             if num_buses > 1:
                 print("Trying " + str(num_buses) + " buses.")
-            out = try_hold(route, num_buses, buses)
+            out = try_hold(virtual_route, num_buses, buses, picked_up)
             if out[0]:
                 break
             if process_time() - start_time > constants.BUS_SEARCH_TIME:
@@ -202,7 +264,7 @@ def assign_buses(routes, buses):
                 out = None
                 break
         if out == None:
-            greedy_routes = greedy_assignment(route, buses)
+            greedy_routes = greedy_assignment(virtual_route, buses)
             for subroute in greedy_routes:
                 new_routes.append(subroute)
             continue
@@ -211,19 +273,21 @@ def assign_buses(routes, buses):
             #biggest remaining one.
             #So first figure out what that is.
             biggest_bus = None
-            for bus in buses:
-                if bus[1] > 0:
+            for bus in buses[::-1]:
+                if bus.route == None:
                     biggest_bus = bus
             for bus in buses:
                 #Acceptable either if the capacity is satisifed OR we
                 #take the largest remaining bus and only pick up one stop
-                if bus[1] > 0 and (subroute.is_acceptable(bus[0]) or
-                                  len(subroute.stops) == 1 and bus == biggest_bus):
-                    subroute.unmodified_bus_capacity = bus[0]
-                    bus[1] -= 1
+                if (bus.can_handle(subroute) or
+                    len(subroute.stops) == 1 and bus == biggest_bus):
+                    subroute.bus = bus
+                    bus.route = subroute
+                    subroute.bus = bus
                     new_routes.append(subroute)
-                    print(str(bus[0]) + " " + str(subroute.occupants) + " " + str(len(subroute.stops)))
+                    print(str(bus) + " " + str(subroute.occupants) + " " + str(len(subroute.stops)))
                     break
+            buses.remove(subroute.bus)
     return new_routes
 
 #import pickle

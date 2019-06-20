@@ -97,6 +97,10 @@ def setup_students(students_filename, all_geocodes, geocoded_stops,
         needs = fields[4].split(";")
         #Add special needs
         for need in needs:
+            #Splitting an empty string returns one empty string -
+            #no needs in this case
+            if len(need) == 0:
+                continue
             if len(need) == 1:
                 #Most types of needs do not require extra info
                 assert (need in ["M", "W", "L", "A", "I", "F"]), ("Unknown need type"+str(need))
@@ -116,16 +120,19 @@ def setup_students(students_filename, all_geocodes, geocoded_stops,
 def setup_buses(bus_filename):
     buses = []
     bus_file = open(bus_filename, 'r')
-    bus_file.readlines()  #header
-    for bus_info in bus_file.readlines:
-        fields = bus_info.split(";")
-        cap = bus_info[1]
-        lift = (bus_info[2] == 'Y')
-        if len(fields) == 5:
-            min_wheel = int(bus_info[3])
-            max_wheel = int(bus_info[4])
+    bus_file.readline()  #header
+    for bus_info in bus_file.readlines():
+        fields = bus_info.split(",")
+        cap = int(fields[1])
+        lift = (fields[2] == 'Y')
+        #By default, assume no wheelchair capacity.
+        min_wheel = 0
+        max_wheel = 0
+        if len(fields) == 5 and len(fields[3]) > 0 and len(fields[4]) > 0:
+            min_wheel = int(fields[3])
+            max_wheel = int(fields[4])
         bus = Bus(cap, min_wheel, max_wheel, lift)
-        buses.add(bus)
+        buses.append(bus)
     bus_file.close()
     buses = sorted(buses, key = lambda x:x.capacity)
     return buses

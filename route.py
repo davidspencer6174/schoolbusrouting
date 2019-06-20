@@ -40,18 +40,23 @@ class Route:
     #restore it.
     def backup(self, identifier):
         backup_obj = (copy.copy(self.stops), copy.copy(self.schools),
-                      self.backup_occs, self.backup_length,
-                      self.backup_max_time, self.backup_school_orderings,
-                      self.backup_special_ed_students, self.backup_e_no_h,
-                      self.backup_h_no_e, self.backup_student_time_limit)
+                      self.occupants, self.length,
+                      self.max_time, copy.copy(self.valid_school_orderings),
+                      self.special_ed_students, self.e_no_h,
+                      self.h_no_e, self.student_time_limit,
+                      copy.copy(self.special_ed_students))
         self.backups[identifier] = backup_obj
         
     def restore(self, identifier):
-        (self.stops, self.schools, self.backup_occs, self.backup_length,
-         self.backup_max_time, self.backup_school_orderings,
-         self.backup_special_ed_students, self.backup_e_no_h,
-         self.backup_h_no_e,
-         self.backup_student_time_limit) = self.backups[identifier]
+        (self.stops, self.schools, self.occupants,
+         self.length, self.max_time, self.valid_school_orderings,
+         self.special_ed_students, self.e_no_h, self.h_no_e,
+         self.student_time_limit,
+         self.special_ed_students) = self.backups[identifier]
+        self.stops = copy.copy(self.stops)
+        self.schools = copy.copy(self.schools)
+        self.valid_school_orderings = copy.copy(self.valid_school_orderings)
+        self.special_ed_students = copy.copy(self.special_ed_students)
         
     #Determine how many students have a particular need
     def count_needs(self, need):
@@ -72,6 +77,10 @@ class Route:
             self.e_no_h = True
         if stop.h > 0 and stop.e == 0:
             self.h_no_e = True
+        for student in stop.special_ed_students:
+            self.special_ed_students.add(student)
+            if student.has_need("T"):
+                self.student_time_limit = True
         if pos == -1:
             self.stops.append(stop)
             #Maintain the travel time field and occupants field
@@ -87,10 +96,6 @@ class Route:
         self.occupants += stop.occs
         self.max_time = max(self.max_time,
                             constants.SLACK*trav_time(stop, stop.school))
-        for student in stop.special_ed_students:
-            self.special_ed_students.add(student)
-            if student.has_need("T"):
-                self.student_time_limit = True
         return True
         
     def remove_stop(self, stop):
@@ -110,9 +115,8 @@ class Route:
                 self.length = 0
                 return
             self.enumerate_school_orderings()
-        for student in stop.students:
-            if len(student.needs) > 0:
-                self.special_ed_students.remove(student)
+        for student in stop.special_ed_students:
+            self.special_ed_students.remove(student)
         #Route will no longer be used in this case
         if len(self.stops) == 0:
             return
@@ -142,7 +146,9 @@ class Route:
                     self.restore("insert_mincost")
                     return False
         #Can't have too many students with machines
-        if mach > 2 and self.stops > 0:
+        #Do allow several students if they are all at
+        #the same stop - seems unlikely though
+        if mach > 2 and len(self.stops) > 1:
             self.restore("insert_mincost")
             return False
         if len(self.stops) > 0:
@@ -171,9 +177,8 @@ class Route:
                 self.stops.insert(best_ind, stop)
         else:
             self.stops = [stop]
-        for student in stop.students:
-            if len(student.needs) > 0:
-                self.special_ed_students.add(student)
+        for student in stop.special_ed_students:
+            self.special_ed_students.add(student)
         #Maintain the age type information
         if stop.e > 0 and stop.h == 0:
             self.e_no_h = True
@@ -183,7 +188,7 @@ class Route:
         self.occupants += stop.occs
         self.recompute_maxtime()
         if (self.length > self.max_time or
-            self.student_time_limit and not self.check_special_times()):
+            (self.student_time_limit and not self.check_special_times())):
             self.restore("insert_mincost")
             return False
         return True
@@ -206,7 +211,7 @@ class Route:
     #they get to school on time.
     def check_special_times(self):
         for ind, stop in enumerate(self.stops):
-            for stud in stop:
+            for stud in stop.students:
                 if stud.has_need("T"):
                     time_limit = stud.need_value("T")
                     time_elapsed = 0
@@ -273,7 +278,7 @@ class Route:
                 self.valid_school_orderings.append([list(perm), result[1]])
     
     #Determining pickup time for wheelchair/lift students
-    def sped_waiting_time():
+    def sped_waiting_time(self):
         wheelchair_stops = set()
         lift_stops = set()
         for stud in self.special_ed_students:
@@ -310,7 +315,6 @@ class Route:
                 best_length = possible_length
                 self.schools = possible_schools[0]
         self.length = best_length
-        self.length += self.sped_waiting_time()
         return self.length
     
     #In cases where we don't want to look at school reorderings, just
@@ -353,16 +357,16 @@ class Route:
         for s in self.stops:
             self.max_time = max(self.max_time,
                                 constants.SLACK*trav_time(s, s.school))
-        if self.student_time_limit and not self.check_special_times():
-            if verbose:
-                print("Student's custom time limit is violated")
-            return False
         #Too long
         self.enumerate_school_orderings()
         self.recompute_length()
         if self.length > self.max_time:
             if verbose:
                 print("Too long")
+            return False
+        if self.student_time_limit and not self.check_special_times():
+            if verbose:
+                print("Student's custom time limit is violated")
             return False
         #School not visited or mixed student types
         e_no_h = False
@@ -392,7 +396,7 @@ class Route:
         #has too many students for any bus to take, so we
         #assume that stop is handled alone)
         if (self.bus != None and
-            not self.is_acceptable(self.bus) and
+            not self.bus.can_handle(self, True) and
             len(self.stops) > 1):
             if verbose:
                 print("Too full")
@@ -423,7 +427,7 @@ class Route:
             if stud.has_need("F"):
                 if stud.stop != self.stops[-1]:
                     if verbose:
-                        print("A student who needs to be the last stop is an earlier stop")
+                        print("A student who needs to be the last stop is on an earlier stop")
                     return False
         if machine_students > 2 and self.stops > 1:
             if verbose:
@@ -433,9 +437,12 @@ class Route:
             if verbose:
                 print("Lift is needed, but the bus has no lift")
             return False
-        if wheelchair_students > self.bus.num_wheelchair:
+        if self.bus != None and wheelchair_students > self.bus.num_wheelchair_max:
             if verbose:
                 print("Not enough wheelchair spots on bus")
+                print(wheelchair_students)
+                print(self.bus.num_wheelchair_max)
+                print(self.bus.capacity)
             return False
         return True
     
@@ -452,9 +459,9 @@ class Route:
     #the presence of an addition.
     def is_acceptable(self, bus):
         cap = bus.capacity
-        e = to_add[0]
-        m = to_add[1]
-        h = to_add[2]
+        e = 0
+        m = 0
+        h = 0
         #Two types of supervisors that each take as much space as 2 H.
         #HCA/private nurses (different, but treated same) are for
         #individual students.

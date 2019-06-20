@@ -105,17 +105,24 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
                     if (e_no_h and stop.h > 0 and stop.e == 0 or
                         h_no_e and stop.e > 0 and stop.h == 0):
                         continue
+                    route_sp = current_route.special_ed_students
+                    route_sp_2 = set()
+                    for st in current_route.stops:
+                        route_sp_2 = route_sp_2.union(st.special_ed_students)
+                    assert len(route_sp) == len(route_sp_2)
                     if current_route.insert_mincost(stop):
                         #Stop was successfully inserted.
                         #Determine the score of the stop
                         #We want to penalize large time
                         #increases while rewarding collecting
                         #faraway stops.
+                        route_sp = current_route.special_ed_students
+                        route_sp_2 = set()
+                        for st in current_route.stops:
+                            route_sp_2 = route_sp_2.union(st.special_ed_students)
+                        assert len(route_sp) == len(route_sp_2)
                         time_cost = current_route.length - oldlength
                         value = stop.value
-                        #time_proportion_left = 1 - (time_cost/(current_route.max_time - oldlength))
-                        #score = value/(time_cost**1.2)
-                        #score = value*(time_proportion_left+.4)
                         score = value - time_cost
                         #stop in the same place, but different age
                         if time_cost == 0:

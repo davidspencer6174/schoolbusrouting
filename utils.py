@@ -117,7 +117,7 @@ def two_opt(route):
         for ind2 in range(ind1+2, num_stops):
             route.stops[ind1:ind2] = route.stops[ind1:ind2][::-1]
             route.recompute_length()
-            if route.length < orig_length:
+            if route.length < orig_length and route.feasibility_check():
                 print("Improved")
                 two_opt(route)
                 return
