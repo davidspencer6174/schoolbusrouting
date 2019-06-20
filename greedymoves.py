@@ -30,8 +30,8 @@ def perform_move(route1, route2, tt_ind):
         #If stop was never added, bell times failed
         route2.insert_mincost(stop)
         if stop not in route2.stops:
-            route1.restore()
-            route2.restore()
+            route1.restore("identify_greedy_moves")
+            route2.restore("identify_greedy_moves")
             return False
     return True
 

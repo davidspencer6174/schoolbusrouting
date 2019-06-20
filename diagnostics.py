@@ -42,7 +42,8 @@ def printout(route):
         type_printout += "high, "
     type_printout = type_printout[:-2]
     print(type_printout)
-    print("Bus capacity: " + str(route.unmodified_bus_capacity))
+    if route.bus != None:
+        print("Bus capacity: " + str(route.bus.capacity))
     print("Number of assigned students: " + str(route.occupants))
     
     for i in range(len(stops)):
@@ -55,6 +56,8 @@ def printout(route):
         else:
             print("Pick up " + str(stops[i].occs) +
                   " student who goes to " + stops[i].school.school_name)
+        for stud in stops[i].special_ed_students:
+            print(stud)
     for i in range(len(schools)):
         if i == 0 or (i > 0 and schools[i].tt_ind != schools[i - 1].tt_ind):
             print(append_to_link("Go to latitude-longitude ", schools[i].tt_ind,

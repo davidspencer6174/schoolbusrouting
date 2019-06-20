@@ -1,5 +1,5 @@
 import constants
-from route import Route
+import copy
 
 #Returns travel time from loc1 to loc2
 def trav_time(loc1, loc2):
@@ -31,20 +31,43 @@ class Bus:
         self.num_wheelchair_min = num_wheelchair_min
         self.num_wheelchair_max = num_wheelchair_max
         self.lift = lift
-        self.r = None
+        self.route = None
         
-    #TODO: Write this to check whether the bus can handle a given route
-    def can_handle(self, r):
+    def __str__(self):
+        if not self.lift:
+            return "Bus of capacity " + str(self.capacity)
+        return ("Lift bus of capacity " + str(self.capacity) +
+                " that can take " + str(self.num_wheelchair_min) +
+                " to " + str(self.num_wheelchair_max) + " wheelchairs.")
+        
+    #For the sake of verifying correctness later, allow suppression
+    #of the check for buses already being assigned.
+    def can_handle(self, r, suppress_already_assigned_check = False):
+        #If already assigned to a route, can't do another
+        if self.route != None and not suppress_already_assigned_check:
+            return False
+        #If lacks a required lift, doesn't work
+        if not self.lift:
+            for stop in r.stops:
+                if stop.count_needs("W") > 0 or stop.count_needs("L") > 0:
+                    return False
+        mod_caps = copy.copy(constants.CAPACITY_MODIFIED_MAP[self.capacity])
+        e, m, h = 0, 0, 0
         hca = 0
         sup_required = False
         machine = 0
-        for stop in self.stops:
-            for stud in self.students:
-                #Machine: takes up a full bench.
+        num_wheelchair = 0
+        for stop in r.stops:
+            for stud in stop.students:
+                #Machine user: needs to sit in the back
                 if stud.has_need('M'):
-                    h += 2
                     machine += 1
-                    continue
+                #Wheelchair: decreases the capacity
+                if stud.has_need('W'):
+                    mod_caps[0] -= 3
+                    mod_caps[1] -= 2
+                    mod_caps[2] -= 2
+                    num_wheelchair += 1
                 e += (stud.type == 'E')
                 m += (stud.type == 'M')
                 h += (stud.type == 'H')
@@ -53,23 +76,27 @@ class Bus:
                     hca += 1
                 if stud.has_need('A'):
                     sup_required = True
+        if (num_wheelchair < self.num_wheelchair_min or
+            num_wheelchair > self.num_wheelchair_max):
+            return False
         if machine > 2:
             return False
-        #If it's a regular bus, need to consider student ages
-        if self.capacity in constants.CAPACITY_MODIFIED_MAP:           
-            mod_caps = constants.CAPACITY_MODIFIED_MAP[self.capacity]
-            h += 2*(hca + sup_required)
-            prop_occupied = (e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2] +
-                            (hca+sup_required)*2/mod_caps[2])
-            return (prop_occupied)
-        return False
+        h += 2*(hca + sup_required)
+        #Failsafe if the number of wheelchair students
+        #eliminates the possibility of any others
+        if min(mod_caps) < 0 or (min(mod_caps) == 0 and e+m+h > 0):
+            return False
+        prop_occupied = (e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2] +
+                        (hca+sup_required)*2/mod_caps[2])
+        return (prop_occupied <= 1.0)
     
     #Assigns the bus to a route
-    def assign(self, r):
-        assert r == None, "Cannot assign a bus to multiple routes"
-        possible = self.can_handle(self, r)
+    def assign(self, route):
+        assert self.route == None, "Cannot assign a bus to multiple routes"
+        possible = self.can_handle(route)
         if possible:
-            self.r = r
+            self.route = route
+            route.bus = self
         return possible
 
 class Student:
@@ -89,6 +116,19 @@ class Student:
         self.fields = fields
         self.needs = dict()
         self.stop = None
+        
+    #Readable string representation
+    def __str__(self):
+        out = self.type
+        if len(self.needs) == 0:
+            return out + " M, X, or P student."
+        out += " student with needs "
+        for need in self.needs:
+            out += need
+            if self.needs[need] != True:
+                out += str(self.needs[need])
+            out += ", "
+        return out[:-2]
         
     #Key-value pair where the key encapsulates the type of need.
     #Usually, the value is empty.
