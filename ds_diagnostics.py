@@ -200,16 +200,16 @@ def metrics(route_plan):
             e_and_h += 1
     print("Number of routes which are not age-feasible: " + str(e_and_h))
     
-def display_trav_times(route_plan, filename, rplanname):
+def display_trav_times(route_plan, filename):
     trav_times = stud_trav_time_array(route_plan)/60
     fig = plt.hist(trav_times,
                    bins = np.arange(0, np.max(trav_times), 5))
-    plt.title("Student travel time distribution (" + rplanname + ")")
+    plt.title("Student travel time distribution")
     plt.xlabel("Travel time (m)")
     plt.ylabel("Number of students")
     plt.savefig(filename)
     
-def display_utilization(route_plan, filename, rplanname):
+def display_utilization(route_plan, filename):
     utilizations = []
     for r in route_plan:
         e = 0
@@ -228,7 +228,7 @@ def display_utilization(route_plan, filename, rplanname):
     utilizations = np.array(utilizations)*100
     fig = plt.hist(utilizations,
                    bins = range(0, 110, 10))
-    plt.title("Bus utilization percentage distribution (" + rplanname + ")")
+    plt.title("Bus utilization percentage distribution")
     plt.xlabel("Percentage of capacity occupied")
     plt.ylabel("Number of buses")
     plt.savefig(filename)

@@ -31,14 +31,14 @@ from ds_utils import improvement_procedures
 
 spec_routes = wh_routes_to_spec(unpacked_routes)
 ds_routes = spec_to_ds_routes(spec_routes)
-improved_ds = improvement_procedures(ds_routes)
+#improved_ds = improvement_procedures(ds_routes)
 
 from ds_setup import setup_ds_buses
 from ds_bus_assignment_brute_force import assign_buses
 
 prefix = '/Users/cuhauwhung/Google Drive (cuhauwhung@g.ucla.edu)/Masters/Research/school_bus_project/Willy_Data/'
 buses = setup_ds_buses(prefix+'dist_bus_capacities.csv')
-final_routes = assign_buses(improved_ds, buses)
+final_routes = assign_buses(ds_routes, buses)
 
 from ds_diagnostics import metrics 
 metrics(final_routes)
