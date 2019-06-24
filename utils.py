@@ -1,6 +1,7 @@
 import constants
 import itertools
 import numpy as np
+import pickle
 
 #Used to get the data into a full address format        
 def californiafy(address):
@@ -76,6 +77,17 @@ def common_stop_pairs(rp1, rp2):
     rp2pairs = stop_pairs(rp2)
     return len(rp1pairs.intersection(rp2pairs))/len(rp1pairs.union(rp2pairs))
 
+def identical_routes(rp1, rp2):
+    tot = 0
+    for r in rp1:
+        out = overlapping_routes(rp2, r)
+        if len(out) == 1:
+            r2 = list(out)[0]
+            out2 = overlapping_routes(rp1, r2)
+            if len(out2) == 1:
+                tot += 1
+    return tot
+
 def full_comparison(rp1, rp2):
     tot = 0
     for r in rp1:
@@ -110,7 +122,39 @@ def full_comparison(rp1, rp2):
     iso_stops_same.sort()
     print(iso_stops_same)
     
-def two_opt(route):
+def route_comparison(route_plan_filenames):
+    route_plans = []
+    for filename in route_plan_filenames:
+        loading = open(filename, "rb")
+        route_plans.append(pickle.load(loading))
+        loading.close()
+    print(route_plan_filenames)
+    print("Common stop similarity")
+    for i in range(len(route_plans)):
+        out = ""
+        for j in range(len(route_plans)):
+            out += str(common_stop_similarity(route_plans[i],
+                                              route_plans[j]))
+            out += ","
+        print(out[:-1])
+    print("Common stop pairs")
+    for i in range(len(route_plans)):
+        out = ""
+        for j in range(len(route_plans)):
+            out += str(common_stop_pairs(route_plans[i],
+                                         route_plans[j]))
+            out += ","
+        print(out[:-1])
+    print("Identical routes")
+    for i in range(len(route_plans)):
+        out = ""
+        for j in range(len(route_plans)):
+            out += str(identical_routes(route_plans[i],
+                                        route_plans[j]))
+            out += ","
+        print(out[:-1])
+    
+def two_opt(route, report = True):
     num_stops = len(route.stops)
     orig_length = route.length
     for ind1 in range(num_stops):
@@ -118,8 +162,9 @@ def two_opt(route):
             route.stops[ind1:ind2] = route.stops[ind1:ind2][::-1]
             route.recompute_length()
             if route.length < orig_length:
-                print("Improved")
-                two_opt(route)
+                if report:
+                    print("Improved")
+                two_opt(route, report)
                 return
             route.stops[ind1:ind2] = route.stops[ind1:ind2][::-1]
     route.recompute_length()

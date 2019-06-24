@@ -11,7 +11,7 @@ from setup import setup_buses, setup_stops, setup_students
 from generateroutes import generate_routes
 from busassignment_bruteforce import assign_buses
 import numpy as np
-from utils import improvement_procedures, stud_trav_time_array
+from utils import improvement_procedures, stud_trav_time_array, mstt
 
 def main(method, partial_route_plan = None, permutation = None,
          improve = False, buses = False):
@@ -72,9 +72,9 @@ def permutation_approach(iterations = 1000):
     #Uncomment latter lines to use an existing permutation
     best_perm = None
     #loading_perm = open(("output//lastperm55m.obj"), "rb")
-    loading_perm = open(("output//newagerestrictionperm.obj"), "rb")
-    best_perm = pickle.load(loading_perm)
-    loading_perm.close()
+    #loading_perm = open(("output//newagerestrictionperm.obj"), "rb")
+    #best_perm = pickle.load(loading_perm)
+    #loading_perm.close()
     routes_returned = main("mine", permutation = best_perm, improve = True, buses = True)
     all_stops = set()
     for route in routes_returned:
@@ -120,12 +120,12 @@ def permutation_approach(iterations = 1000):
             best_time = new_time
             best_score = new_score
             best = new_routes_returned
-            saving = open(("output//newagerestriction0529.obj"), "wb")
-            pickle.dump(best, saving)
-            saving.close()
-            saving = open(("output//newagerestrictionperm.obj"), "wb")
-            pickle.dump(best_perm, saving)
-            saving.close()
+            #saving = open(("output//newagerestriction0529.obj"), "wb")
+            #pickle.dump(best, saving)
+            #saving.close()
+            #saving = open(("output//newagerestrictionperm.obj"), "wb")
+            #pickle.dump(best_perm, saving)
+            #saving.close()
             successes.append(num_to_swap)
             print(successes)
         print(str(new_num_routes) + " " + str(new_mstt/60))
@@ -186,10 +186,30 @@ def vary_params():
               str(len(routes_returned)) + " " + 
               str(mean_stud_trav_time/60))
 
-savings_routes = main("savings", improve = True, buses = True)        
+#savings_routes = main("savings", improve = True, buses = True)        
+#my_routes = main("mine", improve = True, buses = True)
 #permutation_approach(1000)
 #vary_params()
 
+plan_sizes = []
+mstts = []
+#Testing different time limits
+#for minutes in range(40, 81):
+#    print(minutes)
+#    constants.MAX_TIME = minutes*60
+#    my_routes = main("mine", improve = True, buses = True)
+#    plan_sizes.append(len(my_routes))
+#    mstts.append(mstt(my_routes))
+#Testing different bell window widths
+for minutes in range(1, 11):
+    print(minutes*4)
+    constants.EARLIEST = 1200 + minutes*120
+    constants.LATEST = 1200 - minutes*120
+    my_routes = main("mine", improve = True, buses = True)
+    plan_sizes.append(len(my_routes))
+    mstts.append(mstt(my_routes))
+print(plan_sizes)
+print(mstts)
 
 #loading = open(("output//newagerestriction0529.obj"), "rb")
 #routes = pickle.load(loading)

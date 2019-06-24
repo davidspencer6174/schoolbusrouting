@@ -117,7 +117,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
     prefix = ("output//0528presentation//routeplots//")
     plt.axis('off')
     if to_plot == None:
-        fig.savefig(prefix + 'allvintagebalboa.eps', bbox_inches = 'tight',
+        fig.savefig(prefix + 'allvintagebalboa_mine.eps', bbox_inches = 'tight',
                     pad_inches = 0)
     else:
         fig.savefig(prefix + filename, bbox_inches = 'tight',
@@ -128,7 +128,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
     
     
 
-loading = open("output//for0528routesfullopt.obj", "rb")
+loading = open("plans_to_compare//mine_postbus.obj", "rb")
 obj = pickle.load(loading)
 loading.close()
 
@@ -159,4 +159,4 @@ yres = 0.9
 plot_routes(vb_routes, geocodes, xres, yres)
 for ind, route_with_ind in enumerate(vb_routes):
     plot_routes(vb_routes, geocodes, xres, yres,
-                [route_with_ind[0]], 'single_routes' + str(ind) + '.eps')
+                [route_with_ind[0]], 'single_routes_mine' + str(ind) + '.eps')

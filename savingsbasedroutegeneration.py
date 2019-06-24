@@ -1,6 +1,7 @@
 import numpy as np
 from locations import Stop, School
 from route import Route
+from utils import two_opt
 
 #For the SBRP formulation of the Clarke-Wright savings
 #procedure, we will follow the work "Modeling Mixed Load
@@ -11,7 +12,6 @@ def savings(route1, route2):
     if route1 == route2:
         return -1e10
     orig_cost = route1.length + route2.length
-    orig_num_schools = len(route1.schools)
     route1.backup()
     route2.backup()
     for stop in route2.stops:
@@ -19,11 +19,12 @@ def savings(route1, route2):
             route1.restore()
             route2.restore()
             return -1e10
+    two_opt(route1, report = False)
     new_cost = route1.length
-    new_num_schools = len(route1.schools)
     feasibility = route1.feasibility_check()
     route1.restore()
     route2.restore()
+    assert route1.length + route2.length == orig_cost
     if not feasibility:
         return -1e10
     return (orig_cost - new_cost)
@@ -44,8 +45,12 @@ def clarke_wright_savings(schools):
     stop_info_map = dict()
     ind_stop_map = dict()
     stop_ind_counter = 0
+    schools = list(schools)
+    schools.sort(key = lambda x: x.school_name)
     for school in schools:
-        for stop in school.unrouted_stops:
+        stops = list(school.unrouted_stops)
+        stops.sort(key = lambda x: x.tt_ind)
+        for stop in stops:
             new_route = Route()
             new_route.add_stop(stop)
             routes.append(new_route)
@@ -61,20 +66,6 @@ def clarke_wright_savings(schools):
                    stop_info_map, savings_matrix)
     while True:
         to_merge = np.unravel_index(savings_matrix.argmax(), savings_matrix.shape)
-        #to_merge = (None, None)
-        #bests = np.array([max(np.max(savings_matrix[i,:]),
-        #             np.max(savings_matrix[:,i])) for i in range(stop_ind_counter)])
-        #seconds = np.array([max(np.max(savings_matrix[i,:]*np.array([savings_matrix[i,:] < bests[i]])*np.array([savings_matrix[:,i] < bests[i]])),
-        #               np.max(savings_matrix[:,i]*np.array([savings_matrix[i,:] < bests[i]])*np.array([savings_matrix[:,i] < bests[i]])))
-        #               for i in range(stop_ind_counter)])
-        #to_merge_oneind = np.argmax((bests - .3*seconds)-(bests < 0)*10000000)
-        #to_merge_oneind = np.argmin(np.array(seconds) + 1e10*(np.array(bests) < 0))
-        #print(np.max(bests - seconds))
-        #if (np.max(savings_matrix[to_merge_oneind,:]) >
-        #    np.max(savings_matrix[:,to_merge_oneind])):
-        #    to_merge = (to_merge_oneind, np.argmax(savings_matrix[to_merge_oneind, :]))
-        #else:
-        #    to_merge = (np.argmax(savings_matrix[:, to_merge_oneind]), to_merge_oneind)
         print(to_merge)
         print(savings_matrix[to_merge[0], to_merge[1]])
         if savings_matrix[to_merge[0], to_merge[1]] < 0:
@@ -84,15 +75,17 @@ def clarke_wright_savings(schools):
         route1 = stop_info_map[stop1][1]
         route2 = stop_info_map[stop2][1]
         for stop in route2.stops:
-            #print(len(route1.stops))
-            #print(stop in route1.stops)
-            #print(stop in route2.stops)
-            route1.add_stop(stop)
-            #print("Moved " + str(stop_info_map[stop][0]) + " to " + str(route1))
+            assert route1.add_stop(stop)
             stop_info_map[stop][1] = route1
-            #print(len(route1.stops))
+        two_opt(route1, report = False)
+        assert route1.feasibility_check(verbose = True)
         for i in range(stop_ind_counter):
-            for stop in route1.stops:
+            for stop_ind in range(len(route1.stops)):
+                #Can't just iterate over the list if we are
+                #using 2-opt because iteration order is not
+                #guaranteed if we modify the list in place,
+                #even though we put it back after.
+                stop = route1.stops[stop_ind]
                 if savings_matrix[stop_info_map[stop][0], i] > -100000:
                     update(stop, ind_stop_map[i], stop_info_map, savings_matrix)
                 if savings_matrix[i, stop_info_map[stop][0]] > -100000:
