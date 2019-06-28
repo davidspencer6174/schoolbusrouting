@@ -62,20 +62,18 @@ class Bus:
                 #Machine user: needs to sit in the back
                 if stud.has_need('M'):
                     machine += 1
-                #Wheelchair: decreases the capacity
-                if stud.has_need('W'):
-                    mod_caps[0] -= 3
-                    mod_caps[1] -= 2
-                    mod_caps[2] -= 2
-                    num_wheelchair += 1
-                e += (stud.type == 'E')
-                m += (stud.type == 'M')
-                h += (stud.type == 'H')
                 #HCA, private nurse, supervisor: takes up a full bench.
                 if stud.has_need('I'):
                     hca += 1
                 if stud.has_need('A'):
                     sup_required = True
+                    #Wheelchair: decreases the capacity
+                if stud.has_need('W'):
+                    num_wheelchair += 1
+                    continue
+                e += (stud.type == 'E')
+                m += (stud.type == 'M')
+                h += (stud.type == 'H')
         if (num_wheelchair < self.num_wheelchair_min or
             num_wheelchair > self.num_wheelchair_max):
             return False
@@ -87,7 +85,7 @@ class Bus:
         if min(mod_caps) < 0 or (min(mod_caps) == 0 and e+m+h > 0):
             return False
         prop_occupied = (e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2] +
-                        (hca+sup_required)*2/mod_caps[2])
+                        (hca+sup_required+num_wheelchair)*2/mod_caps[2])
         return (prop_occupied <= 1.0)
     
     #Assigns the bus to a route

@@ -1,4 +1,5 @@
 import constants
+from diagnostics import printout
 from route import Route
 from locations import Student, School, Stop
 from time import process_time
@@ -209,6 +210,7 @@ def assign_lift(route, buses, picked_up):
             (stop.count_needs("W") > 0 or stop.count_needs("L") > 0)):
             recursive_routes = assign_lift(route, buses, picked_up)
     recursive_routes.append(new_route)
+    assert new_route.feasibility_check(verbose = True)
     return recursive_routes
    
 

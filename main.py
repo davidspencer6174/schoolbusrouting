@@ -46,12 +46,21 @@ def main(method, partial_route_plan = None, permutation = None,
     
     if method == "savings":
         routes = clarke_wright_savings(all_schools)
+
+    for route in routes:
+        assert route.feasibility_check(verbose = True)
     
     if improve:
         improvement_procedures(routes)
         
+    for route in routes:
+        assert route.feasibility_check(verbose = True)
+        
     if buses:
         routes = assign_buses(routes, cap_counts)
+        
+    for route in routes:
+        assert route.feasibility_check(verbose = True)
     
     if constants.VERBOSE:
         print("Number of routes: " + str(len(routes)))
@@ -105,11 +114,11 @@ def permutation_approach(iterations = 1000):
             ind2 = random.randint(0, len(new_perm) - 1)
             new_perm[ind1], new_perm[ind2] = new_perm[ind2], new_perm[ind1]
         #Test the route
-        new_routes_returned = main("mine", permutation = new_perm, improve = True, buses = False)
+        new_routes_returned = main("mine", permutation = new_perm, improve = True, buses = True)
         new_num_routes = len(new_routes_returned)
         new_time = np.sum(np.array([r.length for r in new_routes_returned]))
         new_mstt = np.mean(stud_trav_time_array(new_routes_returned))
-        new_score = new_num_routes + 6*new_mstt/60
+        new_score = new_num_routes + 6*new_mstt/120
         if (new_score < best_score):
             print("New best")
             print(new_score)
@@ -127,14 +136,14 @@ def permutation_approach(iterations = 1000):
             saving.close()
             successes.append(num_to_swap)
             print(successes)
-        print(str(new_num_routes) + " " + str(new_mstt/60))
+        print(str(new_num_routes) + " " + str(new_mstt/120))
     final_routes = main("mine", permutation = best_perm, improve = True)
     saving = open("output//spedfirsttry.obj", "wb")
     pickle.dump(final_routes, saving)
     saving.close()
     cap_counts = setup_buses('data//dist_bus_capacities_sped.csv')
     final_bused_routes = assign_buses(final_routes, cap_counts)
-    saving = open("output//newagerestrictionb.obj", "wb")
+    saving = open("output//spedfirsttryb.obj", "wb")
     pickle.dump(final_bused_routes, saving)
     saving.close()
         
@@ -186,5 +195,5 @@ def vary_params():
               str(mean_stud_trav_time/60))
 
 #savings_routes = main("savings", improve = True, buses = False)        
-permutation_approach(10)
+permutation_approach(100)
 #vary_params()
