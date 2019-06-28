@@ -115,8 +115,17 @@ class Route:
                 self.length = 0
                 return
             self.enumerate_school_orderings()
+        recheck_time = False
         for student in stop.special_ed_students:
             self.special_ed_students.remove(student)
+            if student.has_need("T"):
+                self.student_time_limit = False
+                recheck_time = True
+        if recheck_time:
+            for stop_check in self.stops:
+                for student in stop_check.special_ed_students:
+                    if student.has_need("T"):
+                        self.student_time_limit = True
         #Route will no longer be used in this case
         if len(self.stops) == 0:
             return
@@ -145,6 +154,8 @@ class Route:
                 if self.count_needs("F") > 0:
                     self.restore("insert_mincost")
                     return False
+            if stud.has_need("T"):
+                self.student_time_limit = True
         #Can't have too many students with machines
         #Do allow several students if they are all at
         #the same stop - seems unlikely though

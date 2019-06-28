@@ -117,7 +117,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
     prefix = ("output//0528presentation//routeplots//")
     plt.axis('off')
     if to_plot == None:
-        fig.savefig(prefix + 'allvintagebalboa.eps', bbox_inches = 'tight',
+        fig.savefig(prefix + 'spedroutes_all.eps', bbox_inches = 'tight',
                     pad_inches = 0)
     else:
         fig.savefig(prefix + filename, bbox_inches = 'tight',
@@ -128,19 +128,23 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
     
     
 
-loading = open("output//for0528routesfullopt.obj", "rb")
+loading = open("output//spedfirsttryb.obj", "rb")
 obj = pickle.load(loading)
 loading.close()
 
-vb_routes = []
+#vb_routes = []
+#for ind in range(len(obj)):
+#    r = obj[ind]
+#    to_store = False
+#    for school in r.schools:
+#        to_store = to_store or ("BALBOA" in school.school_name and "LAKE" not in school.school_name)
+#        to_store = to_store or ("VINTAGE" in school.school_name)
+#    if to_store:
+#        vb_routes.append((r, ind))
+routes = []
 for ind in range(len(obj)):
     r = obj[ind]
-    to_store = False
-    for school in r.schools:
-        to_store = to_store or ("BALBOA" in school.school_name and "LAKE" not in school.school_name)
-        to_store = to_store or ("VINTAGE" in school.school_name)
-    if to_store:
-        vb_routes.append((r, ind))
+    routes.append((r, ind))
 
 
 geocodes_file = open("data//all_geocodes.csv", "r")
@@ -156,7 +160,7 @@ geocodes_file.close()
 
 xres = 1.0
 yres = 0.9
-plot_routes(vb_routes, geocodes, xres, yres)
-for ind, route_with_ind in enumerate(vb_routes):
-    plot_routes(vb_routes, geocodes, xres, yres,
-                [route_with_ind[0]], 'single_routes' + str(ind) + '.eps')
+plot_routes(routes, geocodes, xres, yres)
+for ind, route_with_ind in enumerate(routes):
+    plot_routes(routes, geocodes, xres, yres,
+                [route_with_ind[0]], 'sped_routes' + str(ind) + '.eps')
