@@ -109,7 +109,7 @@ def setup_students(students_filename, all_geocodes, geocoded_stops,
                 #Custom max travel time does require extra info
                 #Translate from minutes to seconds
                 assert (need[0] == "T"), ("Unknown need type"+str(need))
-                this_student.add_need(need[0], value = int(need[1:])*60)
+                this_student.add_need(need[0], value = int(need[1:])*60/1.5)
     student_records.close()
     return students, schools_students_map, all_schools
 
