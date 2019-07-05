@@ -86,6 +86,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
         if to_plot != None:
             num_students = 0
             num_schools = 0
+            sped_students = set()
             for ind, stop in enumerate(r.stops):
                 if ind > 0 and stop.tt_ind != r.stops[ind - 1].tt_ind:
                     message = str(num_students) + " stud, "
@@ -95,13 +96,20 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
                         message += "1 sch"
                     else:
                         message += str(num_schools) + " sch"
+                    if len(sped_students) > 0:
+                        for student in sped_students:
+                            message += ","
+                            for need in student.needs:
+                                message += need
                     texts.append(plt.text(points[ind - 1][0], points[ind - 1][1],
                                           message, ha='center', va='center',
                                           fontsize = 5))
                     num_students = 0
                     num_schools = 0
+                    sped_students = set()
                 num_schools += 1
                 num_students += stop.occs
+                sped_students = sped_students.union(stop.special_ed_students)
             message = str(num_students) + " stud, "
             if num_students == 1:
                 message = "1 stud, "
@@ -109,15 +117,25 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
                 message += "1 sch"
             else:
                 message += str(num_schools) + " sch"
+            if len(sped_students) > 0:
+                for student in sped_students:
+                    message += ","
+                    for need in student.needs:
+                        message += need
             texts.append(plt.text(points[len(r.stops) - 1][0],
                                          points[len(r.stops) - 1][1],
                                          message, ha='center', va='center',
                                          fontsize = 5))
+    message_legend = ("W=wheelchair\nL=non-ambulatory\nA=adult supervision\nI" +
+                      "=individual supervision\nF=final stop\nT=custom time" +
+                      "\nM=machine needed")
+    texts.append(plt.text(.1, .1, message_legend,
+                          ha='center', va='center', fontsize = 5))
     adjust_text(texts, precision = .1, text_from_points = False)
     prefix = ("output//0528presentation//routeplots//")
     plt.axis('off')
     if to_plot == None:
-        fig.savefig(prefix + 'spedroutes_all.eps', bbox_inches = 'tight',
+        fig.savefig(prefix + 'spedroutes_all_annotated.eps', bbox_inches = 'tight',
                     pad_inches = 0)
     else:
         fig.savefig(prefix + filename, bbox_inches = 'tight',
@@ -163,4 +181,4 @@ yres = 0.9
 plot_routes(routes, geocodes, xres, yres)
 for ind, route_with_ind in enumerate(routes):
     plot_routes(routes, geocodes, xres, yres,
-                [route_with_ind[0]], 'sped_routes' + str(ind) + '.eps')
+                [route_with_ind[0]], 'sped_routes' + str(ind) + '_annotated.eps')
