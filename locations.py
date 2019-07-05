@@ -74,9 +74,15 @@ class Bus:
                 e += (stud.type == 'E')
                 m += (stud.type == 'M')
                 h += (stud.type == 'H')
-        if (num_wheelchair < self.num_wheelchair_min or
-            num_wheelchair > self.num_wheelchair_max):
+        #If we have fewer than the minimum number of wheelchair
+        #students, usable space will be sitting empty.
+        if (num_wheelchair < self.num_wheelchair_min):
+            h += 2*(self.num_wheelchair_min - num_wheelchair)
+        #If we have more than the maximum number of wheelchair
+        #students, infeasible.
+        if (num_wheelchair > self.num_wheelchair_max):
             return False
+        #Not enough back seats for students with machines
         if machine > 2:
             return False
         h += 2*(hca + sup_required)
