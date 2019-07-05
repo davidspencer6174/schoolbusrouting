@@ -63,7 +63,6 @@ def identify_greedy_moves(route_plan, subset = None, slack = 0):
                 tt_inds.append(stop.tt_ind)
             for tt_ind in tt_inds:
                 if perform_move(route1, route2, tt_ind):
-                        route1.feasibility_check(verbose = True)
                     savings = original_r1_length - route1.length
                     costs = route2.length - original_r2_length
                     #new_r1_travel = sum(route1.student_travel_times())
