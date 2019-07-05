@@ -85,7 +85,6 @@ class Bus:
         #Not enough back seats for students with machines
         if machine > 2:
             return False
-        h += 2*(hca + sup_required)
         #Failsafe if the number of wheelchair students
         #eliminates the possibility of any others
         if min(mod_caps) < 0 or (min(mod_caps) == 0 and e+m+h > 0):
