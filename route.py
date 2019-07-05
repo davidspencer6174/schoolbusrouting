@@ -199,7 +199,8 @@ class Route:
         self.occupants += stop.occs
         self.recompute_maxtime()
         if (self.length > self.max_time or
-            (self.student_time_limit and not self.check_special_times())):
+            (self.student_time_limit and not self.check_special_times()) or
+            self.bus != None and not self.bus.can_handle(self, True)):
             self.restore("insert_mincost")
             return False
         return True
