@@ -5,9 +5,8 @@ from setup import setup_buses, setup_stops, setup_students
 from busassignment_bruteforce import assign_buses
 
 #Moves all stops of travel time index tt_ind from
-#route1 to route2. Returns False if student types or bell times are
-#incompatible, in which case both routes are restored.
-#Does not enforce time limits.
+#route1 to route2. Returns False if the move is not valid,
+#in which case both routes are restored.
 def perform_move(route1, route2, tt_ind):
     #Trivial case
     if route1 == route2:
@@ -64,6 +63,7 @@ def identify_greedy_moves(route_plan, subset = None, slack = 0):
                 tt_inds.append(stop.tt_ind)
             for tt_ind in tt_inds:
                 if perform_move(route1, route2, tt_ind):
+                        route1.feasibility_check(verbose = True)
                     savings = original_r1_length - route1.length
                     costs = route2.length - original_r2_length
                     #new_r1_travel = sum(route1.student_travel_times())
@@ -73,12 +73,6 @@ def identify_greedy_moves(route_plan, subset = None, slack = 0):
                     if savings + slack > costs:
                         #Append a description of this move
                         all_moves.append((route1, route2, tt_ind, feasible, savings, costs))
-                    #if (new_r1_travel + new_r2_travel + .1 < 
-                    #    original_r1_travel + original_r2_travel):
-                    #    all_moves.append((route1, route2, tt_ind, feasible))
-                    #if (savings + .0005*(original_r2_travel + original_r1_travel)
-                    #    > costs + .0005*(new_r1_travel + new_r2_travel) + .1):
-                    #    all_moves.append((route1, route2, tt_ind, feasible))
                 route1.restore("identify_greedy_moves")
                 route2.restore("identify_greedy_moves")
     return all_moves
@@ -95,13 +89,14 @@ def make_greedy_moves(route_plan, subset = None):
     for move in possible_moves:
         if move[3]: #Feasible move
             if move[0] not in modified and move[1] not in modified:
-                print("Made a move")
-                if not perform_move(move[0], move[1], move[2]):
-                    print("Oops")
+                if constants.VERBOSE:
+                    print("Made a move")
+                assert perform_move(move[0], move[1], move[2])
                 modified.add(move[0])
                 modified.add(move[1])
                 improved = True
-    print("Next iter")
+    if constants.VERBOSE:
+        print("Next iter")
     if improved: #Keep looking for improvements
         make_greedy_moves(route_plan, modified)
     #Now delete routes with no stops
@@ -110,43 +105,6 @@ def make_greedy_moves(route_plan, subset = None):
         if len(route.stops) == 0:
             to_delete.add(route)
     for route in to_delete:
-        print("Saved one")
+        if constants.VERBOSE:
+            print("Saved one")
         route_plan.remove(route)
-          
-import pickle as pickle
-#Determine whether to actually run anything or just import functions
-running = False
-if running:
-    loading = open(("output//8minutesdropoff.obj"), "rb")
-    routes = pickle.load(loading)
-    loading.close()
-    print("Original number of routes is " + str(len(routes)))
-    print("Original total travel time is " + str(sum([sum(r.student_travel_times()) for r in routes])))
-    make_greedy_moves(routes)
-    #constants.MAX_TIME = 3600
-    for route in routes:
-        route.recompute_maxtime()
-    print("New number of routes is " + str(len(routes)))
-    print("New total travel time is " + str(sum([sum(r.student_travel_times()) for r in routes])))
-    saving = open(("output//8minutesdropoffgreedy.obj"), "wb")
-    pickle.dump(routes, saving)
-    saving.close()
-        
-    cap_counts = setup_buses('data//dist_bus_capacities.csv')
-    result = assign_buses(routes, cap_counts)
-    saving = open(("output//8minutesdropoffgreedyb.obj"), "wb")
-    pickle.dump(result, saving)
-    saving.close()
-    print("Number of bused routes is " + str(len(result)))
-# =============================================================================
-
-
-
-
-#constants.VERBOSE = True
-#loading = open(("output//optmstt55mfurthergreedymoves.obj"), "rb")
-#routes = pickle.load(loading)
-#loading.close()
-#find_greedy_cycles(routes)
-#print("New number of routes is " + str(len(routes)))
-#print("Total length is " + str(np.sum(np.array([r.length for r in routes]))))

@@ -75,8 +75,6 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
         #    ind2 = randint(0, len(all_stops) - 1)
         #    all_stops[ind1], all_stops[ind2] = all_stops[ind2], all_stops[ind1]
     while len(all_stops) > 0:
-        if constants.VERBOSE:
-            print(len(all_stops))
         current_route = Route()
         #Pick up the most distant stop
         init_stop = all_stops[0]
