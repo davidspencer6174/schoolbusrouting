@@ -206,7 +206,7 @@ def metrics(route_plan):
 def display_trav_times(route_plan, filename, rplanname):
     trav_times = stud_trav_time_array(route_plan)/60
     fig = plt.hist(trav_times,
-                   bins = np.arange(0, np.max(trav_times), 5))
+                   bins = np.arange(0, np.max(trav_times)+5, 5))
     plt.title("Student travel time distribution (" + rplanname + ")")
     plt.xlabel("Travel time (m)")
     plt.ylabel("Number of students")

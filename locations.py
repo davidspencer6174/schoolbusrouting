@@ -78,6 +78,8 @@ class Bus:
         #students, usable space will be sitting empty.
         if (num_wheelchair < self.num_wheelchair_min):
             h += 2*(self.num_wheelchair_min - num_wheelchair)
+        h += (hca+sup_required)*2
+        h += (num_wheelchair)*3
         #If we have more than the maximum number of wheelchair
         #students, infeasible.
         if (num_wheelchair > self.num_wheelchair_max):
@@ -89,8 +91,7 @@ class Bus:
         #eliminates the possibility of any others
         if min(mod_caps) < 0 or (min(mod_caps) == 0 and e+m+h > 0):
             return False
-        prop_occupied = (e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2] +
-                        (hca+sup_required+num_wheelchair)*2/mod_caps[2])
+        prop_occupied = (e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2])
         return (prop_occupied <= 1.0)
     
     #Assigns the bus to a route
