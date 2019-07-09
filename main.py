@@ -13,7 +13,7 @@ from busassignment_bruteforce import assign_buses
 import numpy as np
 from utils import improvement_procedures, stud_trav_time_array, mstt
 
-def main(method, partial_route_plan = None, permutation = None,
+def main(method, sped, partial_route_plan = None, permutation = None,
          improve = False, buses = False):
     #prefix = "C://Users//David//Documents//UCLA//SchoolBusResearch//data//csvs//"
     prefix = "data//"
@@ -21,7 +21,8 @@ def main(method, partial_route_plan = None, permutation = None,
                             prefix+'all_geocodes.csv',
                             prefix+'stop_geocodes_fixed.csv',
                             prefix+'school_geocodes_fixed.csv',
-                            prefix+'bell_times.csv')
+                            prefix+'bell_times.csv',
+                            sped)
     students = output[0]
     schools_students_map = output[1]
     all_schools = output[2]
@@ -81,14 +82,14 @@ def main(method, partial_route_plan = None, permutation = None,
     
 routes_returned = None
 
-def permutation_approach(iterations = 1000):
+def permutation_approach(iterations = 1000, sped):
     #Uncomment latter lines to use an existing permutation
     best_perm = None
     #loading_perm = open(("output//lastperm55m.obj"), "rb")
     #loading_perm = open(("output//newagerestrictionperm.obj"), "rb")
     #best_perm = pickle.load(loading_perm)
     #loading_perm.close()
-    routes_returned = main("mine", permutation = best_perm, improve = True, buses = True)
+    routes_returned = main("mine", sped, permutation = best_perm, improve = True, buses = True)
     all_stops = set()
     for route in routes_returned:
         for stop in route.stops:
@@ -123,7 +124,7 @@ def permutation_approach(iterations = 1000):
             ind2 = random.randint(0, len(new_perm) - 1)
             new_perm[ind1], new_perm[ind2] = new_perm[ind2], new_perm[ind1]
         #Test the route
-        new_routes_returned = main("mine", permutation = new_perm, improve = True, buses = True)
+        new_routes_returned = main("mine", sped, permutation = new_perm, improve = True, buses = True)
         new_num_routes = len(new_routes_returned)
         new_time = np.sum(np.array([r.length for r in new_routes_returned]))
         new_mstt = np.mean(stud_trav_time_array(new_routes_returned))
@@ -154,7 +155,7 @@ def permutation_approach(iterations = 1000):
             successes.append(num_to_swap)
             print(successes)
         print(str(new_num_routes) + " " + str(new_mstt/60))
-    final_routes = main("mine", permutation = best_perm, improve = True)
+    final_routes = main("mine", sped, permutation = best_perm, improve = True)
     saving = open("output//spedfirsttryub.obj", "wb")
     pickle.dump(final_routes, saving)
     saving.close()
@@ -168,7 +169,7 @@ def permutation_approach(iterations = 1000):
         
 best_results = []
 
-def vary_params():
+def vary_params(sped):
     best = 10000
     for i in range(2000):
         #Set up parameters with some randomness
@@ -178,7 +179,7 @@ def vary_params():
         constants.MAX_SCHOOL_DIST = random.random()*600 + 800
         
         #Test these parameters
-        routes_returned = main("mine")
+        routes_returned = main("mine", sped)
         
         #Take measurements of the result
         num_routes = len(routes_returned)
@@ -214,5 +215,5 @@ def vary_params():
               str(mean_stud_trav_time/60))
 
 #savings_routes = main("savings", improve = True, buses = False)        
-final_result = permutation_approach(2000)
+final_result = permutation_approach(2000, True)
 #vary_params()

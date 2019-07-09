@@ -12,8 +12,9 @@ from utils import californiafy, timesecs
 #students, and a dict from schools to indices in the travel time matrix.
 #bell_sched: file name for which column 3 is cost center and
 #column 4 is start time
+#sped flags whether this run is for SP students or RG students.
 def setup_students(students_filename, all_geocodes, geocoded_stops,
-                   geocoded_schools, bell_sched):
+                   geocoded_schools, bell_sched, sped):
     
     stops = open(geocoded_stops, 'r')
     stops_codes_map = dict()
@@ -71,6 +72,10 @@ def setup_students(students_filename, all_geocodes, geocoded_stops,
         stop_ind = codes_inds_map[fields[0].strip() + ";" + fields[1].strip()]
         school_ind = codes_inds_map[schools_codes_map[school]]
         grade = fields[2].strip()
+        stud_sped = (fields[5] == "SP")
+        #Not the type of student we are currently routing
+        if stud_sped != sped:
+            continue
         age_type = 'Other'
         try:
             grade = int(grade)
@@ -91,7 +96,7 @@ def setup_students(students_filename, all_geocodes, geocoded_stops,
             ind_school_dict[school_ind] = School(school_ind, belltime, fields[2])
             all_schools.add(ind_school_dict[school_ind])
         this_student = Student(stop_ind, ind_school_dict[school_ind],
-                               age_type, fields)
+                               age_type, fields, sped)
         students.append(this_student)
         schools_students_map[school].add(this_student)
         needs = fields[4].split(";")
@@ -153,7 +158,7 @@ def setup_stops(schools_students_map):
             if student.school not in ttind_stop_map:
                 ttind_stop_map[student.school] = dict()
             if dict_key not in ttind_stop_map[student.school]:
-                new_stop = Stop(student.school)
+                new_stop = Stop(student.school, student.sped)
                 ttind_stop_map[student.school][dict_key] = new_stop
                 stops.add(ttind_stop_map[student.school][dict_key])
                 student.school.unrouted_stops.add(new_stop)
