@@ -83,6 +83,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
                               fontsize = 5, color = 'red'))
         plt.plot([p[0] for p in points], [p[1] for p in points], 'k',
                  linewidth = .1)
+        print(points)
         if to_plot != None:
             num_students = 0
             num_schools = 0
@@ -126,13 +127,14 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
                                          points[len(r.stops) - 1][1],
                                          message, ha='center', va='center',
                                          fontsize = 5))
-    message_legend = ("W=wheelchair\nL=non-ambulatory\nA=adult supervision\nI" +
-                      "=individual supervision\nF=final stop\nT=custom time" +
-                      "\nM=machine needed")
-    texts.append(plt.text(.1, .1, message_legend,
-                          ha='center', va='center', fontsize = 5))
+    if to_plot != None:
+        message_legend = ("W=wheelchair\nL=non-ambulatory\nA=adult supervision\nI" +
+                          "=individual supervision\nF=final stop\nT=custom time" +
+                          "\nM=machine needed")
+        texts.append(plt.text(.1, .1, message_legend,
+                              ha='center', va='center', fontsize = 6))
     adjust_text(texts, precision = .1, text_from_points = False)
-    prefix = ("output//0528presentation//routeplots//")
+    prefix = ("output//0705presentation//routeplots//")
     plt.axis('off')
     if to_plot == None:
         fig.savefig(prefix + 'spedroutes_all_annotated.eps', bbox_inches = 'tight',
@@ -146,7 +148,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
     
     
 
-loading = open("output//spedfirsttryb.obj", "rb")
+loading = open("output//routesfor0705pres.obj", "rb")
 obj = pickle.load(loading)
 loading.close()
 
@@ -177,7 +179,7 @@ for code in geocodes_file.readlines():
 geocodes_file.close()
 
 xres = 1.0
-yres = 0.9
+yres = 0.98
 plot_routes(routes, geocodes, xres, yres)
 for ind, route_with_ind in enumerate(routes):
     plot_routes(routes, geocodes, xres, yres,
