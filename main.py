@@ -81,7 +81,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
     
 routes_returned = None
 
-def permutation_approach(sped, iterations = 100, minutes = None):
+def permutation_approach(sped, mstt_weight, iterations = 100, minutes = None):
     global start_time
     #Uncomment latter lines to use an existing permutation
     best_perm = None
@@ -98,17 +98,16 @@ def permutation_approach(sped, iterations = 100, minutes = None):
         best_perm = list(range(len(all_stops)))
     best_num_routes = len(routes_returned)
     best_time = np.sum(np.array([r.length for r in routes_returned]))
-    stud_trav_times = stud_trav_time_array(routes_returned)
-    mean_stud_trav_time = np.mean(stud_trav_times)
+    mean_stud_trav_time = mstt(routes_returned)/60
     best_mstt = mean_stud_trav_time
-    score_function = lambda num_routes, plan_mstt: num_routes*plan_mstt
+    score_function = lambda num_routes, plan_mstt: num_routes + mstt_weight*plan_mstt
     #score_function = lambda num_routes, plan_mstt: num_routes + 6*plan_mstt/500
     best_score = score_function(best_num_routes, best_mstt)
     
     best_mstt_per_num_routes = dict()
     
     best = routes_returned
-    print(str(best_num_routes) + " " + str(mean_stud_trav_time/60))
+    print(str(best_num_routes) + " " + str(mean_stud_trav_time))
     successes = []
     for test in range(iterations):
         if test % 100 == 0:
@@ -127,7 +126,7 @@ def permutation_approach(sped, iterations = 100, minutes = None):
         new_routes_returned = main("mine", sped, permutation = new_perm, improve = True, buses = True)
         new_num_routes = len(new_routes_returned)
         new_time = np.sum(np.array([r.length for r in new_routes_returned]))
-        new_mstt = np.mean(stud_trav_time_array(new_routes_returned))
+        new_mstt = mstt(new_routes_returned)/60
         #new_score = new_num_routes + 6*new_mstt/500
         new_score = score_function(new_num_routes, new_mstt)
         if new_num_routes not in best_mstt_per_num_routes:
@@ -156,13 +155,13 @@ def permutation_approach(sped, iterations = 100, minutes = None):
             print(successes)
         if minutes != None and process_time() > start_time + 60*minutes:
             break
-        print(str(new_num_routes) + " " + str(new_mstt/60))
+        print(str(new_num_routes) + " " + str(new_mstt))
         
     final_routes = main("mine", sped, permutation = best_perm, improve = True)
     saving = open("output//testcombining.obj", "wb")
     pickle.dump(final_routes, saving)
     saving.close()
-    buses = setup_buses('data//testcombining.csv')
+    buses = setup_buses('data//dist_bus_capacities_sped.csv', sped)
     final_bused_routes = assign_buses(final_routes, buses)
     improvement_procedures(final_bused_routes)
     saving = open("output//testcombining.obj", "wb")
@@ -241,11 +240,11 @@ def full_run(sped_mstt_weight, magnet_mstt_weight, minutes_per_segment):
     start_time = process_time()
     vary_params(True, sped_mstt_weight, minutes = minutes_per_segment)
     start_time = process_time()
-    sped_routes = permutation_approach(True, minutes = minutes_per_segment)
+    sped_routes = permutation_approach(True, sped_mstt_weight, minutes = minutes_per_segment)
     start_time = process_time()
     vary_params(False, magnet_mstt_weight, minutes = minutes_per_segment)
     start_time = process_time()
-    magnet_routes = permutation_approach(False, minutes = minutes_per_segment)
+    magnet_routes = permutation_approach(False, magnet_mstt_weight, minutes = minutes_per_segment)
     all_routes = sped_routes + magnet_routes
     print("Final number of magnet routes: " + str(len(magnet_routes)))
     print("Mean student travel time of magnet routes: " + str(mstt(magnet_routes)))
