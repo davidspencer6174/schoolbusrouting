@@ -16,7 +16,7 @@ from utils import improvement_procedures, stud_trav_time_array, mstt
 global start_time
 
 def main(method, sped, partial_route_plan = None, permutation = None,
-         improve = False, buses = False):
+         improve = False, to_bus = False):
     #prefix = "C://Users//David//Documents//UCLA//SchoolBusResearch//data//csvs//"
     prefix = "data//"
     output = setup_students(prefix+'RGSP_Combined.csv',
@@ -55,7 +55,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
     #As per dicussions in early July 2019, we decided
     #not to have the program attempt bus assignment
     #for special ed.
-    if buses and not sped:
+    if to_bus and not sped:
         routes = assign_buses(routes, buses)
         
     for route in routes:
