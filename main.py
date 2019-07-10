@@ -1,7 +1,7 @@
 import constants
 import copy
 from greedymoves import make_greedy_moves
-import itertools
+from time import process_time
 from locations import Student
 from mixedloads import mixed_loads
 import pickle
@@ -12,6 +12,8 @@ from generateroutes import generate_routes
 from busassignment_bruteforce import assign_buses
 import numpy as np
 from utils import improvement_procedures, stud_trav_time_array, mstt
+
+global start_time
 
 def main(method, sped, partial_route_plan = None, permutation = None,
          improve = False, buses = False):
@@ -79,7 +81,8 @@ def main(method, sped, partial_route_plan = None, permutation = None,
     
 routes_returned = None
 
-def permutation_approach(sped, iterations = 1000):
+def permutation_approach(sped, iterations = 100, minutes = None):
+    global start_time
     #Uncomment latter lines to use an existing permutation
     best_perm = None
     #loading_perm = open(("output//lastperm55m.obj"), "rb")
@@ -151,7 +154,10 @@ def permutation_approach(sped, iterations = 1000):
             saving.close()
             successes.append(num_to_swap)
             print(successes)
+        if minutes != None and process_time() > start_time + 60*minutes:
+            break
         print(str(new_num_routes) + " " + str(new_mstt/60))
+        
     final_routes = main("mine", sped, permutation = best_perm, improve = True)
     saving = open("output//testcombining.obj", "wb")
     pickle.dump(final_routes, saving)
@@ -162,13 +168,17 @@ def permutation_approach(sped, iterations = 1000):
     saving = open("output//testcombining.obj", "wb")
     pickle.dump(final_bused_routes, saving)
     saving.close()
-    return best_mstt_per_num_routes
-        
-best_results = []
+    return final_bused_routes
 
-def vary_params(sped):
-    best = 10000
-    for i in range(2000):
+
+#Larger mstt_weights will prioritize travel time over
+#the number of routes.
+def vary_params(sped, mstt_weight, minutes = None):
+    global start_time
+    best_score = 100000000
+    best_params = ()
+    best_results = []
+    for i in range(1000):
         #Set up parameters with some randomness
         constants.SCH_DIST_WEIGHT = random.random()*.5 + .7
         constants.STOP_DIST_WEIGHT = random.random()*.2
@@ -180,17 +190,22 @@ def vary_params(sped):
         
         #Take measurements of the result
         num_routes = len(routes_returned)
-        mean_time = np.mean(np.array([r.length for r in routes_returned]))
         stud_trav_times = stud_trav_time_array(routes_returned)
-        mean_stud_trav_time = np.mean(stud_trav_times)
+        mean_stud_trav_time = np.mean(stud_trav_times)/60
+        
+        
         
         #Set up the result to store. If it is dominated by
         #another result, we won't store it; if it dominates
         #another result, we will delete that one.
-        result = (num_routes, mean_stud_trav_time/60,
+        result = (num_routes, mean_stud_trav_time,
                   constants.SCH_DIST_WEIGHT,
                   constants.STOP_DIST_WEIGHT, constants.EVALUATION_CUTOFF,
                   constants.MAX_SCHOOL_DIST)
+        if num_routes + mstt_weight*mean_stud_trav_time < best_score:
+            best_score = num_routes + mstt_weight*mean_stud_trav_time
+            best_params = (constants.SCH_DIST_WEIGHT, constants.STOP_DIST_WEIGHT,
+                           constants.EVALUATION_CUTOFF, constants.MAX_SCHOOL_DIST)
         strictly_worse = False
         to_remove = set()
         for other_result in best_results:
@@ -209,8 +224,37 @@ def vary_params(sped):
               str(constants.EVALUATION_CUTOFF) + " " +
               str(constants.MAX_SCHOOL_DIST) + " " +
               str(len(routes_returned)) + " " + 
-              str(mean_stud_trav_time/60))
+              str(mean_stud_trav_time))
+        if minutes != None and process_time() > start_time + 60*minutes:
+            break
+    (constants.SCH_DIST_WEIGHT, constants.STOP_DIST_WEIGHT,
+     constants.EVALUATION_CUTOFF, constants.MAX_SCHOOL_DIST) = best_params
+    return best_results
 
+#Does a full run, that is, makes a route plan for special ed
+#without considering buses and makes a route plan for
+#magnet with consideration of buses.
+def full_run(sped_mstt_weight, magnet_mstt_weight, minutes_per_segment):
+    global start_time
+    #First, try to find good parameters by doing quick runs that
+    #don't do improvement procedures or bus assignment.
+    start_time = process_time()
+    vary_params(True, sped_mstt_weight, minutes = minutes_per_segment)
+    start_time = process_time()
+    sped_routes = permutation_approach(True, minutes = minutes_per_segment)
+    start_time = process_time()
+    vary_params(False, magnet_mstt_weight, minutes = minutes_per_segment)
+    start_time = process_time()
+    magnet_routes = permutation_approach(False, minutes = minutes_per_segment)
+    all_routes = sped_routes + magnet_routes
+    print("Final number of magnet routes: " + str(len(magnet_routes)))
+    print("Mean student travel time of magnet routes: " + str(mstt(magnet_routes)))
+    print("Final number of special ed routes: " + str(len(sped_routes)))
+    print("Mean student travel time of special ed routes: " + str(mstt(sped_routes)))
+    return all_routes
+    
+
+full_run(.01, .01, 2)
 #savings_routes = main("savings", improve = True, buses = False)        
-final_result = permutation_approach(False, 2000)
+#final_result = permutation_approach(False, 2000)
 #vary_params()
