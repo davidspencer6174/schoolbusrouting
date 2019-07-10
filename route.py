@@ -146,7 +146,7 @@ class Route:
         if not self.add_school(stop.school):
             return False
         mach = self.count_needs("M")
-        for stud in stop.students:
+        for stud in stop.special_ed_students:
             if stud.has_need("M"):
                 mach += 1
             if stud.has_need("F"):
