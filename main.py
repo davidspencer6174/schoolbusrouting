@@ -17,7 +17,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
          improve = False, buses = False):
     #prefix = "C://Users//David//Documents//UCLA//SchoolBusResearch//data//csvs//"
     prefix = "data//"
-    output = setup_students(prefix+'SpEdProcessed.csv',
+    output = setup_students(prefix+'RGSP_Combined.csv',
                             prefix+'all_geocodes.csv',
                             prefix+'stop_geocodes_fixed.csv',
                             prefix+'school_geocodes_fixed.csv',
@@ -27,13 +27,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
     schools_students_map = output[1]
     all_schools = output[2]
     stops = setup_stops(schools_students_map)
-    buses = setup_buses(prefix+'dist_bus_capacities_sped.csv')
-    #So far, we are using 0 of each contract size.
-    #This may get incremented when the schools get routed.
-    #contr_counts = [[8, 0], [12, 0], [25, 0], [39, 0], [65, 0]]
-    #This option only allows using the larger buses -
-    #I think this is preferred by LAUSD
-    contr_counts = [[39, 0], [65, 0]]
+    buses = setup_buses(prefix+'dist_bus_capacities_sped.csv', sped)
     if constants.VERBOSE:
         print(len(students))
         print(len(schools_students_map))
@@ -56,7 +50,10 @@ def main(method, sped, partial_route_plan = None, permutation = None,
     for route in routes:
         assert route.feasibility_check(verbose = True)
         
-    if buses:
+    #As per dicussions in early July 2019, we decided
+    #not to have the program attempt bus assignment
+    #for special ed.
+    if buses and not sped:
         routes = assign_buses(routes, buses)
         
     for route in routes:
@@ -82,7 +79,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
     
 routes_returned = None
 
-def permutation_approach(iterations = 1000, sped):
+def permutation_approach(sped, iterations = 1000):
     #Uncomment latter lines to use an existing permutation
     best_perm = None
     #loading_perm = open(("output//lastperm55m.obj"), "rb")
@@ -146,23 +143,23 @@ def permutation_approach(iterations = 1000, sped):
             best_time = new_time
             best_score = new_score
             best = new_routes_returned
-            saving = open(("output//spedfirsttry.obj"), "wb")
+            saving = open(("output//testcombining.obj"), "wb")
             pickle.dump(best, saving)
             saving.close()
-            saving = open(("output//spedfirsttryperm.obj"), "wb")
+            saving = open(("output//testcombining.obj"), "wb")
             pickle.dump(best_perm, saving)
             saving.close()
             successes.append(num_to_swap)
             print(successes)
         print(str(new_num_routes) + " " + str(new_mstt/60))
     final_routes = main("mine", sped, permutation = best_perm, improve = True)
-    saving = open("output//spedfirsttryub.obj", "wb")
+    saving = open("output//testcombining.obj", "wb")
     pickle.dump(final_routes, saving)
     saving.close()
-    buses = setup_buses('data//dist_bus_capacities_sped.csv')
+    buses = setup_buses('data//testcombining.csv')
     final_bused_routes = assign_buses(final_routes, buses)
     improvement_procedures(final_bused_routes)
-    saving = open("output//spedfirsttryb.obj", "wb")
+    saving = open("output//testcombining.obj", "wb")
     pickle.dump(final_bused_routes, saving)
     saving.close()
     return best_mstt_per_num_routes
@@ -215,5 +212,5 @@ def vary_params(sped):
               str(mean_stud_trav_time/60))
 
 #savings_routes = main("savings", improve = True, buses = False)        
-final_result = permutation_approach(2000, True)
+final_result = permutation_approach(False, 2000)
 #vary_params()
