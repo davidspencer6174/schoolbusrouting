@@ -16,38 +16,33 @@ def greedy_assignment(route, buses):
     picked_up = [False for stop in route.stops]
     while False in picked_up:
         bus = None
-        for i in range(len(buses)):
-            bus = buses[-1 - i]
-            if bus[1] > 0:
+        for bus in buses[::-1]:
+            #Found an unassigned bus
+            if bus.route == None:
                 break
-        capacity = bus[0]
         route_creating = Route()
         for i in range(len(route.stops)):
             if not picked_up[i]:
                 route_creating.add_stop(route.stops[i])
                 picked_up[i] = True
-                if (not route_creating.is_acceptable(capacity) and
-                    len(route_creating.stops) > 1):
+                if (not bus.can_handle(route_creating)):
                     route_creating.remove_stop(route.stops[i])
                     picked_up[i] = False
         for bus in buses:
-            if bus[1] > 0 and route_creating.is_acceptable(bus[0]):
-                route_creating.set_capacity(bus[0])
-                bus[1] -= 1
+            if bus.can_handle(route_creating):
+                bus.assign(route_creating)
                 break
-        if route_creating.unmodified_bus_capacity != None:
+        if route_creating.bus != None:
             routes.append(route_creating)
             if constants.VERBOSE:
                 print("onto next")
             continue
         #If no bus was large enough, should be for one stop.
-        assert (len(route_creating.stops) == 1)
-        to_use_bus = 0
-        for bus in buses:
-            if bus[1] > 0:
-                to_use_bus = bus
-        route_creating.set_capacity(to_use_bus[0])
-        to_use_bus[1] -= 1
+        assert (len(route_creating.stops) == 1), str(len(route_creating.stops))
+        for bus in buses[::-1]:
+            if bus.route == None:
+                break
+        bus.assign(route_creating)
         routes.append(route_creating)
     return routes
 
@@ -293,31 +288,3 @@ def assign_buses(routes, buses):
                     break
             buses.remove(subroute.bus)
     return new_routes
-
-#import pickle
-#from setup import setup_buses
-
-#loading = open(("output//8minutesdropoffgreedy.obj"), "rb")
-#loading = open(("output//mxproutes.obj"), "rb")
-
-#routes = pickle.load(loading)
-#loading.close()
-#constants.BUS_SEARCH_TIME = 1.0
-#buses = setup_buses('data//dist_bus_capacities.csv')
-#out = assign_buses(routes, buses)
-
-
-#Results for existing routes and my routes as of 05/16:
-#My routes:
-#0.0s 670 buses
-#0.001s 669 buses
-#1.0s 661 buses, mean travel time 25.59m
-#10.0s 661 buses
-#100.0s 660 buses
-
-#Existing routes:
-#0.0s 658 buses
-#0.001s 655 buses
-#1.0s 649 buses, mean travel time 25.88m
-#10.0s 649 buses
-#100.0s 649 buses

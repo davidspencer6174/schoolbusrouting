@@ -51,6 +51,10 @@ class Bus:
             for stop in r.stops:
                 if stop.count_needs("W") > 0 or stop.count_needs("L") > 0:
                     return False
+        #If it's only one stop, automatically allowed, as it's considered
+        #infeasible to split stops among multiple routes
+        if len(r.stops) == 1:
+            return True
         mod_caps = copy.copy(constants.CAPACITY_MODIFIED_MAP[self.capacity])
         e, m, h = 0, 0, 0
         hca = 0
