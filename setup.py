@@ -2,6 +2,36 @@ import constants
 from locations import Bus, School, Stop, Student
 from utils import californiafy, timesecs
 
+#Given an index and a dictionary from geocodes to indices,
+#finds the index corresponding with the nearest geocode in
+#Euclidean space. (Therefore, if a geocode is in the database,
+#its index will be returned, as the distance is 0.) 
+def fetch_ind(code_to_find, codes_inds_map):
+    if code_to_find in codes_inds_map:
+        return codes_inds_map[code_to_find]
+    smallest_dist = 1000000
+    smallest_dist_ind = -1
+    (latitude_to_find, longitude_to_find) = code_to_find.split(";")
+    latitude_to_find = float(latitude_to_find)
+    longitude_to_find = float(longitude_to_find)
+    nearest_code = None
+    for code in codes_inds_map:
+        (latitude, longitude) = code.split(";")
+        latitude = float(latitude)
+        longitude = float(longitude)
+        dist = ((latitude-latitude_to_find)**2 +
+                (longitude - longitude_to_find)**2)**.5
+        if dist < smallest_dist:
+            smallest_dist = dist
+            smallest_dist_ind = codes_inds_map[code]
+            nearest_code = code
+    if constants.VERBOSE:
+        print("Geocode " + code_to_find +
+              " not in matrix of known travel times; using " +
+              str(nearest_code))
+    return smallest_dist_ind
+        
+
 #students_file: a format I am using for special ed students
 #Columns are latitude, longitude, grade level, human-readable
 #description of special ed types (not used), text description.
@@ -56,7 +86,8 @@ def setup_students(students_filename, all_geocodes, geocoded_stops,
     
     schools_inds_map = dict()
     for school in schools_codes_map:
-        schools_inds_map[school] = codes_inds_map[schools_codes_map[school]]
+        schools_inds_map[school] = fetch_ind(schools_codes_map[school],
+                                             codes_inds_map)
     
     students = []
     #Maintain a dictionary of school indices to schools so that
@@ -69,8 +100,10 @@ def setup_students(students_filename, all_geocodes, geocoded_stops,
     for student_record in student_records.readlines():
         fields = student_record.split(",")
         school = fields[6].strip()
-        stop_ind = codes_inds_map[fields[0].strip() + ";" + fields[1].strip()]
-        school_ind = codes_inds_map[schools_codes_map[school]]
+        stop_ind = fetch_ind(fields[0].strip() + ";" + fields[1].strip(),
+                             codes_inds_map)
+        school_ind = fetch_ind(schools_codes_map[school],
+                               codes_inds_map)
         grade = fields[2].strip()
         stud_sped = (fields[5] == "SP")
         #Not the type of student we are currently routing
