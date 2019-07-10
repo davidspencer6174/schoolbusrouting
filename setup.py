@@ -122,7 +122,7 @@ def setup_students(students_filename, all_geocodes, geocoded_stops,
 
 #bus_capacities is an input csv file where the first
 #column is bus ID and the second is capacity.
-def setup_buses(bus_filename):
+def setup_buses(bus_filename, sped):
     buses = []
     bus_file = open(bus_filename, 'r')
     bus_file.readline()  #header
@@ -130,6 +130,9 @@ def setup_buses(bus_filename):
         fields = bus_info.split(",")
         cap = int(fields[1])
         lift = (fields[2] == 'Y')
+        #Don't include wheelchair buses when routing non-special-ed
+        if not sped and lift:
+            continue
         #By default, assume no wheelchair capacity.
         min_wheel = 0
         max_wheel = 0
@@ -158,7 +161,7 @@ def setup_stops(schools_students_map):
             if student.school not in ttind_stop_map:
                 ttind_stop_map[student.school] = dict()
             if dict_key not in ttind_stop_map[student.school]:
-                new_stop = Stop(student.school, student.sped)
+                new_stop = Stop(student.school)
                 ttind_stop_map[student.school][dict_key] = new_stop
                 stops.add(ttind_stop_map[student.school][dict_key])
                 student.school.unrouted_stops.add(new_stop)
