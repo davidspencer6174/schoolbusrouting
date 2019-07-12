@@ -164,7 +164,7 @@ def setup_buses(bus_filename, sped):
         cap = int(fields[1])
         lift = (fields[2] == 'Y')
         #Don't include wheelchair buses when routing non-special-ed
-        if not sped and lift:
+        if lift and not sped:
             continue
         #By default, assume no wheelchair capacity.
         min_wheel = 0
