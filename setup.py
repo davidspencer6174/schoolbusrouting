@@ -36,44 +36,30 @@ def fetch_ind(code_to_find, codes_inds_map):
 #Columns are latitude, longitude, grade level, human-readable
 #description of special ed types (not used), text description.
 #all_geocodes: filename for list of all geocodes. gives map from geocode to ind
-#geocoded_stops: file name for map from stop to geocode
 #geocoded_schools: file name for map from school to geocode
 #returns a list of all students, a dict from schools to sets of
 #students, and a dict from schools to indices in the travel time matrix.
 #bell_sched: file name for which column 3 is cost center and
 #column 4 is start time
 #sped flags whether this run is for SP students or RG students.
-def setup_students(students_filename, all_geocodes, geocoded_stops,
-                   geocoded_schools, bell_sched, sped):
-    
-    stops = open(geocoded_stops, 'r')
-    stops_codes_map = dict()
-    for address in stops.readlines():
-        fields = address.split(";")
-        if len(fields) < 3:
-            continue
-        stops_codes_map[fields[0]] = (fields[1].strip() + ";"
-                                      + fields[2].strip())
-    stops.close()
-    
-    belltimes = open(bell_sched, 'r')
-    centers_times_map = dict()  #maps cost centers to times in seconds
-    belltimes.readline()  #get rid of header
-    for bell_record in belltimes.readlines():
-        fields = bell_record.split(";")
-        centers_times_map[fields[3]] = timesecs(fields[4])
+def setup_students(students_filename, all_geocodes,
+                   geocoded_schools, sped):
     
     schools = open(geocoded_schools, 'r')
     schools_codes_map = dict()  #maps schools to geocodes
     schools_students_map = dict()  #maps schools to sets of students
+    schools_starttimes_map = dict() #maps schools to start times
+    schools_endtimes_map = dict() #maps schools to end times
     schools.readline()  #get rid of header
     for cost_center in schools.readlines():
-         fields = cost_center.split(";")
-         if len(fields) < 8:
+         fields = cost_center.split(",")
+         if len(fields) < 6:
              continue
-         schools_codes_map[fields[1]] = (fields[6].strip() + ";"
-                                         + fields[7].strip())
-         schools_students_map[fields[1]] = set()
+         schools_codes_map[fields[0]] = (fields[4].strip() + ";"
+                                         + fields[5].strip())
+         schools_students_map[fields[0]] = set()
+         schools_starttimes_map[fields[0]] = timesecs(fields[2])
+         schools_endtimes_map[fields[0]] = timesecs(fields[3])
     schools.close()
     
     geocodes = open(all_geocodes, 'r')
@@ -99,13 +85,13 @@ def setup_students(students_filename, all_geocodes, geocoded_stops,
     student_records.readline()  #header
     for student_record in student_records.readlines():
         fields = student_record.split(",")
-        school = fields[6].strip()
+        school = fields[5].strip()
         stop_ind = fetch_ind(fields[0].strip() + ";" + fields[1].strip(),
                              codes_inds_map)
         school_ind = fetch_ind(schools_codes_map[school],
                                codes_inds_map)
         grade = fields[2].strip()
-        stud_sped = (fields[5] == "SP")
+        stud_sped = (fields[4] == "SP")
         #Not the type of student we are currently routing
         if stud_sped != sped:
             continue
@@ -119,20 +105,23 @@ def setup_students(students_filename, all_geocodes, geocoded_stops,
         if age_type == 'Other':
             print(grade)
         if school_ind not in ind_school_dict:
-            belltime = 8*60*60  #default to 8AM start
-            #None of the 19xxxxx schools have start times.
-            if school in centers_times_map:
-                belltime = centers_times_map[school]
+            starttime = 8*60*60  #default to 8AM start
+            endtime = 13*60*60  #default to 3PM finish
+            #None of the 19xxxxx schools have times, so use the defaults
+            if school in schools_starttimes_map:
+                starttime = schools_starttimes_map[school]
+                endtime = schools_endtimes_map[school]
             else:
                 if constants.VERBOSE:
-                    print("No time given for " + school)                    
-            ind_school_dict[school_ind] = School(school_ind, belltime, fields[2])
+                    print("No bell times given for " + school + ", using defaults")                    
+            ind_school_dict[school_ind] = School(school_ind, starttime,
+                                                 endtime, fields[2])
             all_schools.add(ind_school_dict[school_ind])
         this_student = Student(stop_ind, ind_school_dict[school_ind],
                                age_type, fields, sped)
         students.append(this_student)
         schools_students_map[school].add(this_student)
-        needs = fields[4].split(";")
+        needs = fields[3].split(";")
         #Add special needs
         for need in needs:
             #Splitting an empty string returns one empty string -
