@@ -7,7 +7,7 @@ from mixedloads import mixed_loads
 import pickle
 import random
 from savingsbasedroutegeneration import clarke_wright_savings
-from setup import setup_buses, setup_stops, setup_students
+from setup import setup_buses, setup_stops, setup_students, setup_mod_caps
 from generateroutes import generate_routes
 from busassignment_bruteforce import assign_buses
 import numpy as np
@@ -28,6 +28,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
     all_schools = output[2]
     stops = setup_stops(schools_students_map)
     buses = setup_buses(prefix+'dist_bus_capacities_sped.csv', sped)
+    setup_mod_caps(prefix+'modified_capacities.csv')
     if constants.VERBOSE:
         print(len(students))
         print(len(schools_students_map))
