@@ -21,9 +21,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
     prefix = "data//"
     output = setup_students(prefix+'RGSP_Combined.csv',
                             prefix+'all_geocodes.csv',
-                            prefix+'stop_geocodes_fixed.csv',
-                            prefix+'school_geocodes_fixed.csv',
-                            prefix+'bell_times.csv',
+                            prefix+'school_info.csv',
                             sped)
     students = output[0]
     schools_students_map = output[1]

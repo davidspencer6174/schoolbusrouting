@@ -15,9 +15,10 @@ class School:
     #type is the school's type of student attendee ('E', 'M', 'H')
     #unrouted_stops is the dict from age group to set of stops for
     #the school which are not routed
-    def __init__(self, tt_ind, start_time, school_name = None):
+    def __init__(self, tt_ind, start_time, end_time, school_name = None):
         self.tt_ind = tt_ind
         self.start_time = start_time
+        self.end_time = end_time
         self.unrouted_stops = set()
         self.school_name = school_name
         

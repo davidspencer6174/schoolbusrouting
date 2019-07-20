@@ -1,7 +1,7 @@
 import numpy as np
 
 #If true, informational lines will be printed
-VERBOSE = False
+VERBOSE = True
 
 #Identifies elementary, middle, and high school students
 GRADES_TYPE_MAP = dict()
