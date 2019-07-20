@@ -190,3 +190,17 @@ def setup_stops(schools_students_map):
             ttind_stop_map[student.school][dict_key].add_student(student)
     return stops
                 
+#Sets up the map from unmodified capacities to modified capacities.
+def setup_mod_caps(mod_caps_filename):
+    constants.CAPACITY_MODIFIED_MAP = dict()
+    modcaps_file = open(mod_caps_filename, 'r')
+    modcaps_file.readline() #header
+    for modcap in modcaps_file.readlines():
+        fields = modcap.split(",")
+        orig_cap = int(fields[0])
+        resulting_caps = [int(fields[1]), int(fields[2]), int(fields[3])]
+        constants.CAPACITY_MODIFIED_MAP[orig_cap] = resulting_caps
+    #If we ever want to not worry about capacity, use virtual
+    #buses of capacity 10000.
+    constants.CAPACITY_MODIFIED_MAP[10000] = [10000, 10000, 10000]
+    
