@@ -51,6 +51,7 @@ def setup_students(students_filename, all_geocodes,
     schools_starttimes_map = dict() #maps schools to start times
     schools_endtimes_map = dict() #maps schools to end times
     schools_names_map = dict() #maps schools to their names
+    schools_customtimes_map = dict() #maps schools to custom pickup/dropoff intervals
     schools.readline()  #get rid of header
     for cost_center in schools.readlines():
          fields = cost_center.split(",")
@@ -62,6 +63,11 @@ def setup_students(students_filename, all_geocodes,
          schools_names_map[fields[0]] = fields[1]
          schools_starttimes_map[fields[0]] = timesecs(fields[2])
          schools_endtimes_map[fields[0]] = timesecs(fields[3])
+         if len(fields) == 10:
+             schools_customtimes_map[fields[0]] = [-1, -1, -1, -1]
+             for i in range(6, 10):
+                 if fields[i].strip() != "":
+                     schools_customtimes_map[fields[0]][i - 6] = timesecs(fields[i])
     schools.close()
     
     geocodes = open(all_geocodes, 'r')
@@ -113,13 +119,24 @@ def setup_students(students_filename, all_geocodes,
             if school in schools_starttimes_map:
                 starttime = schools_starttimes_map[school]
                 endtime = schools_endtimes_map[school]
+                name = schools_names_map[school]
             else:
                 if constants.VERBOSE:
                     print("No bell times given for " + school + ", using defaults")
             ind_school_dict[school_ind] = School(school_ind,
                                                  starttime,
                                                  endtime,
-                                                 schools_names_map[fields[5]])
+                                                 name)
+            if school in schools_customtimes_map:
+                customtimes = schools_customtimes_map[school]
+                if customtimes[0] != -1:
+                    ind_school_dict[school_ind].earliest_dropoff = customtimes[0]               
+                if customtimes[1] != -1:
+                    ind_school_dict[school_ind].latest_dropoff = customtimes[1]               
+                if customtimes[2] != -1:
+                    ind_school_dict[school_ind].earliest_pickup = customtimes[2]                  
+                if customtimes[3] != -1:
+                    ind_school_dict[school_ind].latest_pickup = customtimes[3]
             all_schools.add(ind_school_dict[school_ind])
         this_student = Student(stop_ind, ind_school_dict[school_ind],
                                age_type, fields, sped)

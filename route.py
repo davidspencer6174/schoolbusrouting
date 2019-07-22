@@ -255,8 +255,8 @@ class Route:
                     return (False, 0)
         #First, check for the morning routes
         time = 0
-        mintime = school_perm[0].earliest_pickup
-        maxtime = school_perm[0].latest_pickup
+        mintime = school_perm[0].earliest_dropoff
+        maxtime = school_perm[0].latest_dropoff
         for i in range(1, len(school_perm)):
             leg_time = trav_time(school_perm[i-1], school_perm[i])
             #If the shcools are different, need to add dropoff time
@@ -266,8 +266,8 @@ class Route:
             mintime += leg_time
             maxtime += leg_time
             time += leg_time
-            school_mintime = school_perm[i].earliest_pickup
-            school_maxtime = school_perm[i].latest_pickup
+            school_mintime = school_perm[i].earliest_dropoff
+            school_maxtime = school_perm[i].latest_dropoff
             #Can't get to the school in time - give up
             if school_maxtime < mintime:
                 memoized_timechecks[tuple(school_perm)] = (False, 0)
@@ -283,17 +283,17 @@ class Route:
         #We measure travel times for the morning routes, but we
         #should still check feasibility of the afternoon routes.
         time = 0
-        mintime = school_perm[-1].earliest_dropoff
-        maxtime = school_perm[-1].latest_dropoff
-        for i in range(len(school_perm) - 1, 0, -1):
-            leg_time = trav_time(school_perm[i], school_perm[i - 1])
+        mintime = school_perm[0].earliest_pickup
+        maxtime = school_perm[0].latest_pickup
+        for i in range(1, len(school_perm)):
+            leg_time = trav_time(school_perm[i-1], school_perm[i])
             if leg_time > 0:
                 leg_time += constants.SCHOOL_DROPOFF_TIME
             mintime += leg_time
             maxtime += leg_time
             time += leg_time
-            school_mintime = school_perm[i].earliest_dropoff
-            school_maxtime = school_perm[i].latest_dropoff
+            school_mintime = school_perm[i].earliest_pickup
+            school_maxtime = school_perm[i].latest_pickup
             #Can't get to the school in time - give up
             if school_maxtime < mintime:
                 memoized_timechecks[tuple(school_perm)] = (False, 0)
