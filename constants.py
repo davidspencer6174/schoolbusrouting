@@ -68,10 +68,13 @@ EVALUATION_CUTOFF = -236.319
 SCH_DIST_WEIGHT = 1.18602
 STOP_DIST_WEIGHT = .15649
 
-#Seconds before belltime to determine valid arrival
-#Valid arrival times are [belltime-EARLIEST, belltime-LATEST]
-EARLIEST = 1800
-LATEST = 600
+#Seconds before/after belltime to determine valid arrival
+#Valid AM arrival times are [starttime - EARLIEST_AM, starttime - LATEST_AM]
+EARLIEST_AM = 1800
+LATEST_AM = 600
+#Valid PM arrival times are [endtime + EARLIEST_PM, endtime + LATEST_PM]
+EARLIEST_PM = 600
+LATEST_PM = 1800
 
 #Determines the relative importance of number of routes and
 #mean student travel time.

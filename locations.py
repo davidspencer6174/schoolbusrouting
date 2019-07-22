@@ -9,7 +9,7 @@ def trav_time(loc1, loc2):
 class School:
     
     #tt_ind denotes the index of the school in the travel time matrix.
-    #start_time is in seconds since midnight
+    #start_time and end_time are in seconds since midnight
     #unrouted_stops is the set of stops for that school
     #that are not unrouted
     #type is the school's type of student attendee ('E', 'M', 'H')
@@ -18,7 +18,11 @@ class School:
     def __init__(self, tt_ind, start_time, end_time, school_name = None):
         self.tt_ind = tt_ind
         self.start_time = start_time
+        self.earliest_dropoff = self.start_time - constants.EARLIEST_AM
+        self.latest_dropoff = self.start_time - constants.LATEST_AM
         self.end_time = end_time
+        self.earliest_pickup = self.start_time + constants.EARLIEST_PM
+        self.latest_pickup = self.start_time + constants.LATEST_PM
         self.unrouted_stops = set()
         self.school_name = school_name
         
