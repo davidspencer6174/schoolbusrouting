@@ -253,9 +253,10 @@ class Route:
             for school2 in school_perm:
                 if trav_time(school1, school2) > constants.MAX_SCHOOL_DIST:
                     return (False, 0)
+        #First, check for the morning routes
         time = 0
-        mintime = school_perm[0].start_time - constants.EARLIEST
-        maxtime = school_perm[0].start_time - constants.LATEST
+        mintime = school_perm[0].earliest_pickup
+        maxtime = school_perm[0].latest_pickup
         for i in range(1, len(school_perm)):
             leg_time = trav_time(school_perm[i-1], school_perm[i])
             #If the shcools are different, need to add dropoff time
@@ -265,8 +266,8 @@ class Route:
             mintime += leg_time
             maxtime += leg_time
             time += leg_time
-            school_mintime = school_perm[i].start_time - constants.EARLIEST
-            school_maxtime = school_perm[i].start_time - constants.LATEST
+            school_mintime = school_perm[i].earliest_pickup
+            school_maxtime = school_perm[i].latest_pickup
             #Can't get to the school in time - give up
             if school_maxtime < mintime:
                 memoized_timechecks[tuple(school_perm)] = (False, 0)
@@ -276,11 +277,33 @@ class Route:
                 time += school_mintime - maxtime
             mintime = max(school_mintime, mintime)
             maxtime = min(school_maxtime, max(maxtime, mintime))
-        #if time > constants.MAX_SCHOOL_DIST*1.5:
-        #    memoized_timechecks[tuple(school_perm)] = (False, 0)
-        #    return (False, 0)
         memoized_timechecks[tuple(school_perm)] = (True, time)
-        return (True, time)
+        oldtime = time
+        #Now, check for the afternoon routes.
+        #We measure travel times for the morning routes, but we
+        #should still check feasibility of the afternoon routes.
+        time = 0
+        mintime = school_perm[-1].earliest_dropoff
+        maxtime = school_perm[-1].latest_dropoff
+        for i in range(len(school_perm) - 1, 0, -1):
+            leg_time = trav_time(school_perm[i], school_perm[i - 1])
+            if leg_time > 0:
+                leg_time += constants.SCHOOL_DROPOFF_TIME
+            mintime += leg_time
+            maxtime += leg_time
+            time += leg_time
+            school_mintime = school_perm[i].earliest_dropoff
+            school_maxtime = school_perm[i].latest_dropoff
+            #Can't get to the school in time - give up
+            if school_maxtime < mintime:
+                memoized_timechecks[tuple(school_perm)] = (False, 0)
+                return (False, 0)
+            #Have to wait at the school - add the waiting time
+            if school_mintime > maxtime:
+                time += school_mintime - maxtime
+            mintime = max(school_mintime, mintime)
+            maxtime = min(school_maxtime, max(maxtime, mintime))
+        return (True, oldtime)
     
     def enumerate_school_orderings(self):
         self.valid_school_orderings = []
