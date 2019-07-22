@@ -7,7 +7,7 @@ from mixedloads import mixed_loads
 import pickle
 import random
 from savingsbasedroutegeneration import clarke_wright_savings
-from setup import setup_buses, setup_stops, setup_students, setup_mod_caps
+from setup import setup_buses, setup_stops, setup_students, setup_mod_caps, setup_parameters
 from generateroutes import generate_routes
 from busassignment_bruteforce import assign_buses
 import numpy as np
@@ -80,7 +80,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
     
 routes_returned = None
 
-def permutation_approach(sped, mstt_weight, iterations = 100, minutes = None):
+def permutation_approach(sped, iterations = 100, minutes = None):
     global start_time
     #Uncomment latter lines to use an existing permutation
     best_perm = None
@@ -91,7 +91,7 @@ def permutation_approach(sped, mstt_weight, iterations = 100, minutes = None):
     #loading_perm.close()
     best_num_routes = 100000
     best_mstt = 100000
-    score_function = lambda num_routes, plan_mstt: num_routes + mstt_weight*plan_mstt
+    score_function = lambda num_routes, plan_mstt: num_routes + constants.MSTT_WEIGHT*plan_mstt
     #score_function = lambda num_routes, plan_mstt: num_routes + 6*plan_mstt/500
     best_score = score_function(best_num_routes, best_mstt)
     
@@ -167,7 +167,7 @@ def permutation_approach(sped, mstt_weight, iterations = 100, minutes = None):
 
 #Larger mstt_weights will prioritize travel time over
 #the number of routes.
-def vary_params(sped, mstt_weight, minutes = None):
+def vary_params(sped, minutes = None):
     global start_time
     best_score = 100000000
     best_params = ()
@@ -196,8 +196,8 @@ def vary_params(sped, mstt_weight, minutes = None):
                   constants.SCH_DIST_WEIGHT,
                   constants.STOP_DIST_WEIGHT, constants.EVALUATION_CUTOFF,
                   constants.MAX_SCHOOL_DIST)
-        if num_routes + mstt_weight*mean_stud_trav_time < best_score:
-            best_score = num_routes + mstt_weight*mean_stud_trav_time
+        if num_routes + constants.MSTT_WEIGHT*mean_stud_trav_time < best_score:
+            best_score = num_routes + constants.MSTT_WEIGHT*mean_stud_trav_time
             best_params = (constants.SCH_DIST_WEIGHT, constants.STOP_DIST_WEIGHT,
                            constants.EVALUATION_CUTOFF, constants.MAX_SCHOOL_DIST)
         strictly_worse = False
@@ -228,18 +228,20 @@ def vary_params(sped, mstt_weight, minutes = None):
 #Does a full run, that is, makes a route plan for special ed
 #without considering buses and makes a route plan for
 #magnet with consideration of buses.
-def full_run(sped_mstt_weight, magnet_mstt_weight, minutes_per_segment):
+def full_run():
     global start_time
     #First, try to find good parameters by doing quick runs that
     #don't do improvement procedures or bus assignment.
+    setup_parameters('data//parameters.csv', True)
     start_time = process_time()
-    vary_params(True, sped_mstt_weight, minutes = minutes_per_segment)
+    vary_params(True, minutes = constants.MINUTES_PER_SEGMENT)
     start_time = process_time()
-    sped_routes = permutation_approach(True, sped_mstt_weight, minutes = minutes_per_segment)
+    sped_routes = permutation_approach(True, minutes = constants.MINUTES_PER_SEGMENT)
+    setup_parameters('data//parameters.csv', False)
     start_time = process_time()
-    vary_params(False, magnet_mstt_weight, minutes = minutes_per_segment)
+    vary_params(False, minutes = constants.MINUTES_PER_SEGMENT)
     start_time = process_time()
-    magnet_routes = permutation_approach(False, magnet_mstt_weight, minutes = minutes_per_segment)
+    magnet_routes = permutation_approach(False, minutes = constants.MINUTES_PER_SEGMENT)
     all_routes = sped_routes + magnet_routes
     print("Final number of magnet routes: " + str(len(magnet_routes)))
     print("Mean student travel time of magnet routes: " + str(mstt(magnet_routes)) + " minutes")
@@ -248,7 +250,7 @@ def full_run(sped_mstt_weight, magnet_mstt_weight, minutes_per_segment):
     return all_routes
     
 
-full_run(.01, .01, .3)
+result = full_run()
 #savings_routes = main("savings", improve = True, buses = False)        
 #final_result = permutation_approach(False, 2000)
 #vary_params()

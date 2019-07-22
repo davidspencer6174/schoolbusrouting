@@ -37,11 +37,7 @@ SLACK = 1.1
 TRAVEL_TIMES = np.load("data//travel_time_matrix.npy")*TT_MULT
 
 #Max allowable travel time in seconds
-#MAX_TIME = 5500
-#MAX_TIME = 4100
 MAX_TIME = 3600
-#MAX_TIME = 3300
-#MAX_TIME = 3000
 
 #Amount of time to drop off students at a school.
 #Should be used in the computation of time travelling
@@ -77,6 +73,14 @@ STOP_DIST_WEIGHT = .15649
 EARLIEST = 1800
 LATEST = 600
 
+#Determines the relative importance of number of routes and
+#mean student travel time.
+#.01 means that .01 minutes of mean travel time is as important
+#as a reduction of one route.
+MSTT_WEIGHT = .01
+
+#Denotes approximately how much time to spend on each segment
+MINUTES_PER_SEGMENT = 10
 
 #Constants to govern weighting of importance of
 #distance from school in single-load initialization

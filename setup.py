@@ -50,6 +50,7 @@ def setup_students(students_filename, all_geocodes,
     schools_students_map = dict()  #maps schools to sets of students
     schools_starttimes_map = dict() #maps schools to start times
     schools_endtimes_map = dict() #maps schools to end times
+    schools_names_map = dict() #maps schools to their names
     schools.readline()  #get rid of header
     for cost_center in schools.readlines():
          fields = cost_center.split(",")
@@ -58,6 +59,7 @@ def setup_students(students_filename, all_geocodes,
          schools_codes_map[fields[0]] = (fields[4].strip() + ";"
                                          + fields[5].strip())
          schools_students_map[fields[0]] = set()
+         schools_names_map[fields[0]] = fields[1]
          schools_starttimes_map[fields[0]] = timesecs(fields[2])
          schools_endtimes_map[fields[0]] = timesecs(fields[3])
     schools.close()
@@ -84,7 +86,7 @@ def setup_students(students_filename, all_geocodes,
     student_records = open(students_filename, 'r')
     student_records.readline()  #header
     for student_record in student_records.readlines():
-        fields = student_record.split(",")
+        fields = student_record.strip().split(",")
         school = fields[5].strip()
         stop_ind = fetch_ind(fields[0].strip() + ";" + fields[1].strip(),
                              codes_inds_map)
@@ -113,9 +115,11 @@ def setup_students(students_filename, all_geocodes,
                 endtime = schools_endtimes_map[school]
             else:
                 if constants.VERBOSE:
-                    print("No bell times given for " + school + ", using defaults")                    
-            ind_school_dict[school_ind] = School(school_ind, starttime,
-                                                 endtime, fields[2])
+                    print("No bell times given for " + school + ", using defaults")
+            ind_school_dict[school_ind] = School(school_ind,
+                                                 starttime,
+                                                 endtime,
+                                                 schools_names_map[fields[5]])
             all_schools.add(ind_school_dict[school_ind])
         this_student = Student(stop_ind, ind_school_dict[school_ind],
                                age_type, fields, sped)
@@ -203,4 +207,16 @@ def setup_mod_caps(mod_caps_filename):
     #If we ever want to not worry about capacity, use virtual
     #buses of capacity 10000.
     constants.CAPACITY_MODIFIED_MAP[10000] = [10000, 10000, 10000]
+    modcaps_file.close()
     
+def setup_parameters(parameters_filename, sped):
+    parameters_file = open(parameters_filename, 'r')
+    parameters_file.readline() #header
+    fields = parameters_file.readline().split(",")
+    if sped:
+        fields = parameters_file.readline().split(",")
+    constants.MAX_TIME = 60*float(fields[1])/float(fields[2])
+    constants.MSTT_WEIGHT = float(fields[3])
+    constants.MINUTES_PER_SEGMENT = float(fields[4])/2
+    constants.SLACK = float(fields[5])
+    parameters_file.close()
