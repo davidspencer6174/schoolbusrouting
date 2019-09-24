@@ -47,7 +47,12 @@ class Bus:
         
     #For the sake of verifying correctness later, allow suppression
     #of the check for buses already being assigned.
-    def can_handle(self, r, suppress_already_assigned_check = False):
+    #For the purposes of the uncrossing code, adding a return_ratio
+    #argument. If it's true, return the ratio of capacity used
+    #to available capacity instead of just returning a boolean
+    #storing whether the bus can handle the route.
+    def can_handle(self, r, suppress_already_assigned_check = False,
+                   return_ratio = False):
         #If already assigned to a route, can't do another
         if self.route != None and not suppress_already_assigned_check:
             return False
@@ -101,6 +106,8 @@ class Bus:
         if min(mod_caps) < 0 or (min(mod_caps) == 0 and e+m+h > 0):
             return False
         prop_occupied = (e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2])
+        if return_ratio:
+            return prop_occupied
         return (prop_occupied <= 1.0)
     
     #Assigns the bus to a route
@@ -120,15 +127,18 @@ class Student:
     #type is E (elementary), M (middle), H (high), O (other)
     #fields is the full list of entries to make it easier to
     #examine the saved routes.
+    #file_index is which row of the students file the student is in
     #For now, ridership probability is not used, but it will be
     #needed if we try to implement overbooking.
-    def __init__(self, tt_ind, school, age_type, fields, needs = None):
+    def __init__(self, tt_ind, school, age_type, fields, file_index, student_id_number, needs = None):
         self.tt_ind = tt_ind
         self.school = school
         self.type = age_type
         self.fields = fields
+        self.file_index = file_index
         self.needs = dict()
         self.stop = None
+        self.student_id_number = student_id_number
         
     #Readable string representation
     def __str__(self):

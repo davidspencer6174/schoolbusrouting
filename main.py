@@ -7,18 +7,18 @@ from mixedloads import mixed_loads
 import pickle
 import random
 from savingsbasedroutegeneration import clarke_wright_savings
-from setup import setup_buses, setup_stops, setup_students, setup_mod_caps, setup_parameters
+from setup import setup_buses, setup_stops, setup_students, setup_mod_caps, setup_parameters, setup_school_pairs
 from generateroutes import generate_routes
 from busassignment_bruteforce import assign_buses
 import numpy as np
-from utils import improvement_procedures, stud_trav_time_array, mstt
+from utils import improvement_procedures, stud_trav_time_array, mstt, write_output
 
 global start_time
 
 def main(method, sped, partial_route_plan = None, permutation = None,
          improve = False, to_bus = False):
     #prefix = "C://Users//David//Documents//UCLA//SchoolBusResearch//data//csvs//"
-    prefix = "data//"
+    prefix = "data_by_spec//"
     output = setup_students(prefix+'RGSP_Combined.csv',
                             prefix+'all_geocodes.csv',
                             prefix+'school_info.csv',
@@ -27,7 +27,8 @@ def main(method, sped, partial_route_plan = None, permutation = None,
     schools_students_map = output[1]
     all_schools = output[2]
     stops = setup_stops(schools_students_map)
-    buses = setup_buses(prefix+'dist_bus_capacities_sped.csv', sped)
+    setup_school_pairs(prefix+'forbidden_school_pairs.csv', prefix+'allowed_school_pairs.csv')
+    buses = setup_buses(prefix+'dist_bus_capacities_cleaned.csv', sped)
     setup_mod_caps(prefix+'modified_capacities.csv')
     if constants.VERBOSE:
         print(len(students))
@@ -177,7 +178,7 @@ def vary_params(sped, minutes = None):
         constants.SCH_DIST_WEIGHT = random.random()*.5 + .7
         constants.STOP_DIST_WEIGHT = random.random()*.2
         constants.EVALUATION_CUTOFF = random.random()*500 - 300
-        constants.MAX_SCHOOL_DIST = random.random()*600 + 800
+        #constants.MAX_SCHOOL_DIST = 850
         
         #Test these parameters
         routes_returned = main("mine", sped)
@@ -232,14 +233,14 @@ def full_run():
     global start_time
     #First, try to find good parameters by doing quick runs that
     #don't do improvement procedures or bus assignment.
-    setup_parameters('data//parameters.csv', True)
+    setup_parameters('data_by_spec//parameters.csv', True)
     start_time = process_time()
-    vary_params(True, minutes = constants.MINUTES_PER_SEGMENT)
+    vary_params(True, minutes = min(5, constants.MINUTES_PER_SEGMENT/2))
     start_time = process_time()
     sped_routes = permutation_approach(True, minutes = constants.MINUTES_PER_SEGMENT)
-    setup_parameters('data//parameters.csv', False)
+    setup_parameters('data_by_spec//parameters.csv', False)
     start_time = process_time()
-    vary_params(False, minutes = constants.MINUTES_PER_SEGMENT)
+    vary_params(False, minutes = min(10, constants.MINUTES_PER_SEGMENT/2))
     start_time = process_time()
     magnet_routes = permutation_approach(False, minutes = constants.MINUTES_PER_SEGMENT)
     all_routes = sped_routes + magnet_routes
@@ -247,10 +248,15 @@ def full_run():
     print("Mean student travel time of magnet routes: " + str(mstt(magnet_routes)) + " minutes")
     print("Final number of special ed routes: " + str(len(sped_routes)))
     print("Mean student travel time of special ed routes: " + str(mstt(sped_routes)) + " minutes")
+    write_output("data_by_spec//RGSP_Combined.csv", "output//spec2_results.csv", all_routes)
     return all_routes
     
 
 result = full_run()
+saving = open("output//using_new_spec.obj", "wb")
+pickle.dump(result, saving)
+saving.close()
+
 #savings_routes = main("savings", improve = True, buses = False)        
 #final_result = permutation_approach(False, 2000)
 #vary_params()

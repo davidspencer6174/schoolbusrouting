@@ -91,15 +91,17 @@ def setup_students(students_filename, all_geocodes,
     all_schools = set()
     student_records = open(students_filename, 'r')
     student_records.readline()  #header
+    ind = 0  #keeping track of row to associate with students
     for student_record in student_records.readlines():
+        ind += 1
         fields = student_record.strip().split(",")
-        school = fields[5].strip()
-        stop_ind = fetch_ind(fields[0].strip() + ";" + fields[1].strip(),
+        school = fields[6].strip()
+        stop_ind = fetch_ind(fields[1].strip() + ";" + fields[2].strip(),
                              codes_inds_map)
         school_ind = fetch_ind(schools_codes_map[school],
                                codes_inds_map)
-        grade = fields[2].strip()
-        stud_sped = (fields[4] == "SP")
+        grade = fields[3].strip()
+        stud_sped = (fields[5] == "SP")
         #Not the type of student we are currently routing
         if stud_sped != sped:
             continue
@@ -139,10 +141,10 @@ def setup_students(students_filename, all_geocodes,
                     ind_school_dict[school_ind].latest_pickup = customtimes[3]
             all_schools.add(ind_school_dict[school_ind])
         this_student = Student(stop_ind, ind_school_dict[school_ind],
-                               age_type, fields, sped)
+                               age_type, fields, ind, sped)
         students.append(this_student)
         schools_students_map[school].add(this_student)
-        needs = fields[3].split(";")
+        needs = fields[4].split(";")
         #Add special needs
         for need in needs:
             #Splitting an empty string returns one empty string -
@@ -236,4 +238,25 @@ def setup_parameters(parameters_filename, sped):
     constants.MSTT_WEIGHT = float(fields[3])
     constants.MINUTES_PER_SEGMENT = float(fields[4])/2
     constants.SLACK = float(fields[5])
+    constants.MAX_SCHOOL_DIST = float(fields[6])*60
     parameters_file.close()
+    
+def setup_school_pairs(forbidden_pairs_filename, allowed_pairs_filename):
+    constants.ALLOWED_SCHOOL_PAIRS = set()
+    constants.FORBIDDEN_SCHOOL_PAIRS = set()
+    forbidden_file = open(forbidden_pairs_filename, 'r')
+    for forbidden_pair in forbidden_file.readlines():
+        fields = forbidden_pair.split(",")
+        if len(fields) < 2:
+            continue
+        constants.FORBIDDEN_SCHOOL_PAIRS.add((fields[0], fields[1]))
+        constants.FORBIDDEN_SCHOOL_PAIRS.add((fields[1], fields[0]))
+    allowed_file = open(allowed_pairs_filename, 'r')
+    for allowed_pair in allowed_file.readlines():
+        fields = allowed_pair.split(",")
+        if len(fields) < 2:
+            continue
+        constants.ALLOWED_SCHOOL_PAIRS.add((fields[0], fields[1]))
+        constants.ALLOWED_SCHOOL_PAIRS.add((fields[1], fields[0]))
+    forbidden_file.close()
+    allowed_file.close()
