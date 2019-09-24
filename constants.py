@@ -74,7 +74,7 @@ EARLIEST_AM = 1800
 LATEST_AM = 600
 #Valid PM arrival times are [endtime + EARLIEST_PM, endtime + LATEST_PM]
 EARLIEST_PM = 600
-LATEST_PM = 1800
+LATEST_PM = 1200
 
 #Determines the relative importance of number of routes and
 #mean student travel time.
@@ -89,3 +89,8 @@ MINUTES_PER_SEGMENT = 10
 #distance from school in single-load initialization
 #ALPHAS = [0.0, 0.1, 0.2, 0.3, 0.4]
 ALPHAS = [0.0]
+
+#Option to explicitly allow or forbit a pair of schools
+#regardless of the distance between them.
+ALLOWED_SCHOOL_PAIRS = set()
+FORBIDDEN_SCHOOL_PAIRS = set()

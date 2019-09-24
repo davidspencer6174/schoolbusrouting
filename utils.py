@@ -2,6 +2,46 @@ import constants
 import itertools
 import numpy as np
 
+def write_output(students_filename, output_filename, route_plan):
+    from diagnostics import google_maps_strings
+    print("Saving data...")
+    
+    to_save = open(output_filename, 'w')
+    student_records = open(students_filename, 'r')
+    
+    lines = []
+    header_line = student_records.readline().replace(",", "\t").strip()  #header
+    header_line += "\tStudent ID\tRoute number\tSchool name\tBus capacity\tRoute occupants\tStop occupants\tGoogle Maps link"
+    lines.append(header_line)
+    for student_record in student_records.readlines():
+        student_record = student_record.replace(",", "\t").strip()
+        lines.append(student_record)
+    for (route_num, route) in enumerate(route_plan):
+        for stop in route.stops:
+            for stud in stop.students:
+                ind = stud.file_index
+                lines[ind] += "\t" + str(stud.student_id_number)
+                lines[ind] += "\t" + str(route_num)
+                lines[ind] += "\t" + str(stud.school.school_name)
+                lines[ind] += "\t"
+                if route.bus != None:
+                    lines[ind] += str(route.bus.capacity)
+                lines[ind] += "\t" + str(route.occupants)
+                occs_at_stop = 0
+                for stop2 in route.stops:
+                    if stop2.tt_ind == stop.tt_ind:
+                        occs_at_stop += stop2.occs
+                lines[ind] += "\t" + str(occs_at_stop)
+                lines[ind] += "\t"
+                for link in google_maps_strings(route):
+                    lines[ind] += link + " "
+                lines[ind] = lines[ind].strip()
+    for line in lines:
+        to_save.write(line + "\n")
+    to_save.close()
+    print("Done saving data.")
+    
+
 #Used to get the data into a full address format        
 def californiafy(address):
     return address[:-6] + " California," + address[-6:]

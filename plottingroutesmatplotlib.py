@@ -127,17 +127,22 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
                                          points[len(r.stops) - 1][1],
                                          message, ha='center', va='center',
                                          fontsize = 5))
+    need_show_legend = False
     if to_plot != None:
+        for r in to_plot:
+            if len(r.special_ed_students) > 0:
+                need_show_legend = True
+    if need_show_legend:
         message_legend = ("W=wheelchair\nL=non-ambulatory\nA=adult supervision\nI" +
                           "=individual supervision\nF=final stop\nT=custom time" +
                           "\nM=machine needed")
         texts.append(plt.text(.1, .1, message_legend,
                               ha='center', va='center', fontsize = 6))
     adjust_text(texts, precision = .1, text_from_points = False)
-    prefix = ("output//0705presentation//routeplots//")
+    prefix = ("output//0805presentation//rgplots//")
     plt.axis('off')
     if to_plot == None:
-        fig.savefig(prefix + 'spedroutes_all_annotated.eps', bbox_inches = 'tight',
+        fig.savefig(prefix + filename, bbox_inches = 'tight',
                     pad_inches = 0)
     else:
         fig.savefig(prefix + filename, bbox_inches = 'tight',
@@ -148,23 +153,25 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
     
     
 
-loading = open("output//routesfor0705pres.obj", "rb")
+loading = open("output//topresent0805.obj", "rb")
 obj = pickle.load(loading)
 loading.close()
 
-#vb_routes = []
-#for ind in range(len(obj)):
-#    r = obj[ind]
-#    to_store = False
-#    for school in r.schools:
-#        to_store = to_store or ("BALBOA" in school.school_name and "LAKE" not in school.school_name)
-#        to_store = to_store or ("VINTAGE" in school.school_name)
-#    if to_store:
-#        vb_routes.append((r, ind))
-routes = []
+toplot_routes = []
 for ind in range(len(obj)):
     r = obj[ind]
-    routes.append((r, ind))
+    to_store = False
+    for school in r.schools:
+        to_store = to_store or ("BALBOA" in school.school_name.upper() and "LAKE" not in school.school_name.upper())
+        to_store = to_store or ("VINTAGE" in school.school_name.upper())
+    #for school in r.schools:
+    #    to_store = to_store or "SALVIN" in school.school_name.upper()
+    if to_store:
+        toplot_routes.append((r, ind))
+#routes = []
+#for ind in range(len(obj)):
+#    r = obj[ind]
+#    routes.append((r, ind))
 
 
 geocodes_file = open("data//all_geocodes.csv", "r")
@@ -178,9 +185,14 @@ for code in geocodes_file.readlines():
     geocodes.append(latlong)
 geocodes_file.close()
 
+#toplot_routes = [(obj[226], 226), (obj[531], 531)]
+#toplot_routes = [(new_r1, 2.1), (new_r2, 5.1)]
+#toplot_routes = [(obj[385], 385), (obj[386], 386)]
+toplot_routes = [(new_route_226, 226.1), (new_route_531, 531.1)]
+
 xres = 1.0
 yres = 0.98
-plot_routes(routes, geocodes, xres, yres)
-for ind, route_with_ind in enumerate(routes):
-    plot_routes(routes, geocodes, xres, yres,
-                [route_with_ind[0]], 'sped_routes' + str(ind) + '_annotated.eps')
+plot_routes(toplot_routes, geocodes, xres, yres, filename = 'routes_226_and_531_uncrossed.eps')
+#for ind, route_with_ind in enumerate(toplot_routes):
+#    plot_routes(toplot_routes, geocodes, xres, yres,
+#                [route_with_ind[0]], 'rg_routes' + str(ind) + '_annotated.eps')

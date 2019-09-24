@@ -10,14 +10,17 @@ def trav_time(loc1, loc2):
 
 #Returns a dictionary from Schools to sets of
 #Schools, where the set of Schools consists of
-#all schools within MAX_SCHOOL_DIST minutes of the input
+#all schools within MAX_SCHOOL_DIST seconds of the input
 #school.
 def determine_school_proximities(schools):
     near_schools = dict()
     for school1 in schools:
         near_schools[school1] = set()
         for school2 in schools:
-            if (trav_time(school1, school2) <= constants.MAX_SCHOOL_DIST):
+            if ((trav_time(school1, school2) <= constants.MAX_SCHOOL_DIST) and
+                (school1.school_name, school2.school_name) not in constants.FORBIDDEN_SCHOOL_PAIRS):
+                near_schools[school1].add(school2)
+            if (school1.school_name, school2.school_name) in constants.ALLOWED_SCHOOL_PAIRS:
                 near_schools[school1].add(school2)
     return near_schools
 

@@ -71,8 +71,9 @@ def printout(route):
     print("*********************************************************")
     for i in range(3):
         print()
-            
-def printout_google_maps(route):
+    
+def google_maps_strings(route):
+    maps_strings = []
     locs = route.stops + route.schools
     link = "https://www.google.com/maps/dir"
     appended = 0
@@ -83,11 +84,18 @@ def printout_google_maps(route):
             #Can only have 10 locations in a Maps link, so need to do another
             #link
             if appended == 10 and i < len(locs) - 1:
-                print(link)
-                print("Need to start an additional link")
+                maps_strings.append(link)
                 link = "https://www.google.com/maps/dir"
                 link = append_to_link(link, locs[i].tt_ind)
-    print(link)
+    maps_strings.append(link)
+    return maps_strings
+            
+def printout_google_maps(route):
+    strings_to_print = google_maps_strings(route)
+    for (i, maps_string) in enumerate(strings_to_print):
+        if i > 0:
+            print("Need to start an additional link")
+        print(maps_string)
     
 def print_all(route_iter):
     for r in route_iter:
@@ -110,10 +118,10 @@ def diagnostics(route_iter):
         else:
             num_singleload += 1
         num_students += route.occupants
-        if route.unmodified_bus_capacity in buses_used:
-            buses_used[route.unmodified_bus_capacity] += 1
-        else:
-            buses_used[route.unmodified_bus_capacity] = 1
+        if route.bus != None and route.bus.capacity in buses_used:
+            buses_used[route.bus.capacity] += 1
+        elif route.bus != None:
+            buses_used[route.bus.capacity] = 1
     print("Number of routes: " + str(len(route_list)))
     print("Number of students picked up: " + str(num_students))
     for cap in sorted(buses_used.keys()):
@@ -239,5 +247,4 @@ def display_utilization(route_plan, filename, rplanname):
 #loading = open("output//8minutesdropoffgreedyb.obj", "rb")
 #obj = pickle.load(loading)
 #diagnostics(obj)
-#loading.close()
-            
+#loading.close()   

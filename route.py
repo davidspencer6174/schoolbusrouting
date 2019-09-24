@@ -251,7 +251,10 @@ class Route:
             return memoized_timechecks[tuple(school_perm)]
         for school1 in school_perm:
             for school2 in school_perm:
-                if trav_time(school1, school2) > constants.MAX_SCHOOL_DIST:
+                if (trav_time(school1, school2) > constants.MAX_SCHOOL_DIST and
+                    not (school1.school_name, school2.school_name) in constants.ALLOWED_SCHOOL_PAIRS):
+                    return (False, 0)
+                if (school1.school_name, school2.school_name) in constants.FORBIDDEN_SCHOOL_PAIRS:
                     return (False, 0)
         #First, check for the morning routes
         time = 0
@@ -480,47 +483,6 @@ class Route:
                 print(self.bus.capacity)
             return False
         return True
-    
-    #Given a capacity, checks the age of the student and
-    #stores the corresponding capacity
-    def set_bus(self, bus):
-        self.bus = bus
-    
-    #Accepts a bus array of length 3
-    #The first number is the allowable number of elementary students
-    #to assign, then  middle, then high
-    #Returns whether it is valid to assign the bus to the route
-    #to_add field allows checking whether it would be acceptable in
-    #the presence of an addition.
-    def is_acceptable(self, bus):
-        cap = bus.capacity
-        e = 0
-        m = 0
-        h = 0
-        #Two types of supervisors that each take as much space as 2 H.
-        #HCA/private nurses (different, but treated same) are for
-        #individual students.
-        #General supervisors can cover the whole bus.
-        hca = 0
-        sup_required = False
-        for stop in self.stops:
-            for stud in self.students:
-                #Machine: takes up a full bench.
-                if stud.has_need('M'):
-                    h += 2
-                    continue
-                e += (stud.type == 'E')
-                m += (stud.type == 'M')
-                h += (stud.type == 'H')
-                #HCA, private nurse, supervisor: takes up a full bench.
-                if stud.has_need('I'):
-                    hca += 1
-                if stud.has_need('A'):
-                    sup_required = True
-        mod_caps = constants.CAPACITY_MODIFIED_MAP[cap]
-        prop_occupied = (e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2] +
-                         (hca+sup_required)*2/mod_caps[2])
-        return (prop_occupied <= 1)
     
     #Check whether it is feasible to add more students of type
     #stud_type to the route given the bus
