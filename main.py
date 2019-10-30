@@ -7,31 +7,36 @@ from mixedloads import mixed_loads
 import pickle
 import random
 from savingsbasedroutegeneration import clarke_wright_savings
-from setup import setup_buses, setup_stops, setup_students, setup_mod_caps, setup_parameters, setup_school_pairs
+from setup import setup_buses, setup_map_data, setup_stops, setup_students, setup_mod_caps, setup_parameters, setup_school_pairs
 from generateroutes import generate_routes
 from busassignment_bruteforce import assign_buses
 import numpy as np
+import threading
+import tkinter
+from tkinter.filedialog import askopenfilename
 from utils import improvement_procedures, stud_trav_time_array, mstt, write_output
 
 global start_time
 
 def main(method, sped, partial_route_plan = None, permutation = None,
          improve = False, to_bus = False):
-    #prefix = "C://Users//David//Documents//UCLA//SchoolBusResearch//data//csvs//"
-    prefix = "data_by_spec//"
-    output = setup_students(prefix+'RGSP_Combined.csv',
-                            prefix+'all_geocodes.csv',
-                            prefix+'school_info.csv',
+    output = setup_students(constants.FILENAMES[0],
+                            constants.FILENAMES[4],
+                            constants.FILENAMES[1],
                             sped)
     students = output[0]
     schools_students_map = output[1]
     all_schools = output[2]
     stops = setup_stops(schools_students_map)
-    setup_school_pairs(prefix+'forbidden_school_pairs.csv', prefix+'allowed_school_pairs.csv')
-    buses = setup_buses(prefix+'dist_bus_capacities_cleaned.csv', sped)
-    setup_mod_caps(prefix+'modified_capacities.csv')
+    setup_school_pairs(constants.FILENAMES[8], constants.FILENAMES[7])
+    buses = setup_buses(constants.FILENAMES[2], sped)
+    setup_mod_caps(constants.FILENAMES[5])
     if constants.VERBOSE:
         print(len(students))
+        schools_count = set()
+        for student in students:
+            schools_count.add(student.school)
+        print(len(schools_count))
         print(len(schools_students_map))
         
     routes = None
@@ -220,25 +225,36 @@ def vary_params(sped, minutes = None):
               str(constants.MAX_SCHOOL_DIST) + " " +
               str(len(routes_returned)) + " " + 
               str(mean_stud_trav_time))
-        if minutes != None and process_time() > start_time + 60*minutes:
-            break
+        if minutes != None:
+            #Check whether we have already exceeded the maximum time
+            if process_time() - start_time > + 60*minutes:
+                break
+            #Check whether the next iteration is likely to
+            #exceed the maximum time
+            if (process_time() - start_time)*(i+2)/(i+1) > 60*minutes:
+                break
     (constants.SCH_DIST_WEIGHT, constants.STOP_DIST_WEIGHT,
      constants.EVALUATION_CUTOFF, constants.MAX_SCHOOL_DIST) = best_params
     return best_results
+
+working_on_sped = True
 
 #Does a full run, that is, makes a route plan for special ed
 #without considering buses and makes a route plan for
 #magnet with consideration of buses.
 def full_run():
-    global start_time
+    global start_time, working_on_sped
+    setup_map_data(constants.FILENAMES[3])
     #First, try to find good parameters by doing quick runs that
     #don't do improvement procedures or bus assignment.
-    setup_parameters('data_by_spec//parameters.csv', True)
-    start_time = process_time()
-    vary_params(True, minutes = min(5, constants.MINUTES_PER_SEGMENT/2))
-    start_time = process_time()
-    sped_routes = permutation_approach(True, minutes = constants.MINUTES_PER_SEGMENT)
-    setup_parameters('data_by_spec//parameters.csv', False)
+    setup_parameters(constants.FILENAMES[6], True)
+    #working_on_sped = True
+    #start_time = process_time()
+    #vary_params(True, minutes = min(5, constants.MINUTES_PER_SEGMENT/2))
+    #start_time = process_time()
+    #sped_routes = permutation_approach(True, minutes = constants.MINUTES_PER_SEGMENT)
+    setup_parameters(constants.FILENAMES[6], False)
+    working_on_sped = False
     start_time = process_time()
     vary_params(False, minutes = min(10, constants.MINUTES_PER_SEGMENT/2))
     start_time = process_time()
@@ -249,13 +265,92 @@ def full_run():
     print("Final number of special ed routes: " + str(len(sped_routes)))
     print("Mean student travel time of special ed routes: " + str(mstt(sped_routes)) + " minutes")
     write_output("data_by_spec//RGSP_Combined.csv", "output//spec2_results.csv", all_routes)
+    saving = open("output//running_with_gui.obj", "wb")
+    pickle.dump(all_routes, saving)
+    saving.close()
     return all_routes
+
+files_needed = ["Student data", "School data", "Bus data", "Map data",
+                "Geocodes for map data", "Bus capacities for different ages",
+                "Parameters", "Explicitly allowed school pairs (optional)",
+                "Explicitly forbidden school pairs (optional)"]
+
+top = tkinter.Tk()
+textboxes = [None for i in range(9)]
+buttons = [None for i in range(9)]
+time_elapsed_label = None
+
+filenames = None
+try:
+    filenames_save = open("filenames_save", "rb")
+    filenames = pickle.load(filenames_save)
+    filenames_save.close()
+    print(filenames)
+except:
+    filenames = ["" for i in range(9)]
+        
+
+def update_time():
+    minutes_elapsed = int((process_time() - start_time)/60)
+    to_display_text = "Initializing"
+    if constants.MINUTES_PER_SEGMENT != None:
+        to_display_text = "Working on non-special ed routes\n"
+        if working_on_sped:
+            to_display_text = "Working on special ed routes\n"
+        to_display_text += (str(minutes_elapsed) + " minutes out of " +
+                            "approximately " + str(int(constants.MINUTES_PER_SEGMENT)) +
+                            " minutes.")
+    
+    time_elapsed_label.config(text = to_display_text)
+    top.after(30000, lambda: update_time())
+
+def set_file_text(index, text):
+    textboxes[index].delete(1.0, tkinter.END)
+    textboxes[index].insert(tkinter.END, text)
+
+def set_file(index):
+    print(index)
+    filenames[index] = askopenfilename()
+    set_file_text(index, filenames[index])
+  
+def create_routes():
+    global start_time
+    constants.FILENAMES = filenames
+    
+    #Save filenames to prevent having to type them in every time
+    filenames_save = open("filenames_save", "wb")
+    pickle.dump(filenames, filenames_save)
+    filenames_save.close()
+    
+    threading.Thread(target = full_run).start()
+    start_time = process_time()
+    update_time()
     
 
-result = full_run()
-saving = open("output//using_new_spec.obj", "wb")
-pickle.dump(result, saving)
-saving.close()
+def run_gui(buttons, textboxes):
+    global time_elapsed_label, filenames
+    
+    for i in range(9):
+        buttons[i] = tkinter.Button(top, text=files_needed[i], command = lambda c=i: set_file(c))
+        textboxes[i] = tkinter.Text(top, height = 1)
+        set_file_text(i, filenames[i])
+        buttons[i].pack()
+        textboxes[i].pack()
+        
+    start_button = tkinter.Button(top, text="Create Routes", command = create_routes)
+    start_button.pack()
+    
+    time_elapsed_label = tkinter.Label(top, text = '')
+    time_elapsed_label.pack()
+    
+    top.mainloop()
+    
+run_gui(buttons, textboxes)
+
+#result = full_run()
+#saving = open("output//using_new_spec.obj", "wb")
+#pickle.dump(result, saving)
+#saving.close()
 
 #savings_routes = main("savings", improve = True, buses = False)        
 #final_result = permutation_approach(False, 2000)
