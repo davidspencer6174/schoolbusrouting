@@ -248,11 +248,11 @@ def full_run():
     #First, try to find good parameters by doing quick runs that
     #don't do improvement procedures or bus assignment.
     setup_parameters(constants.FILENAMES[6], True)
-    #working_on_sped = True
-    #start_time = process_time()
-    #vary_params(True, minutes = min(5, constants.MINUTES_PER_SEGMENT/2))
-    #start_time = process_time()
-    #sped_routes = permutation_approach(True, minutes = constants.MINUTES_PER_SEGMENT)
+    working_on_sped = True
+    start_time = process_time()
+    vary_params(True, minutes = min(5, constants.MINUTES_PER_SEGMENT/2))
+    start_time = process_time()
+    sped_routes = permutation_approach(True, minutes = constants.MINUTES_PER_SEGMENT)
     setup_parameters(constants.FILENAMES[6], False)
     working_on_sped = False
     start_time = process_time()
