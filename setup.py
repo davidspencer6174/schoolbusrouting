@@ -1,5 +1,6 @@
 import constants
-from locations import Bus, School, Stop, Student
+from locations import Bus, School, Stop, Student 
+import numpy as np
 from utils import californiafy, timesecs
 
 #Given an index and a dictionary from geocodes to indices,
@@ -164,6 +165,10 @@ def setup_students(students_filename, all_geocodes,
     return students, schools_students_map, all_schools
 
 
+def setup_map_data(mapdata_filename):
+    constants.TRAVEL_TIMES = np.load(constants.FILENAMES[3])*constants.TT_MULT
+
+
 
 #bus_capacities is an input csv file where the first
 #column is bus ID and the second is capacity.
@@ -244,19 +249,21 @@ def setup_parameters(parameters_filename, sped):
 def setup_school_pairs(forbidden_pairs_filename, allowed_pairs_filename):
     constants.ALLOWED_SCHOOL_PAIRS = set()
     constants.FORBIDDEN_SCHOOL_PAIRS = set()
-    forbidden_file = open(forbidden_pairs_filename, 'r')
-    for forbidden_pair in forbidden_file.readlines():
-        fields = forbidden_pair.split(",")
-        if len(fields) < 2:
-            continue
-        constants.FORBIDDEN_SCHOOL_PAIRS.add((fields[0], fields[1]))
-        constants.FORBIDDEN_SCHOOL_PAIRS.add((fields[1], fields[0]))
-    allowed_file = open(allowed_pairs_filename, 'r')
-    for allowed_pair in allowed_file.readlines():
-        fields = allowed_pair.split(",")
-        if len(fields) < 2:
-            continue
-        constants.ALLOWED_SCHOOL_PAIRS.add((fields[0], fields[1]))
-        constants.ALLOWED_SCHOOL_PAIRS.add((fields[1], fields[0]))
-    forbidden_file.close()
-    allowed_file.close()
+    if forbidden_pairs_filename != "":
+        forbidden_file = open(forbidden_pairs_filename, 'r')
+        for forbidden_pair in forbidden_file.readlines():
+            fields = forbidden_pair.split(",")
+            if len(fields) < 2:
+                continue
+            constants.FORBIDDEN_SCHOOL_PAIRS.add((fields[0], fields[1]))
+            constants.FORBIDDEN_SCHOOL_PAIRS.add((fields[1], fields[0]))
+        forbidden_file.close()
+    if allowed_pairs_filename != "":
+        allowed_file = open(allowed_pairs_filename, 'r')
+        for allowed_pair in allowed_file.readlines():
+            fields = allowed_pair.split(",")
+            if len(fields) < 2:
+                continue
+            constants.ALLOWED_SCHOOL_PAIRS.add((fields[0], fields[1]))
+            constants.ALLOWED_SCHOOL_PAIRS.add((fields[1], fields[0]))
+        allowed_file.close()

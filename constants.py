@@ -33,8 +33,7 @@ TT_MULT = 1.5
 #picking up other students.
 SLACK = 1.1
  
-#Load travel time matrix and multiply by TT_MULT
-TRAVEL_TIMES = np.load("data//travel_time_matrix.npy")*TT_MULT
+TRAVEL_TIMES = None
 
 #Max allowable travel time in seconds
 MAX_TIME = 3600
@@ -83,7 +82,7 @@ LATEST_PM = 1200
 MSTT_WEIGHT = .01
 
 #Denotes approximately how much time to spend on each segment
-MINUTES_PER_SEGMENT = 10
+MINUTES_PER_SEGMENT = None
 
 #Constants to govern weighting of importance of
 #distance from school in single-load initialization
@@ -94,3 +93,6 @@ ALPHAS = [0.0]
 #regardless of the distance between them.
 ALLOWED_SCHOOL_PAIRS = set()
 FORBIDDEN_SCHOOL_PAIRS = set()
+
+#List of filenames to be read
+FILENAMES = [None for i in range(9)]
