@@ -1,5 +1,6 @@
 import constants
 import copy
+from datetime import datetime
 from greedymoves import make_greedy_moves
 from time import process_time
 from locations import Student
@@ -17,6 +18,8 @@ from tkinter.filedialog import askopenfilename
 from utils import improvement_procedures, stud_trav_time_array, mstt, write_output
 
 global start_time
+global start_time_orig
+run_finished = False
 
 def main(method, sped, partial_route_plan = None, permutation = None,
          improve = False, to_bus = False):
@@ -154,8 +157,14 @@ def permutation_approach(sped, iterations = 100, minutes = None):
             if test > 0:
                 successes.append(num_to_swap)
                 print(successes)
-        if minutes != None and process_time() > start_time + 60*minutes:
-            break
+        if minutes != None:
+            #Check whether we have already exceeded the maximum time
+            if process_time() - start_time > 60*minutes:
+                break
+            #Check whether the next iteration is likely to
+            #exceed the maximum time
+            if (process_time() - start_time)*(test+2)/(test+1) > 60*minutes:
+                break
         print(str(new_num_routes) + " " + str(new_mstt))
     return best_routes    
     #final_routes = main("mine", sped, permutation = best_perm, improve = True)
@@ -227,7 +236,7 @@ def vary_params(sped, minutes = None):
               str(mean_stud_trav_time))
         if minutes != None:
             #Check whether we have already exceeded the maximum time
-            if process_time() - start_time > + 60*minutes:
+            if process_time() - start_time > 60*minutes:
                 break
             #Check whether the next iteration is likely to
             #exceed the maximum time
@@ -243,31 +252,38 @@ working_on_sped = True
 #without considering buses and makes a route plan for
 #magnet with consideration of buses.
 def full_run():
-    global start_time, working_on_sped
+    global start_time, start_time_orig, working_on_sped, run_finished
+    run_finished = False
     setup_map_data(constants.FILENAMES[3])
     #First, try to find good parameters by doing quick runs that
     #don't do improvement procedures or bus assignment.
     setup_parameters(constants.FILENAMES[6], True)
     working_on_sped = True
     start_time = process_time()
+    start_time_orig = process_time()
     vary_params(True, minutes = min(5, constants.MINUTES_PER_SEGMENT/2))
     start_time = process_time()
-    sped_routes = permutation_approach(True, minutes = constants.MINUTES_PER_SEGMENT)
+    sped_routes = permutation_approach(True, minutes = constants.MINUTES_PER_SEGMENT*3/2)
     setup_parameters(constants.FILENAMES[6], False)
     working_on_sped = False
     start_time = process_time()
+    start_time_orig = process_time()
     vary_params(False, minutes = min(10, constants.MINUTES_PER_SEGMENT/2))
     start_time = process_time()
-    magnet_routes = permutation_approach(False, minutes = constants.MINUTES_PER_SEGMENT)
+    magnet_routes = permutation_approach(False, minutes = constants.MINUTES_PER_SEGMENT*3/2)
     all_routes = sped_routes + magnet_routes
     print("Final number of magnet routes: " + str(len(magnet_routes)))
     print("Mean student travel time of magnet routes: " + str(mstt(magnet_routes)) + " minutes")
     print("Final number of special ed routes: " + str(len(sped_routes)))
     print("Mean student travel time of special ed routes: " + str(mstt(sped_routes)) + " minutes")
-    write_output("data_by_spec//RGSP_Combined.csv", "output//spec2_results.csv", all_routes)
-    saving = open("output//running_with_gui.obj", "wb")
-    pickle.dump(all_routes, saving)
-    saving.close()
+    output_filename = datetime.now().strftime("output//results_%Y-%m-%d_%H%M%S.csv")
+    write_output(constants.FILENAMES[0], output_filename, all_routes)
+    
+    object_output_filename = datetime.now().strftime("output//obj_files_%Y-%m-%d_%H%M%S.obj")
+    saving_objects = open(object_output_filename, "wb")
+    pickle.dump(all_routes, saving_objects)
+    saving_objects.close()
+    run_finished = True
     return all_routes
 
 files_needed = ["Student data", "School data", "Bus data", "Map data",
@@ -291,18 +307,21 @@ except:
         
 
 def update_time():
-    minutes_elapsed = int((process_time() - start_time)/60)
+    minutes_elapsed = int((process_time() - start_time_orig)/60)
     to_display_text = "Initializing"
     if constants.MINUTES_PER_SEGMENT != None:
         to_display_text = "Working on non-special ed routes\n"
         if working_on_sped:
             to_display_text = "Working on special ed routes\n"
         to_display_text += (str(minutes_elapsed) + " minutes out of " +
-                            "approximately " + str(int(constants.MINUTES_PER_SEGMENT)) +
+                            "approximately " + str(int(constants.MINUTES_PER_SEGMENT*2)) +
                             " minutes.")
     
     time_elapsed_label.config(text = to_display_text)
-    top.after(30000, lambda: update_time())
+    if run_finished:
+        time_elapsed_label.config(text = "Done")
+        return
+    top.after(10000, lambda: update_time())
 
 def set_file_text(index, text):
     textboxes[index].delete(1.0, tkinter.END)
@@ -314,7 +333,7 @@ def set_file(index):
     set_file_text(index, filenames[index])
   
 def create_routes():
-    global start_time
+    global start_time, start_time_orig
     constants.FILENAMES = filenames
     
     #Save filenames to prevent having to type them in every time
@@ -324,6 +343,7 @@ def create_routes():
     
     threading.Thread(target = full_run).start()
     start_time = process_time()
+    start_time_orig = process_time()
     update_time()
     
 
