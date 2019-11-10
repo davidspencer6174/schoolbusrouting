@@ -10,10 +10,10 @@ def trav_time(loc1, loc2):
     return constants.TRAVEL_TIMES[loc1.tt_ind,
                                   loc2.tt_ind]
 
-geocodes = open("data//all_geocodes.csv", "r")
-codes = []
-for code in geocodes.readlines():
-    codes.append(code.strip())
+#geocodes = open("data//all_geocodes.csv", "r")
+#codes = []
+#for code in geocodes.readlines():
+#    codes.append(code.strip())
 
 def ccw(p1, p2, p3):
     return (p3[1] - p1[1])*(p2[0] - p1[0]) > (p2[1] - p1[1])*(p3[0] - p1[0])
@@ -30,7 +30,7 @@ def virtual_crossing(r1, r2, i1, i2):
     return (d_new < d_current)
 
 def get_lat_long(stop):
-    code = codes[stop.tt_ind]
+    code = constants.GEOCODES[stop.tt_ind]
     latlong = code.split(";")
     latlong[0] = float(latlong[0])
     latlong[1] = float(latlong[1])
@@ -145,10 +145,7 @@ def check_all_uncrossings(route_plan):
     print(crossing_pairs_total)
     return uncrossings
     
-setup_parameters('data//parameters.csv', True)
-setup_mod_caps('data//modified_capacities.csv')
-    
-loading = open("output//topresent0805.obj", "rb")
-obj = pickle.load(loading)
-final_result_allschools = check_all_uncrossings(obj)
-loading.close()   
+#loading = open("output//topresent0805.obj", "rb")
+#obj = pickle.load(loading)
+#final_result_allschools = check_all_uncrossings(obj)
+#loading.close()   

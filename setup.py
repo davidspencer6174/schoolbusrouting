@@ -72,9 +72,11 @@ def setup_students(students_filename, all_geocodes,
     schools.close()
     
     geocodes = open(all_geocodes, 'r')
+    constants.GEOCODES = []
     codes_inds_map = dict()
     ind = 0
     for code in geocodes.readlines():
+        constants.GEOCODES.append(code.strip())
         codes_inds_map[code.strip()] = ind
         ind += 1
     geocodes.close()
