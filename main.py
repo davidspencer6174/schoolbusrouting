@@ -268,7 +268,7 @@ def full_run():
     working_on_sped = False
     start_time = process_time()
     start_time_orig = process_time()
-    vary_params(False, minutes = min(10, constants.MINUTES_PER_SEGMENT/2))
+    vary_params(False, minutes = min(20, constants.MINUTES_PER_SEGMENT/2))
     start_time = process_time()
     magnet_routes = permutation_approach(False, minutes = constants.MINUTES_PER_SEGMENT*3/2)
     all_routes = sped_routes + magnet_routes
@@ -291,7 +291,7 @@ files_needed = ["Student data", "School data", "Bus data", "Map data",
                 "Parameters", "Explicitly allowed school pairs (optional)",
                 "Explicitly forbidden school pairs (optional)"]
 
-top = tkinter.Tk()
+root = tkinter.Tk()
 textboxes = [None for i in range(9)]
 buttons = [None for i in range(9)]
 time_elapsed_label = None
@@ -321,7 +321,7 @@ def update_time():
     if run_finished:
         time_elapsed_label.config(text = "Done")
         return
-    top.after(10000, lambda: update_time())
+    root.after(10000, lambda: update_time())
 
 def set_file_text(index, text):
     textboxes[index].delete(1.0, tkinter.END)
@@ -346,24 +346,35 @@ def create_routes():
     start_time_orig = process_time()
     update_time()
     
+def open_spec(i):
+    spec_root = tkinter.Tk()
+    mess = tkinter.Message(spec_root, text = constants.SPEC_TEXT[i])
+    mess.pack()    
+    spec_root.mainloop()
 
 def run_gui(buttons, textboxes):
     global time_elapsed_label, filenames
     
     for i in range(9):
-        buttons[i] = tkinter.Button(top, text=files_needed[i], command = lambda c=i: set_file(c))
-        textboxes[i] = tkinter.Text(top, height = 1)
+        this_frame = tkinter.Frame(root)
+        this_frame.pack(side = tkinter.TOP)
+        
+        buttons[i] = tkinter.Button(root, text=files_needed[i], command = lambda c=i: set_file(c))
+        spec_button = tkinter.Button(root, text="View Spec", command = lambda c=i: open_spec(c))
+        textboxes[i] = tkinter.Text(root, height = 1)
+        
         set_file_text(i, filenames[i])
-        buttons[i].pack()
+        buttons[i].pack(in_ = this_frame, side = tkinter.LEFT)
+        spec_button.pack(in_ = this_frame, side = tkinter.LEFT)
         textboxes[i].pack()
         
-    start_button = tkinter.Button(top, text="Create Routes", command = create_routes)
+    start_button = tkinter.Button(root, text="Create Routes", command = create_routes)
     start_button.pack()
     
-    time_elapsed_label = tkinter.Label(top, text = '')
+    time_elapsed_label = tkinter.Label(root, text = '')
     time_elapsed_label.pack()
     
-    top.mainloop()
+    root.mainloop()
     
 run_gui(buttons, textboxes)
 

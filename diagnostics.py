@@ -5,15 +5,15 @@ import numpy as np
 import pickle
 from utils import stud_trav_time_array
 
-geocodes = open("data//all_geocodes.csv", "r")
-codes = []
-for code in geocodes.readlines():
-    codes.append(code.strip())
+#geocodes = open("data//all_geocodes.csv", "r")
+#codes = []
+#for code in geocodes.readlines():
+#    codes.append(code.strip())
 
 #Takes an index in the travel time matrix and returns the link with the
 #latitude-longitude pair appended            
 def append_to_link(link, tt_ind, slash=True):
-    latlong = codes[tt_ind].split(";")
+    latlong = constants.GEOCODES[tt_ind].split(";")
     if slash:
         link += "/"
     link += latlong[0]
@@ -244,7 +244,7 @@ def display_utilization(route_plan, filename, rplanname):
     plt.ylabel("Number of buses")
     plt.savefig(filename)
     
-#loading = open("output//8minutesdropoffgreedyb.obj", "rb")
+#loading = open("output//0mdist.obj", "rb")
 #obj = pickle.load(loading)
 #diagnostics(obj)
 #loading.close()   

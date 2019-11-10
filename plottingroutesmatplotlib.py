@@ -153,7 +153,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot = None, filename = None):
     
     
 
-loading = open("output//topresent0805.obj", "rb")
+loading = open("output//14mdist.obj", "rb")
 obj = pickle.load(loading)
 loading.close()
 
@@ -174,9 +174,8 @@ for ind in range(len(obj)):
 #    routes.append((r, ind))
 
 
-geocodes_file = open("data//all_geocodes.csv", "r")
 geocodes = []
-for code in geocodes_file.readlines():
+for code in constants.GEOCODES:
     latlong = code.split(";")
     if "\n" in latlong[1]:
         latlong[1] = latlong[1][:-2]
@@ -188,11 +187,11 @@ geocodes_file.close()
 #toplot_routes = [(obj[226], 226), (obj[531], 531)]
 #toplot_routes = [(new_r1, 2.1), (new_r2, 5.1)]
 #toplot_routes = [(obj[385], 385), (obj[386], 386)]
-toplot_routes = [(new_route_226, 226.1), (new_route_531, 531.1)]
+#toplot_routes = [(new_route_226, 226.1), (new_route_531, 531.1)]
 
 xres = 1.0
 yres = 0.98
-plot_routes(toplot_routes, geocodes, xres, yres, filename = 'routes_226_and_531_uncrossed.eps')
+plot_routes(toplot_routes, geocodes, xres, yres, filename = 'balboa_vintage.eps')
 #for ind, route_with_ind in enumerate(toplot_routes):
 #    plot_routes(toplot_routes, geocodes, xres, yres,
 #                [route_with_ind[0]], 'rg_routes' + str(ind) + '_annotated.eps')
