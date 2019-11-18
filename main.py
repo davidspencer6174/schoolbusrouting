@@ -15,6 +15,7 @@ import numpy as np
 import threading
 import tkinter
 from tkinter.filedialog import askopenfilename
+from tkinter.font import Font, nametofont
 from utils import improvement_procedures, stud_trav_time_array, mstt, write_output
 
 global start_time
@@ -296,6 +297,10 @@ textboxes = [None for i in range(9)]
 buttons = [None for i in range(9)]
 time_elapsed_label = None
 
+default_font = nametofont("TkDefaultFont")
+fontsize = 12
+default_font.configure(size=fontsize)
+
 filenames = None
 try:
     filenames_save = open("filenames_save", "rb")
@@ -328,7 +333,6 @@ def set_file_text(index, text):
     textboxes[index].insert(tkinter.END, text)
 
 def set_file(index):
-    print(index)
     filenames[index] = askopenfilename()
     set_file_text(index, filenames[index])
   
@@ -348,7 +352,7 @@ def create_routes():
     
 def open_spec(i):
     spec_root = tkinter.Tk()
-    mess = tkinter.Message(spec_root, text = constants.SPEC_TEXT[i])
+    mess = tkinter.Message(spec_root, text = constants.SPEC_TEXT[i], font = ("Helvetica", fontsize))
     mess.pack()    
     spec_root.mainloop()
 
@@ -360,8 +364,8 @@ def run_gui(buttons, textboxes):
         this_frame.pack(side = tkinter.TOP)
         
         buttons[i] = tkinter.Button(root, text=files_needed[i], command = lambda c=i: set_file(c))
-        spec_button = tkinter.Button(root, text="View Spec", command = lambda c=i: open_spec(c))
-        textboxes[i] = tkinter.Text(root, height = 1)
+        spec_button = tkinter.Button(root, text="View Specification", command = lambda c=i: open_spec(c))
+        textboxes[i] = tkinter.Text(root, height = 1, font = ("Courier", fontsize))
         
         set_file_text(i, filenames[i])
         buttons[i].pack(in_ = this_frame, side = tkinter.LEFT)

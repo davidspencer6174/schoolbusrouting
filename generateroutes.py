@@ -183,16 +183,16 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
                         value = stop.value
                         score = value - time_cost
                         
-                        new_crossings = 0
-                        for other_route in routes:
-                            if other_route == current_route:
-                                continue
-                            if len(route_pair_crossings(current_route, other_route)) > 0:
-                                new_crossings += 1
-                        if len(route_sp) == 0:
+                        #new_crossings = 0
+                        #for other_route in routes:
+                        #    if other_route == current_route:
+                        #        continue
+                        #    if len(route_pair_crossings(current_route, other_route)) > 0:
+                        #        new_crossings += 1
+                        #if len(route_sp) == 0:
                             #if new_crossings - old_crossings != 0:
                             #    print("ok")
-                            score = score - 1100*(new_crossings - old_crossings)
+                            #score = score - 1100*(new_crossings - old_crossings)
                         
                         #stop in the same place, but different age
                         if time_cost == 0:
