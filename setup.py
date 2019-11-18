@@ -257,8 +257,10 @@ def setup_school_pairs(forbidden_pairs_filename, allowed_pairs_filename):
             fields = forbidden_pair.split(",")
             if len(fields) < 2:
                 continue
-            constants.FORBIDDEN_SCHOOL_PAIRS.add((fields[0], fields[1]))
-            constants.FORBIDDEN_SCHOOL_PAIRS.add((fields[1], fields[0]))
+            constants.FORBIDDEN_SCHOOL_PAIRS.add((fields[0].strip(), fields[1].strip()))
+            constants.FORBIDDEN_SCHOOL_PAIRS.add((fields[1].strip(), fields[0].strip()))
+        print("Forbidden pairs:")
+        print(constants.FORBIDDEN_SCHOOL_PAIRS)
         forbidden_file.close()
     if allowed_pairs_filename != "":
         allowed_file = open(allowed_pairs_filename, 'r')
@@ -266,6 +268,6 @@ def setup_school_pairs(forbidden_pairs_filename, allowed_pairs_filename):
             fields = allowed_pair.split(",")
             if len(fields) < 2:
                 continue
-            constants.ALLOWED_SCHOOL_PAIRS.add((fields[0], fields[1]))
-            constants.ALLOWED_SCHOOL_PAIRS.add((fields[1], fields[0]))
+            constants.ALLOWED_SCHOOL_PAIRS.add((fields[0].strip(), fields[1].strip()))
+            constants.ALLOWED_SCHOOL_PAIRS.add((fields[1].strip(), fields[0].strip()))
         allowed_file.close()
