@@ -1,7 +1,9 @@
 import constants
 from locations import Bus, School, Stop, Student 
 import numpy as np
+from scipy import spatial
 from utils import californiafy, timesecs
+from fuzzywuzzy import fuzz
 
 #Given an index and a dictionary from geocodes to indices,
 #finds the index corresponding with the nearest geocode in
@@ -10,30 +12,37 @@ from utils import californiafy, timesecs
 def fetch_ind(code_to_find, codes_inds_map):
     if code_to_find in codes_inds_map:
         return codes_inds_map[code_to_find]
-    smallest_dist = 1000000
-    smallest_dist_ind = -1
+    if code_to_find in constants.GEOCODE_CACHE:
+        return constants.GEOCODE_CACHE[code_to_find]
     (latitude_to_find, longitude_to_find) = code_to_find.split(";")
     latitude_to_find = float(latitude_to_find)
     longitude_to_find = float(longitude_to_find)
-    nearest_code = None
-    for code in codes_inds_map:
-        (latitude, longitude) = code.split(";")
-        latitude = float(latitude)
-        longitude = float(longitude)
-        dist = ((latitude-latitude_to_find)**2 +
-                (longitude - longitude_to_find)**2)**.5
-        if dist < smallest_dist:
-            smallest_dist = dist
-            smallest_dist_ind = codes_inds_map[code]
-            nearest_code = code
-    if constants.VERBOSE:
-        print("Geocode " + code_to_find +
-              " not in matrix of known travel times; using " +
-              str(nearest_code))
-    return smallest_dist_ind
+    nearest_code_ind = constants.GEOCODE_KDTREE.query([latitude_to_find,
+                                                       longitude_to_find])[1]
+    constants.GEOCODE_CACHE[code_to_find] = nearest_code_ind
+    #print(nearest_code_ind)
+    return nearest_code_ind
+    #smallest_dist = 1000000
+    #smallest_dist_ind = -1
+    #(latitude_to_find, longitude_to_find) = code_to_find.split(";")
+    #latitude_to_find = float(latitude_to_find)
+    #longitude_to_find = float(longitude_to_find)
+    #nearest_code = None
+    #for code in codes_inds_map:
+    #    (latitude, longitude) = code.split(";")
+    #    latitude = float(latitude)
+    #    longitude = float(longitude)
+    #    dist = ((latitude-latitude_to_find)**2 +
+    #            (longitude - longitude_to_find)**2)**.5
+    #    if dist < smallest_dist:
+    #        smallest_dist = dist
+    #        smallest_dist_ind = codes_inds_map[code]
+    #        nearest_code = code
+    #constants.GEOCODE_CACHE[code_to_find] = smallest_dist_ind
+    #return smallest_dist_ind
         
 
-#students_file: a format I am using for special ed students
+#students_filename: name of file in a format I am using for special ed students
 #Columns are latitude, longitude, grade level, human-readable
 #description of special ed types (not used), text description.
 #all_geocodes: filename for list of all geocodes. gives map from geocode to ind
@@ -43,8 +52,13 @@ def fetch_ind(code_to_find, codes_inds_map):
 #bell_sched: file name for which column 3 is cost center and
 #column 4 is start time
 #sped flags whether this run is for SP students or RG students.
+#routing_type: 1 for all students, 2 for school by cost center number,
+#3 for school by exact name, 4 for school by approximate name
+#school_string: string defining the school to route in the way defined
+#by routing_type. This value is not used if routing_type is 1.
 def setup_students(students_filename, all_geocodes,
-                   geocoded_schools, sped):
+                   geocoded_schools, sped,
+                   routing_type, school_string):
     
     schools = open(geocoded_schools, 'r')
     schools_codes_map = dict()  #maps schools to geocodes
@@ -71,6 +85,26 @@ def setup_students(students_filename, all_geocodes,
                      schools_customtimes_map[fields[0]][i - 6] = timesecs(fields[i])
     schools.close()
     
+    #if we are doing fuzzy matching, figure out the actual school string
+    #to use
+    best_fuzzy_score = 0
+    best_name = ""
+    if routing_type == 4:
+        school_string = school_string.strip().upper()
+        for school in schools_names_map:
+            match_school_string = schools_names_map[school].strip().upper()
+            this_score = (fuzz.ratio(school_string, match_school_string) +
+                          fuzz.partial_ratio(school_string, match_school_string) +
+                          fuzz.token_sort_ratio(school_string, match_school_string))
+            if this_score > best_fuzzy_score:
+                best_fuzzy_score = this_score
+                best_name = schools_names_map[school]
+        print("School name to match: " + school_string)
+        print("Closest match: " + best_name)
+        routing_type = 3
+        school_string = best_name
+    
+    #Associate the geocodes with their indices in the travel time matrix
     geocodes = open(all_geocodes, 'r')
     constants.GEOCODES = []
     codes_inds_map = dict()
@@ -80,6 +114,17 @@ def setup_students(students_filename, all_geocodes,
         codes_inds_map[code.strip()] = ind
         ind += 1
     geocodes.close()
+    
+    #Store all of the geocodes in a KD tree for quick
+    #nearest-neighbor lookup
+    geocodes_list = []
+    for code in constants.GEOCODES:
+        this_code = code.split(";")
+        this_code[0] = float(this_code[0])
+        this_code[1] = float(this_code[1])
+        geocodes_list.append(this_code)
+    geocodes_list = np.array(geocodes_list)
+    constants.GEOCODE_KDTREE = spatial.KDTree(geocodes_list)
     
     schools_inds_map = dict()
     for school in schools_codes_map:
@@ -104,10 +149,17 @@ def setup_students(students_filename, all_geocodes,
         school_ind = fetch_ind(schools_codes_map[school],
                                codes_inds_map)
         grade = fields[3].strip()
-        stud_sped = (fields[5] == "SP")
+        stud_sped = (fields[5].strip().upper() == "SP" or fields[5].strip() == "SE".upper())
         #Not the type of student we are currently routing
         if stud_sped != sped:
             continue
+        #Not in the school we are currently routing
+        if routing_type > 1:
+            if routing_type == 2 and int(school_string.strip()) != int(school.strip()):
+                continue
+            if (routing_type == 3 and
+                school_string.strip().upper() != schools_names_map[school].strip().upper()):
+                continue
         age_type = 'Other'
         try:
             grade = int(grade)

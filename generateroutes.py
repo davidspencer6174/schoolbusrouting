@@ -93,7 +93,7 @@ def apply_partial_route_plan(partial_route_plan, all_stops, new_route_plan):
     print("Done applying partial route plan")
             
         
-def generate_routes(schools, permutation = None, partial_route_plan = None):
+def generate_routes(schools, permutation = None, partial_route_plan = None, sped = False):
     all_stops = []
     for school in schools:
         all_stops.extend(school.unrouted_stops)
@@ -106,25 +106,14 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
     #determinism of the sorting algorithm.
     all_stops = sorted(all_stops, key = lambda s: (-trav_time(s, s.school),
                                                    s.school.school_name))
+    if len(all_stops) == 0:
+        return []
     if permutation != None:
         all_stops = [all_stops[i] for i in permutation]
-    #Trying other things...
-#    all_stops = sorted(all_stops, key = lambda s: s.value)
-#    for swap in range(20):
-#        ind1 = randint(0, len(all_stops) - 1)
-#        ind2 = randint(0, len(all_stops) - 1)
-#        all_stops[ind1], all_stops[ind2] = all_stops[ind2], all_stops[ind1]
-#    #all_stops = sorted(all_stops, key = lambda s: (len(s.school.unrouted_stops['E'])+len(s.school.unrouted_stops['M'])+len(s.school.unrouted_stops['H'])))
     routes = []
     near_schools = determine_school_proximities(schools)
     if partial_route_plan != None:
         apply_partial_route_plan(partial_route_plan, all_stops, routes)
-        #all_stops = sorted(all_stops, key = lambda s: trav_time(s, s.school))
-        #all_stops = sorted(all_stops, key = lambda s: s.value)
-        #for swap in range(20):
-        #    ind1 = randint(0, len(all_stops) - 1)
-        #    ind2 = randint(0, len(all_stops) - 1)
-        #    all_stops[ind1], all_stops[ind2] = all_stops[ind2], all_stops[ind1]
     while len(all_stops) > 0:
         current_route = Route()
         #Pick up the most distant stop
@@ -134,6 +123,8 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
         all_stops.remove(init_stop)
         #Figure out which schools can be mixed with the stop
         admissible_schools = near_schools[root_school]
+        if sped: #special ed: no mixed load routing
+            admissible_schools = set([root_school])
         current_route.add_stop(init_stop)
         e_no_h = False
         h_no_e = False
@@ -150,49 +141,21 @@ def generate_routes(schools, permutation = None, partial_route_plan = None):
             best_score = constants.EVALUATION_CUTOFF
             best_stop = None
             
-            old_crossings = 0
-            for other_route in routes:
-                if other_route == current_route:
-                    continue
-                if len(route_pair_crossings(current_route, other_route)) > 0:
-                    old_crossings += 1
-            
             for school in admissible_schools:
                 for stop in school.unrouted_stops:
                     #Not feasibile with respect to age types
                     if (e_no_h and stop.h > 0 and stop.e == 0 or
                         h_no_e and stop.e > 0 and stop.h == 0):
                         continue
-                    route_sp = current_route.special_ed_students
-                    route_sp_2 = set()
-                    for st in current_route.stops:
-                        route_sp_2 = route_sp_2.union(st.special_ed_students)
-                    assert len(route_sp) == len(route_sp_2)
                     if current_route.insert_mincost(stop):
                         #Stop was successfully inserted.
                         #Determine the score of the stop
                         #We want to penalize large time
                         #increases while rewarding collecting
                         #faraway stops.
-                        route_sp = current_route.special_ed_students
-                        route_sp_2 = set()
-                        for st in current_route.stops:
-                            route_sp_2 = route_sp_2.union(st.special_ed_students)
-                        assert len(route_sp) == len(route_sp_2)
                         time_cost = current_route.length - oldlength
                         value = stop.value
                         score = value - time_cost
-                        
-                        #new_crossings = 0
-                        #for other_route in routes:
-                        #    if other_route == current_route:
-                        #        continue
-                        #    if len(route_pair_crossings(current_route, other_route)) > 0:
-                        #        new_crossings += 1
-                        #if len(route_sp) == 0:
-                            #if new_crossings - old_crossings != 0:
-                            #    print("ok")
-                            #score = score - 1100*(new_crossings - old_crossings)
                         
                         #stop in the same place, but different age
                         if time_cost == 0:

@@ -41,7 +41,7 @@ def perform_move(route1, route2, tt_ind):
 #pref_modified can speed things up if you only want greedy moves
 #involving a certain subset.
 #If slack is positive, include moves with positive costs
-def identify_greedy_moves(route_plan, subset = None, slack = 0):
+def identify_greedy_moves(route_plan, subset = None, slack = -1):
     
     if subset == None:
         subset = route_plan
@@ -51,6 +51,9 @@ def identify_greedy_moves(route_plan, subset = None, slack = 0):
     for route1 in route_plan:
         for route2 in route_plan:
             if route1 not in subset and route2 not in subset:
+                continue
+            if (len(route1.special_ed_students) +
+                len(route2.special_ed_students)) > 0 and route1.schools != route2.schools:
                 continue
             if len(route1.stops) == 0 or len(route2.stops) == 0: #No longer exists
                 continue

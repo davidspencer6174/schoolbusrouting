@@ -1,9 +1,16 @@
 import numpy as np
+from scipy import spatial
 
 #If true, informational lines will be printed
 VERBOSE = True
 
 GEOCODES = None
+
+GEOCODE_CACHE = dict()
+
+#For the sake of quickly looking up unknown geocodes, we'll store the
+#geocodes in a KD tree.
+GEOCODE_KDTREE = None
 
 #Identifies elementary, middle, and high school students
 GRADES_TYPE_MAP = dict()
