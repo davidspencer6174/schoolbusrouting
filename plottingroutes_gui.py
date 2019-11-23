@@ -195,8 +195,8 @@ textboxes = [None for i in range(3)]
 buttons = [None for i in range(2)]
 
 default_font = nametofont("TkDefaultFont")
-fontsize = 12
-default_font.configure(size=12)
+fontsize = 10
+default_font.configure(size=fontsize)
    
 def set_file_text(index, text):
     textboxes[index].delete(1.0, tkinter.END)

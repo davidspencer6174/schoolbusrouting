@@ -24,10 +24,17 @@ run_finished = False
 
 def main(method, sped, partial_route_plan = None, permutation = None,
          improve = False, to_bus = False):
+    global routing_type_var, school_textboxes
+    routing_type = routing_type_var.get()
+    school_string = ""
+    if routing_type > 1:
+        school_string = school_textboxes[routing_type - 2].get("1.0", tkinter.END)
     output = setup_students(constants.FILENAMES[0],
                             constants.FILENAMES[4],
                             constants.FILENAMES[1],
-                            sped)
+                            sped,
+                            routing_type,
+                            school_string)
     students = output[0]
     schools_students_map = output[1]
     all_schools = output[2]
@@ -47,16 +54,19 @@ def main(method, sped, partial_route_plan = None, permutation = None,
     
     if method == "mine":
         routes = generate_routes(all_schools, permutation = permutation,
-                             partial_route_plan = partial_route_plan)
+                             partial_route_plan = partial_route_plan, sped = sped)
     
     if method == "savings":
         routes = clarke_wright_savings(all_schools)
+        
+    if len(routes) == 0:
+        return routes
 
     for route in routes:
         assert route.feasibility_check(verbose = True)
     
     if improve:
-        improvement_procedures(routes)
+        improvement_procedures(routes, [!sped, True, True])
         
     for route in routes:
         assert route.feasibility_check(verbose = True)
@@ -123,6 +133,8 @@ def permutation_approach(sped, iterations = 100, minutes = None):
                 new_perm[ind1], new_perm[ind2] = new_perm[ind2], new_perm[ind1]
         #Test the route
         new_routes_returned = main("mine", sped, permutation = new_perm, improve = True, to_bus = True)
+        if len(new_routes_returned) == 0:
+            return []
         if best_perm == None:
             all_stops = set()
             for route in new_routes_returned:
@@ -200,6 +212,8 @@ def vary_params(sped, minutes = None):
         
         #Take measurements of the result
         num_routes = len(routes_returned)
+        if num_routes == 0: #No students
+            return []
         stud_trav_times = stud_trav_time_array(routes_returned)
         mean_stud_trav_time = np.mean(stud_trav_times)/60
         
@@ -262,7 +276,7 @@ def full_run():
     working_on_sped = True
     start_time = process_time()
     start_time_orig = process_time()
-    vary_params(True, minutes = min(5, constants.MINUTES_PER_SEGMENT/2))
+    vary_params(True, minutes = min(20, constants.MINUTES_PER_SEGMENT/2))
     start_time = process_time()
     sped_routes = permutation_approach(True, minutes = constants.MINUTES_PER_SEGMENT*3/2)
     setup_parameters(constants.FILENAMES[6], False)
@@ -295,10 +309,11 @@ files_needed = ["Student data", "School data", "Bus data", "Map data",
 root = tkinter.Tk()
 textboxes = [None for i in range(9)]
 buttons = [None for i in range(9)]
+school_textboxes = [None for i in range(3)]
 time_elapsed_label = None
 
 default_font = nametofont("TkDefaultFont")
-fontsize = 12
+fontsize = 11
 default_font.configure(size=fontsize)
 
 filenames = None
@@ -309,6 +324,9 @@ try:
     print(filenames)
 except:
     filenames = ["" for i in range(9)]
+    
+#Determines whether to route for a single school or all schools
+routing_type_var = tkinter.IntVar()
         
 
 def update_time():
@@ -339,6 +357,7 @@ def set_file(index):
 def create_routes():
     global start_time, start_time_orig
     constants.FILENAMES = filenames
+    constants.GEOCODE_CACHE = dict()
     
     #Save filenames to prevent having to type them in every time
     filenames_save = open("filenames_save", "wb")
@@ -358,7 +377,7 @@ def open_spec(i):
 
 def run_gui(buttons, textboxes):
     global time_elapsed_label, filenames
-    
+     
     for i in range(9):
         this_frame = tkinter.Frame(root)
         this_frame.pack(side = tkinter.TOP)
@@ -371,7 +390,30 @@ def run_gui(buttons, textboxes):
         buttons[i].pack(in_ = this_frame, side = tkinter.LEFT)
         spec_button.pack(in_ = this_frame, side = tkinter.LEFT)
         textboxes[i].pack()
-        
+
+    all_schools_rbutton = tkinter.Radiobutton(root, text = "Route all schools", variable = routing_type_var, value = 1)
+    all_schools_rbutton.pack()
+    all_schools_rbutton.select()
+    
+    cost_cent_frame = tkinter.Frame(root)
+    tkinter.Radiobutton(root, text = "Route school with cost center number", variable = routing_type_var, value = 2).pack(in_ = cost_cent_frame, side = tkinter.LEFT)
+    school_textboxes[0] = tkinter.Text(root, height = 1, font = ("Courier", fontsize))
+    school_textboxes[0].pack(in_ = cost_cent_frame, side = tkinter.LEFT)
+    cost_cent_frame.pack()
+
+    exact_frame = tkinter.Frame(root)
+    tkinter.Radiobutton(root, text = "Route school with exact name", variable = routing_type_var, value = 3).pack(in_ = exact_frame, side = tkinter.LEFT)
+    school_textboxes[1] = tkinter.Text(root, height = 1, font = ("Courier", fontsize))
+    school_textboxes[1].pack(in_ = exact_frame, side = tkinter.LEFT)    
+    exact_frame.pack()
+    
+    approx_frame = tkinter.Frame(root)
+    tkinter.Radiobutton(root, text = "Route school with approximate name", variable = routing_type_var, value = 4).pack(in_ = approx_frame, side = tkinter.LEFT)
+    school_textboxes[2] = tkinter.Text(root, height = 1, font = ("Courier", fontsize))
+    school_textboxes[2].pack(in_ = approx_frame, side = tkinter.LEFT)
+    approx_frame.pack()
+
+     
     start_button = tkinter.Button(root, text="Create Routes", command = create_routes)
     start_button.pack()
     
