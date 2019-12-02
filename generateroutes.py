@@ -5,48 +5,6 @@ from random import random, shuffle, randint
 
 
 
-#geocodes = open("data//all_geocodes.csv", "r")
-#codes = []
-#for code in geocodes.readlines():
-#    codes.append(code.strip())
-
-def ccw(p1, p2, p3):
-    return (p3[1] - p1[1])*(p2[0] - p1[0]) > (p2[1] - p1[1])*(p3[0] - p1[0])
-
-#Determine whether two line segments cross
-#Due to
-#https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
-def line_segments_cross(p1, p2, p3, p4):
-    return ccw(p1, p3, p4) != ccw(p2, p3, p4) and ccw(p1, p2, p3) != ccw(p1, p2, p4)
-
-def virtual_crossing(r1, r2, i1, i2):
-    d_current = trav_time(r1.stops[i1], r1.stops[i1 + 1]) + trav_time(r2.stops[i2], r2.stops[i2 + 1])
-    d_new = trav_time(r1.stops[i1], r2.stops[i2 + 1]) + trav_time(r2.stops[i2], r1.stops[i1 + 1])
-    return (d_new < d_current)
-
-def get_lat_long(stop):
-    code = constants.GEOCODES[stop.tt_ind]
-    latlong = code.split(";")
-    latlong[0] = float(latlong[0])
-    latlong[1] = float(latlong[1])
-    return latlong
-
-def route_pair_crossings(r1, r2):
-    crossings = []
-    for i1 in range(0, len(r1.stops) - 1):
-        for i2 in range(0, len(r2.stops) - 1):
-            p1 = get_lat_long(r1.stops[i1])
-            p2 = get_lat_long(r1.stops[i1 + 1])
-            p3 = get_lat_long(r2.stops[i2])
-            p4 = get_lat_long(r2.stops[i2 + 1])
-            #if virtual_crossing(r1, r2, i1, i2):
-            #    crossings.append((i1, i2))
-            if line_segments_cross(p1, p2, p3, p4):
-                crossings.append((i1, i2))
-    return crossings
-
-
-
 
 
 

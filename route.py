@@ -84,7 +84,7 @@ class Route:
         if pos == -1:
             self.stops.append(stop)
             #Maintain the travel time field and occupants field
-            self.occupants += stop.occs
+            self.occupants += stop.occs*stop.ridership_probability()
             self.recompute_length()
             self.max_time = max(self.max_time,
                                 constants.SLACK*trav_time(stop, stop.school))
@@ -93,7 +93,7 @@ class Route:
         self.stops = self.stops[:pos] + [stop] + self.stops[pos:]
         #Maintain the relevant fields
         self.recompute_length()
-        self.occupants += stop.occs
+        self.occupants += stop.occs*stop.ridership_probability()
         self.max_time = max(self.max_time,
                             constants.SLACK*trav_time(stop, stop.school))
         return True
@@ -196,7 +196,7 @@ class Route:
         if stop.h > 0 and stop.e == 0:
             self.h_no_e = True
         self.recompute_length()
-        self.occupants += stop.occs
+        self.occupants += stop.occs*stop.ridership_probability()
         self.recompute_maxtime()
         if (self.length > self.max_time or
             (self.student_time_limit and not self.check_special_times()) or
@@ -370,7 +370,7 @@ class Route:
     def recompute_occupants(self):
         self.occupants = 0
         for stop in self.stops:
-            self.occupants += stop.occs
+            self.occupants += stop.occs*stop.ridership_probability()
             
     def recompute_type_info(self):
         self.e_no_h = False
