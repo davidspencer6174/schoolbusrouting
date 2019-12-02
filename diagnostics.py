@@ -229,11 +229,11 @@ def display_utilization(route_plan, filename, rplanname):
         for stop in r.stops:
             for s in stop.students:
                 if s.type == "E":
-                    e += 1
+                    e += stop.ridership_probability()
                 if s.type == "M":
-                    m += 1
+                    m += stop.ridership_probability()
                 if s.type == "H":
-                    h += 1
+                    h += stop.ridership_probability()
         mod_caps = constants.CAPACITY_MODIFIED_MAP[r.unmodified_bus_capacity]
         utilizations.append(e/mod_caps[0] + m/mod_caps[1] + h/mod_caps[2])
     utilizations = np.array(utilizations)*100

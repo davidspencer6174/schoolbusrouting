@@ -154,6 +154,3 @@ Maximum allowed distance between schools (min): the default travel time within w
 SPEC_TEXT.append("""The comma separated value files forbidden_school_pairs.csv and allowed_school_pairs.csv allow for exceptions to the maximum school distance parameter. If two schools are farther than the maximum school distance but their names appear in allowed_school_pairs.csv (with the format school_name_1,school_name_2), the program will consider routes which pair them. Similarly, if two schools are within the maximum school distance but their names appear in forbidden_school_pairs.csv, the program will not make any routes that pair them.""")
 
 SPEC_TEXT.append("""The comma separated value files forbidden_school_pairs.csv and allowed_school_pairs.csv allow for exceptions to the maximum school distance parameter. If two schools are farther than the maximum school distance but their names appear in allowed_school_pairs.csv (with the format school_name_1,school_name_2), the program will consider routes which pair them. Similarly, if two schools are within the maximum school distance but their names appear in forbidden_school_pairs.csv, the program will not make any routes that pair them.""")
-
-#SPEC_TEXT = ["test1", "test2", "test3", "test4", "test5", "test6", "test7",
-#             "test8", "test9"]

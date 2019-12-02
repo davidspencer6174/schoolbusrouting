@@ -15,7 +15,8 @@ class School:
     #type is the school's type of student attendee ('E', 'M', 'H')
     #unrouted_stops is the dict from age group to set of stops for
     #the school which are not routed
-    def __init__(self, tt_ind, start_time, end_time, school_name = None):
+    def __init__(self, tt_ind, start_time, end_time, school_name = None,
+                 ridership_probability = 1.0):
         self.tt_ind = tt_ind
         self.start_time = start_time
         self.earliest_dropoff = self.start_time - constants.EARLIEST_AM
@@ -25,6 +26,7 @@ class School:
         self.latest_pickup = self.start_time + constants.LATEST_PM
         self.unrouted_stops = set()
         self.school_name = school_name
+        self.ridership_probability = ridership_probability
         
 class Bus:
     
@@ -85,9 +87,9 @@ class Bus:
                 if stud.has_need('W'):
                     num_wheelchair += 1
                     continue
-                e += (stud.type == 'E')
-                m += (stud.type == 'M')
-                h += (stud.type == 'H')
+                e += (stud.type == 'E')*stop.ridership_probability()
+                m += (stud.type == 'M')*stop.ridership_probability()
+                h += (stud.type == 'H')*stop.ridership_probability()
         #If we have fewer than the minimum number of wheelchair
         #students, usable space will be sitting empty.
         if (num_wheelchair < self.num_wheelchair_min):
@@ -203,6 +205,9 @@ class Stop:
         #If dependent is a Stop, when it gets routed, we need
         #to update, so we store it for the sake of memoization.
         self.dependent = None
+        
+    def ridership_probability(self):
+        return self.school.ridership_probability
         
     def add_student(self, s):
         if s.type == 'E':

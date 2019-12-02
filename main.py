@@ -7,7 +7,6 @@ from locations import Student
 from mixedloads import mixed_loads
 import pickle
 import random
-from savingsbasedroutegeneration import clarke_wright_savings
 from setup import setup_buses, setup_map_data, setup_stops, setup_students, setup_mod_caps, setup_parameters, setup_school_pairs
 from generateroutes import generate_routes
 from busassignment_bruteforce import assign_buses
@@ -55,9 +54,6 @@ def main(method, sped, partial_route_plan = None, permutation = None,
     if method == "mine":
         routes = generate_routes(all_schools, permutation = permutation,
                              partial_route_plan = partial_route_plan, sped = sped)
-    
-    if method == "savings":
-        routes = clarke_wright_savings(all_schools)
         
     if len(routes) == 0:
         return routes
@@ -66,7 +62,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
         assert route.feasibility_check(verbose = True)
     
     if improve:
-        improvement_procedures(routes, [!sped, True, True])
+        improvement_procedures(routes, [False, True, True])
         
     for route in routes:
         assert route.feasibility_check(verbose = True)
@@ -81,7 +77,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
         assert route.feasibility_check(verbose = True)
         
     if improve:
-        improvement_procedures(routes)
+        improvement_procedures(routes, [False, True, True])
         
     for route in routes:
         assert route.feasibility_check(verbose = True)
@@ -423,12 +419,3 @@ def run_gui(buttons, textboxes):
     root.mainloop()
     
 run_gui(buttons, textboxes)
-
-#result = full_run()
-#saving = open("output//using_new_spec.obj", "wb")
-#pickle.dump(result, saving)
-#saving.close()
-
-#savings_routes = main("savings", improve = True, buses = False)        
-#final_result = permutation_approach(False, 2000)
-#vary_params()
