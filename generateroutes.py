@@ -3,12 +3,6 @@ from locations import School, Stop
 from route import Route
 from random import random, shuffle, randint
 
-
-
-
-
-
-
 #Returns travel time from loc1 to loc2
 def trav_time(loc1, loc2):
     return constants.TRAVEL_TIMES[loc1.tt_ind,
@@ -134,6 +128,5 @@ def generate_routes(schools, permutation = None, partial_route_plan = None, sped
                 e_no_h = True
             if best_stop.h > 0 and best_stop.e == 0:
                 h_no_e = True
-        #print(len(current_route.stops))
         routes.append(current_route)
     return list(routes)

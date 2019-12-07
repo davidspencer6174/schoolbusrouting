@@ -342,10 +342,6 @@ class Route:
         for possible_schools in self.valid_school_orderings:
             #Length is stop travel time plus stop to first school
             #plus school travel time
-            if len(self.stops) == 0 or len(possible_schools[0]) == 0:
-                print(self.stops)
-                print(possible_schools[0])
-                print("hmmmmmmmm")
             possible_length = (length +
                                trav_time(self.stops[-1], possible_schools[0][0]) +
                                possible_schools[1])

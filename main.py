@@ -10,6 +10,7 @@ import random
 from setup import setup_buses, setup_map_data, setup_stops, setup_students, setup_mod_caps, setup_parameters, setup_school_pairs
 from generateroutes import generate_routes
 from busassignment_bruteforce import assign_buses
+from plottingroutes_gui import run_gui_plotroutes
 import numpy as np
 import threading
 import tkinter
@@ -33,7 +34,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
                             constants.FILENAMES[1],
                             sped,
                             routing_type,
-                            school_string)
+                            school_string.split(","))
     students = output[0]
     schools_students_map = output[1]
     all_schools = output[2]
@@ -272,16 +273,22 @@ def full_run():
     working_on_sped = True
     start_time = process_time()
     start_time_orig = process_time()
+    print("Searching for good algorithm parameters for special ed.")
     vary_params(True, minutes = min(20, constants.MINUTES_PER_SEGMENT/2))
+    print("Special ed parameters chosen. Beginning routing")
     start_time = process_time()
     sped_routes = permutation_approach(True, minutes = constants.MINUTES_PER_SEGMENT*3/2)
+    print("Special ed routing finished.")
     setup_parameters(constants.FILENAMES[6], False)
     working_on_sped = False
     start_time = process_time()
     start_time_orig = process_time()
+    print("Searching for good algorithm parameters for magnet routing.")
     vary_params(False, minutes = min(20, constants.MINUTES_PER_SEGMENT/2))
+    print("Magnet parameters chosen. Beginning routing")
     start_time = process_time()
     magnet_routes = permutation_approach(False, minutes = constants.MINUTES_PER_SEGMENT*3/2)
+    print("Magnet routing finished.")
     all_routes = sped_routes + magnet_routes
     print("Final number of magnet routes: " + str(len(magnet_routes)))
     print("Mean student travel time of magnet routes: " + str(mstt(magnet_routes)) + " minutes")
@@ -322,7 +329,7 @@ except:
     filenames = ["" for i in range(9)]
     
 #Determines whether to route for a single school or all schools
-routing_type_var = tkinter.IntVar()
+routing_type_var = tkinter.IntVar(root)
         
 
 def update_time():
@@ -392,19 +399,19 @@ def run_gui(buttons, textboxes):
     all_schools_rbutton.select()
     
     cost_cent_frame = tkinter.Frame(root)
-    tkinter.Radiobutton(root, text = "Route school with cost center number", variable = routing_type_var, value = 2).pack(in_ = cost_cent_frame, side = tkinter.LEFT)
+    tkinter.Radiobutton(root, text = "Route school(s) with cost center number(s)", variable = routing_type_var, value = 2).pack(in_ = cost_cent_frame, side = tkinter.LEFT)
     school_textboxes[0] = tkinter.Text(root, height = 1, font = ("Courier", fontsize))
     school_textboxes[0].pack(in_ = cost_cent_frame, side = tkinter.LEFT)
     cost_cent_frame.pack()
 
     exact_frame = tkinter.Frame(root)
-    tkinter.Radiobutton(root, text = "Route school with exact name", variable = routing_type_var, value = 3).pack(in_ = exact_frame, side = tkinter.LEFT)
+    tkinter.Radiobutton(root, text = "Route school(s) with exact name(s)", variable = routing_type_var, value = 3).pack(in_ = exact_frame, side = tkinter.LEFT)
     school_textboxes[1] = tkinter.Text(root, height = 1, font = ("Courier", fontsize))
     school_textboxes[1].pack(in_ = exact_frame, side = tkinter.LEFT)    
     exact_frame.pack()
     
     approx_frame = tkinter.Frame(root)
-    tkinter.Radiobutton(root, text = "Route school with approximate name", variable = routing_type_var, value = 4).pack(in_ = approx_frame, side = tkinter.LEFT)
+    tkinter.Radiobutton(root, text = "Route school(s) with approximate name(s)", variable = routing_type_var, value = 4).pack(in_ = approx_frame, side = tkinter.LEFT)
     school_textboxes[2] = tkinter.Text(root, height = 1, font = ("Courier", fontsize))
     school_textboxes[2].pack(in_ = approx_frame, side = tkinter.LEFT)
     approx_frame.pack()
@@ -412,6 +419,9 @@ def run_gui(buttons, textboxes):
      
     start_button = tkinter.Button(root, text="Create Routes", command = create_routes)
     start_button.pack()
+    
+    plotting_button = tkinter.Button(root, text="Open Route Viewing Utility", command = run_gui_plotroutes)
+    plotting_button.pack()
     
     time_elapsed_label = tkinter.Label(root, text = '')
     time_elapsed_label.pack()

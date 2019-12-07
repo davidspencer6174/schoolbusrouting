@@ -30,7 +30,7 @@ def virtual_crossing(r1, r2, i1, i2):
     return (d_new < d_current)
 
 def get_lat_long(stop):
-    code = constants.GEOCODES[stop.tt_ind]
+    code = constants.GEOCODE_STRINGS[stop.tt_ind]
     latlong = code.split(";")
     latlong[0] = float(latlong[0])
     latlong[1] = float(latlong[1])
@@ -76,8 +76,6 @@ def try_uncrossing(r1, r2, i1, i2):
     #Note: savings <= 0 sometimes allows trivial swaps to
     #sneak by due to floating point error, so use savings <= 1
     if savings <= 1:
-        #if r1.length + r2.length > new_r1.length + new_r2.length:
-        #    print("the weird case")
         return -1
     #Determine by how much (if at all) the time constraints are violated
     worst_extra_time_ratio = max(new_r1.length/new_r1.max_time,
@@ -123,8 +121,6 @@ def check_all_uncrossings(route_plan):
                 continue
             crossings = route_pair_crossings(r1, r2)
             if len(crossings) > 0:
-                if r1ind == 5 and r2ind == 2:
-                        print("checking this one")
                 crossing_pairs_total += 1
                 best_result = None
                 best_i1, best_i2 = -1, -1
