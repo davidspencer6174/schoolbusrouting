@@ -7,16 +7,11 @@ from locations import Student, School
 def mixed_loads(route_list):
     #Iterate over all routes and check whether they
     #can be removed.
-    if constants.VERBOSE:
-        print("Old number of routes: " + str(len(route_list)))
     i = 0
     for route in route_list:
             route.backup("mixed_loads")
     while i < len(route_list):
         modified_routes = set()
-        if (len(route_list) - i) % 50 == 0:
-            if constants.VERBOSE:
-                print((len(route_list) - i))
         route_to_delete = route_list[i]
         modified_routes.add(route_to_delete)
         stops = route_to_delete.stops
@@ -38,8 +33,6 @@ def mixed_loads(route_list):
                 break
         if succeeded:
             del route_list[i]
-            if constants.VERBOSE:
-                print("Successfully deleted a route")
             for route in modified_routes:
                 route.backup("mixed_loads")
         else:

@@ -216,8 +216,6 @@ class Stop:
             self.m += 1
         if s.type == 'H':
             self.h += 1
-        if self.tt_ind != None and self.tt_ind != s.tt_ind:
-            print("Conflicting tt_inds at a stop")
         self.students.add(s)
         if len(s.needs) > 0:
             self.special_ed_students.add(s)

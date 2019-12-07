@@ -4,7 +4,7 @@ from scipy import spatial
 #If true, informational lines will be printed
 VERBOSE = True
 
-GEOCODES = None
+GEOCODE_STRINGS = None
 
 GEOCODE_CACHE = dict()
 

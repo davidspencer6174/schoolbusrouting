@@ -91,14 +91,10 @@ def make_greedy_moves(route_plan, subset = None):
     for move in possible_moves:
         if move[3]: #Feasible move
             if move[0] not in modified and move[1] not in modified:
-                if constants.VERBOSE:
-                    print("Made a move")
                 assert perform_move(move[0], move[1], move[2])
                 modified.add(move[0])
                 modified.add(move[1])
                 improved = True
-    if constants.VERBOSE:
-        print("Next iter")
     if improved: #Keep looking for improvements
         make_greedy_moves(route_plan, modified)
     #Now delete routes with no stops
@@ -107,6 +103,4 @@ def make_greedy_moves(route_plan, subset = None):
         if len(route.stops) == 0:
             to_delete.add(route)
     for route in to_delete:
-        if constants.VERBOSE:
-            print("Saved one")
         route_plan.remove(route)

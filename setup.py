@@ -39,7 +39,7 @@ def fetch_ind(code_to_find, codes_inds_map):
 #by routing_type. This value is not used if routing_type is 1.
 def setup_students(students_filename, all_geocodes,
                    geocoded_schools, sped,
-                   routing_type, school_string):
+                   routing_type, school_strings):
     
     schools = open(geocoded_schools, 'r')
     schools_codes_map = dict()  #maps schools to geocodes
@@ -70,32 +70,40 @@ def setup_students(students_filename, all_geocodes,
                      schools_customtimes_map[fields[0]][i - 7] = timesecs(fields[i])
     schools.close()
     
-    #if we are doing fuzzy matching, figure out the actual school string
+    #if we are doing fuzzy matching, figure out the actual school strings
     #to use
-    best_fuzzy_score = 0
-    best_name = ""
     if routing_type == 4:
-        school_string = school_string.strip().upper()
-        for school in schools_names_map:
-            match_school_string = schools_names_map[school].strip().upper()
-            this_score = (fuzz.ratio(school_string, match_school_string) +
-                          fuzz.partial_ratio(school_string, match_school_string) +
-                          fuzz.token_sort_ratio(school_string, match_school_string))
-            if this_score > best_fuzzy_score:
-                best_fuzzy_score = this_score
-                best_name = schools_names_map[school]
-        print("School name to match: " + school_string)
-        print("Closest match: " + best_name)
+        exact_school_strings = []
+        for school_string in school_strings:
+            best_fuzzy_score = 0
+            best_name = ""
+            school_string = school_string.strip().upper()
+            for school in schools_names_map:
+                match_school_string = schools_names_map[school].strip().upper()
+                this_score = (fuzz.ratio(school_string, match_school_string) +
+                              fuzz.partial_ratio(school_string, match_school_string) +
+                              fuzz.token_sort_ratio(school_string, match_school_string))
+                if this_score > best_fuzzy_score:
+                    best_fuzzy_score = this_score
+                    best_name = schools_names_map[school]
+            print("School name to match: " + school_string)
+            print("Closest match: " + best_name)
+            exact_school_strings.append(best_name)
         routing_type = 3
-        school_string = best_name
+        school_strings = exact_school_strings
+    #Prepare strings for easy identification later
+    for i in range(len(school_strings)):
+        school_strings[i] = school_strings[i].strip().upper()
+        if routing_type == 2:
+            school_strings[i] = int(school_strings[i])
     
     #Associate the geocodes with their indices in the travel time matrix
     geocodes = open(all_geocodes, 'r')
-    constants.GEOCODES = []
+    constants.GEOCODE_STRINGS = []
     codes_inds_map = dict()
     ind = 0
     for code in geocodes.readlines():
-        constants.GEOCODES.append(code.strip())
+        constants.GEOCODE_STRINGS.append(code.strip())
         codes_inds_map[code.strip()] = ind
         ind += 1
     geocodes.close()
@@ -103,7 +111,7 @@ def setup_students(students_filename, all_geocodes,
     #Store all of the geocodes in a KD tree for quick
     #nearest-neighbor lookup
     geocodes_list = []
-    for code in constants.GEOCODES:
+    for code in constants.GEOCODE_STRINGS:
         this_code = code.split(";")
         this_code[0] = float(this_code[0])
         this_code[1] = float(this_code[1])
@@ -140,10 +148,10 @@ def setup_students(students_filename, all_geocodes,
             continue
         #Not in the school we are currently routing
         if routing_type > 1:
-            if routing_type == 2 and int(school_string.strip()) != int(school.strip()):
+            if routing_type == 2 and int(school.strip()) not in school_strings:
                 continue
             if (routing_type == 3 and
-                school_string.strip().upper() != schools_names_map[school].strip().upper()):
+                schools_names_map[school].strip().upper() not in school_strings):
                 continue
         age_type = 'Other'
         try:
@@ -153,7 +161,7 @@ def setup_students(students_filename, all_geocodes,
         if int(grade) in constants.GRADES_TYPE_MAP:
             age_type = constants.GRADES_TYPE_MAP[int(grade)]
         if age_type == 'Other':
-            print(grade)
+            print("Unknown grade: " + str(grade))
         if school_ind not in ind_school_dict:
             starttime = 8*60*60  #default to 8AM start
             endtime = 13*60*60  #default to 3PM finish
@@ -161,9 +169,6 @@ def setup_students(students_filename, all_geocodes,
             if school in schools_starttimes_map:
                 starttime = schools_starttimes_map[school]
                 endtime = schools_endtimes_map[school]
-            else:
-                if constants.VERBOSE:
-                    print("No bell times given for " + school + ", using defaults")
             name = schools_names_map[school]
             prob = schools_probs_map[school]
             ind_school_dict[school_ind] = School(school_ind,
@@ -298,8 +303,6 @@ def setup_school_pairs(forbidden_pairs_filename, allowed_pairs_filename):
                 continue
             constants.FORBIDDEN_SCHOOL_PAIRS.add((fields[0].strip(), fields[1].strip()))
             constants.FORBIDDEN_SCHOOL_PAIRS.add((fields[1].strip(), fields[0].strip()))
-        print("Forbidden pairs:")
-        print(constants.FORBIDDEN_SCHOOL_PAIRS)
         forbidden_file.close()
     if allowed_pairs_filename != "":
         allowed_file = open(allowed_pairs_filename, 'r')

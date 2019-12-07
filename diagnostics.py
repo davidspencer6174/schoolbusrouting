@@ -13,7 +13,7 @@ from utils import stud_trav_time_array
 #Takes an index in the travel time matrix and returns the link with the
 #latitude-longitude pair appended            
 def append_to_link(link, tt_ind, slash=True):
-    latlong = constants.GEOCODES[tt_ind].split(";")
+    latlong = constants.GEOCODE_STRINGS[tt_ind].split(";")
     if slash:
         link += "/"
     link += latlong[0]

@@ -158,8 +158,6 @@ def two_opt(route):
             route.stops[ind1:ind2] = route.stops[ind1:ind2][::-1]
             route.recompute_length()
             if route.length < orig_length and route.feasibility_check():
-                if constants.VERBOSE:
-                    print("Improved")
                 two_opt(route)
                 return
             route.stops[ind1:ind2] = route.stops[ind1:ind2][::-1]
@@ -179,23 +177,28 @@ def mstt(route_plan):
 def improvement_procedures(route_plan, to_do = [True, True, True]):
     from greedymoves import make_greedy_moves
     from mixedloads import mixed_loads
+    print("Attempting to make improvements...")
     while True:
         prev_num_routes = len(route_plan)
         prev_mean_trav = mstt(route_plan)
         if to_do[0]:
+            print('Running "greedy moves" improvement procedure')
             make_greedy_moves(route_plan)
             for route in route_plan:
                 assert route.feasibility_check(verbose = True)
         if to_do[1]:
+            print('Running "two-opt" improvement procedure')
             for route in route_plan:
                 two_opt(route)
             for route in route_plan:
                 assert route.feasibility_check(verbose = True)
         if to_do[2]:
+            print('Running "mixed loads" improvement procedure')
             mixed_loads(route_plan)
             for route in route_plan:
                 assert route.feasibility_check(verbose = True)
         if (len(route_plan) == prev_num_routes and
             mstt(route_plan) == prev_mean_trav):
             break
+        print("Improvements found. Running improvement procedures again")
     return route_plan

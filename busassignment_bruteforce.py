@@ -20,6 +20,9 @@ def greedy_assignment(route, buses):
             #Found an unassigned bus
             if bus.route == None:
                 break
+        if bus == None:
+            print("Out of buses. Terminating bus assignment.")
+            break
         route_creating = Route()
         for i in range(len(route.stops)):
             if not picked_up[i]:
@@ -34,8 +37,6 @@ def greedy_assignment(route, buses):
                 break
         if route_creating.bus != None:
             routes.append(route_creating)
-            if constants.VERBOSE:
-                print("onto next")
             continue
         #If no bus was large enough, should be for one stop.
         assert (len(route_creating.stops) == 1), str(len(route_creating.stops))
@@ -216,10 +217,9 @@ def assign_buses(routes, buses):
     new_routes = []
     for route_ind, route in enumerate(routes):
         #Reporting
-        if constants.VERBOSE:
-            print(str(route_ind) + "/" + str(len(routes)))
-            print("Used " + str(len(new_routes)) + " buses.")
-            print("Assigning a route with " + str(len(route.stops)) + " stops.")
+        if len(buses) == 0:
+            new_routes.append(route)
+            continue
         
         picked_up = [False for i in range(len(route.stops))]
         #Before entering the recursive procedure, assign buses for
@@ -250,15 +250,11 @@ def assign_buses(routes, buses):
         start_time = process_time()
         while False in picked_up:
             num_buses += 1
-            if num_buses > 1 and constants.VERBOSE:
-                print("Trying " + str(num_buses) + " buses.")
             out = try_hold(virtual_route, num_buses, buses, picked_up)
             if out[0]:
                 break
             if process_time() - start_time > constants.BUS_SEARCH_TIME:
-                #Indicate that no solution was found by search
-                if constants.VERBOSE:
-                    print("****************Punting*******************")
+                #No solution was found by search. Punt
                 out = None
                 break
         if out == None:
@@ -283,8 +279,6 @@ def assign_buses(routes, buses):
                     bus.route = subroute
                     subroute.bus = bus
                     new_routes.append(subroute)
-                    if constants.VERBOSE:
-                        print(str(bus) + " " + str(subroute.occupants) + " " + str(len(subroute.stops)))
                     break
             buses.remove(subroute.bus)
     return new_routes
