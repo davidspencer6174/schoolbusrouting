@@ -35,7 +35,10 @@ def write_output(students_filename, output_filename, route_plan):
                 lines[ind] += "\t"
                 if route.bus != None:
                     lines[ind] += str(route.bus.capacity)
-                lines[ind] += "\t" + str(route.occupants)
+                tot_students = 0
+                for stop in route.stops:
+                    tot_students += stop.occs
+                lines[ind] += "\t" + str(tot_students)
                 occs_at_stop = 0
                 for stop2 in route.stops:
                     if stop2.tt_ind == stop.tt_ind:

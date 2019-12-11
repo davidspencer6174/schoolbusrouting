@@ -73,8 +73,19 @@ def plot_routes(routes, geocodes, xres, yres, to_plot_detailed = None):
             x_pix = geo_pixel_map(min_x, max_x, xres, loc[1])
             y_pix = geo_pixel_map(min_y, max_y, yres, loc[0])
             points.append((x_pix, y_pix))
+        if to_plot_detailed == None or tup not in to_plot_detailed:
+            routedisp_string = "Route " + str(ind)
+        else:
+            routedisp_string = "Route " + str(ind)
+            if r.bus != None:
+                routedisp_string += "\nBus capacity: " + str(r.bus.capacity)
+            tot_students = 0
+            for stop in r.stops:
+                tot_students += stop.occs
+            routedisp_string += "\nNumber of students assigned: " + str(tot_students)
+            routedisp_string += "\nAverage # expected to ride: " + str(int(r.occupants))
         texts.append(plt.text(points[0][0], points[0][1],
-                              "Route " + str(ind), ha='center', va='center',
+                              routedisp_string, ha='center', va='center',
                               fontsize = 10, color = 'red'))
         plt.plot([p[0] for p in points], [p[1] for p in points], 'k',
                  linewidth = .5)
@@ -171,9 +182,6 @@ def setup_input(inputs_plotroutes):
 def plot_routes_gui():
     global inputs_plotroutes, textboxes_plotroutes, school_textboxes_plotroutes
     global routes, geocodes, name_format_var
-    
-    if routes == None:
-        routes, geocodes = setup_input(inputs_plotroutes)
         
     inputs_save = open("plotting_inputs_save", "wb")
     pickle.dump(inputs_plotroutes, inputs_save)
@@ -331,6 +339,7 @@ def demote_selected():
 def left_to_right():
     global working_route1, working_route2, route1_num, route2_num
     global listbox1, listbox2, r1_edit, r2_edit
+    print("here")
     selected = list(listbox1.curselection())
     selected.sort()
     selected = selected[::-1]
@@ -339,8 +348,10 @@ def left_to_right():
         if sel < len(r1_edit.stops):
             to_move.append(r1_edit.stops[sel])
             r1_edit.remove_stop(r1_edit.stops[sel])
-    for moving in to_move:
-        r2_edit.add_stop(moving)
+    for moving in to_move[::-1]:
+        r2_edit.stops.append(moving)
+        if moving.school not in r2_edit.schools:
+            r2_edit.schools.append(moving.school)
     listboxes_populate()
     listbox1.selection_clear(0)
     listbox2.selection_clear(0)
@@ -358,8 +369,10 @@ def right_to_left():
         if sel < len(r2_edit.stops):
             to_move.append(r2_edit.stops[sel])
             r2_edit.remove_stop(r2_edit.stops[sel])
-    for moving in to_move:
-        r1_edit.add_stop(moving)
+    for moving in to_move[::-1]:
+        r1_edit.stops.append(moving)
+        if moving.school not in r1_edit.schools:
+            r1_edit.schools.append(moving.school)
     listboxes_populate()
     listbox1.selection_clear(0)
     listbox2.selection_clear(0)
@@ -435,6 +448,7 @@ def edit_routes():
     r2_edit.backup("before_edits")
     
     root_editroutes = tkinter.Tk()
+    root_editroutes.title("Bus Route Editing")
     
     r1label = tkinter.Label(root_editroutes, text = str(route1_num))
     r1label.grid(row = 0, column = 0)
@@ -474,16 +488,17 @@ def edit_routes():
     return False
 
    
-def set_file_text(index, text):
+def set_file_text(index, text, to_setup_input = True):
     global textboxes_plotroutes, inputs_plotroutes
     textboxes_plotroutes[index].delete(1.0, tkinter.END)
     textboxes_plotroutes[index].insert(tkinter.END, text)
-    setup_input(inputs_plotroutes)
+    if to_setup_input:
+        setup_input(inputs_plotroutes)
 
-def set_file(index):
+def set_file(index, to_setup_input = True):
     global inputs_plotroutes
     inputs_plotroutes[index] = askopenfilename()
-    set_file_text(index, inputs_plotroutes[index])
+    set_file_text(index, inputs_plotroutes[index], to_setup_input)
     
 def run_gui_plotroutes():
     global time_elapsed_label, inputs_plotroutes, buttons_plotroutes, textboxes_plotroutes, name_format_var, school_textboxes_plotroutes
@@ -500,6 +515,7 @@ def run_gui_plotroutes():
         inputs_plotroutes = ["" for i in range(4)]
     
     root_plotroutes = tkinter.Tk()
+    root_plotroutes.title("Bus Route Viewing/Editing Utility")
     textboxes_plotroutes = [None for i in range(4)]
     buttons_plotroutes = [None for i in range(4)]
     school_textboxes_plotroutes = [None for i in range(7)]
@@ -517,7 +533,7 @@ def run_gui_plotroutes():
             buttons_plotroutes[i] = tkinter.Label(root_plotroutes, text=files_needed_plotroutes[i])
         textboxes_plotroutes[i] = tkinter.Text(root_plotroutes, height = 1)
         
-        set_file_text(i, inputs_plotroutes[i])
+        set_file_text(i, inputs_plotroutes[i], to_setup_input = False)
         buttons_plotroutes[i].pack(in_ = this_frame, side = tkinter.LEFT)
         textboxes_plotroutes[i].pack()
         

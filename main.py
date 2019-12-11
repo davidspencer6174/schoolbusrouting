@@ -294,6 +294,7 @@ files_needed = ["Student data", "School data", "Bus data", "Map data",
                 "Explicitly forbidden school pairs (optional)"]
 
 root = tkinter.Tk()
+root.title("Bus Route Generation")
 textboxes = [None for i in range(9)]
 buttons = [None for i in range(9)]
 school_textboxes = [None for i in range(3)]
