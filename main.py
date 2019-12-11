@@ -18,6 +18,8 @@ from tkinter.filedialog import askopenfilename
 from tkinter.font import Font, nametofont
 from utils import improvement_procedures, stud_trav_time_array, mstt, write_output
 
+#For questions, contact davidspencer6174@gmail.com
+
 global start_time
 global start_time_orig
 run_finished = False
@@ -420,7 +422,7 @@ def run_gui(buttons, textboxes):
     start_button = tkinter.Button(root, text="Create Routes", command = create_routes)
     start_button.pack()
     
-    plotting_button = tkinter.Button(root, text="Open Route Viewing Utility", command = run_gui_plotroutes)
+    plotting_button = tkinter.Button(root, text="Open Route Viewing/Editing Utility", command = run_gui_plotroutes)
     plotting_button.pack()
     
     time_elapsed_label = tkinter.Label(root, text = '')

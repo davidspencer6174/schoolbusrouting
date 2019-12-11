@@ -77,51 +77,50 @@ def plot_routes(routes, geocodes, xres, yres, to_plot_detailed = None):
                               url='http://matplotlib.org'))
         plt.plot([p[0] for p in points], [p[1] for p in points], 'k',
                  linewidth = .5)
-        if to_plot_detailed != None:
+        if to_plot_detailed != None and tup in to_plot_detailed:
             num_students = 0
             num_schools = 0
             sped_students = set()
-            for tup in to_plot_detailed:
-                r = tup[0]
-                for ind, stop in enumerate(r.stops):
-                    if ind > 0 and stop.tt_ind != r.stops[ind - 1].tt_ind:
-                        message = str(num_students) + " stud, "
-                        if num_students == 1:
-                            message = "1 stud, "
-                        if num_schools == 1:
-                            message += "1 sch"
-                        else:
-                            message += str(num_schools) + " sch"
-                        if len(sped_students) > 0:
-                            for student in sped_students:
-                                message += ","
-                                for need in student.needs:
-                                    message += need
-                        texts.append(plt.text(points[ind - 1][0], points[ind - 1][1],
-                                     message, ha='center', va='center',
-                                     fontsize = 10))
-                        num_students = 0
-                        num_schools = 0
-                        sped_students = set()
-                    num_schools += 1
-                    num_students += stop.occs
-                    sped_students = sped_students.union(stop.special_ed_students)
-                message = str(num_students) + " stud, "
-                if num_students == 1:
-                    message = "1 stud, "
-                if num_schools == 1:
-                    message += "1 sch"
-                else:
-                    message += str(num_schools) + " sch"
-                if len(sped_students) > 0:
-                    for student in sped_students:
-                        message += ","
-                        for need in student.needs:
-                            message += need
-                texts.append(plt.text(points[len(r.stops) - 1][0],
-                                      points[len(r.stops) - 1][1],
-                                      message, ha='center', va='center',
-                                      fontsize = 10))
+            r = tup[0]
+            for ind_inner, stop in enumerate(r.stops):
+                if ind_inner > 0 and stop.tt_ind != r.stops[ind_inner - 1].tt_ind:
+                    message = str(num_students) + " stud, "
+                    if num_students == 1:
+                        message = "1 stud, "
+                    if num_schools == 1:
+                        message += "1 sch"
+                    else:
+                        message += str(num_schools) + " sch"
+                    if len(sped_students) > 0:
+                        for student in sped_students:
+                            message += ","
+                            for need in student.needs:
+                                message += need
+                    texts.append(plt.text(points[ind_inner - 1][0], points[ind_inner - 1][1],
+                                 message, ha='center', va='center',
+                                 fontsize = 10))
+                    num_students = 0
+                    num_schools = 0
+                    sped_students = set()
+                num_schools += 1
+                num_students += stop.occs
+                sped_students = sped_students.union(stop.special_ed_students)
+            message = str(num_students) + " stud, "
+            if num_students == 1:
+                message = "1 stud, "
+            if num_schools == 1:
+                message += "1 sch"
+            else:
+                message += str(num_schools) + " sch"
+            if len(sped_students) > 0:
+                for student in sped_students:
+                    message += ","
+                    for need in student.needs:
+                        message += need
+            texts.append(plt.text(points[len(r.stops) - 1][0],
+                                  points[len(r.stops) - 1][1],
+                                  message, ha='center', va='center',
+                                  fontsize = 10))
     need_show_legend = False
     if to_plot_detailed != None:
         for tup in to_plot_detailed:
@@ -137,9 +136,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot_detailed = None):
     adjust_text(texts, precision = .1, text_from_points = False)
     plt.show()
     
-    
-def plot_routes_gui():
-    global inputs_plotroutes, textboxes_plotroutes, school_textboxes_plotroutes, name_format_var
+def setup_input(inputs_plotroutes):
     routes_file = open(inputs_plotroutes[0], "rb")
     routes = pickle.load(routes_file)
     routes_file.close()
@@ -153,6 +150,40 @@ def plot_routes_gui():
             latlong[1] = float(latlong[1])
             geocodes.append(latlong)
     geocodes_file.close()
+    inputs_save = open("plotting_inputs_save", "wb")
+    pickle.dump(inputs_plotroutes, inputs_save)
+    inputs_save.close()
+    
+    constants.TRAVEL_TIMES = np.load(inputs_plotroutes[2])
+    try:
+        constants.TRAVEL_TIMES *= float(inputs_plotroutes[3])
+    except:
+        constants.TRAVEL_TIMES *= 1.5
+    #Need to multiply by the travel time multiplier. Would rather not
+    #ask the user for the parameters file again as this may change
+    #frequently, so try to infer this from the routes
+    #Use a binary search to do this
+    #lower = 0
+    #upper = 2
+    #old_length = routes[0].length
+    #orig_traveltimes = constants.TRAVEL_TIMES
+    #while upper - lower > 1e-5:
+    #    mid = (upper + lower)/2
+    #    constants.TRAVEL_TIMES = orig_traveltimes*mid
+    #    routes[0].recompute_length()
+    #    if routes[0].length > old_length:
+    #        upper = mid
+    #    else:
+    #        lower = mid
+    #print("Inferred travel time multiplier: " + str((upper + lower)/2))
+    #constants.TRAVEL_TIMES *= (upper + lower)/2
+    
+    return routes, geocodes
+    
+    
+def plot_routes_gui():
+    global inputs_plotroutes, textboxes_plotroutes, school_textboxes_plotroutes, name_format_var
+    routes, geocodes = setup_input(inputs_plotroutes)
     inputs_save = open("plotting_inputs_save", "wb")
     pickle.dump(inputs_plotroutes, inputs_save)
     inputs_save.close()
@@ -239,7 +270,110 @@ def open_gmaps():
     urls_to_open = google_maps_strings(routes[route_to_open])
     for url in urls_to_open:
         webbrowser.open_new(url)
+  
+working_route1 = None
+working_route2 = None
+route1_num = 0
+route2_num = 0
+listbox1 = None
+listbox2 = None
+r1_edit = None
+r2_edit = None
+
+def promote_selected():
+    global working_route1, working_route2, route1_num, route2_num
+    global listbox1, listbox2, r1_edit, r2_edit
+    selected_1 = listbox1.curselection()
+    selected_2 = listbox2.curselection()
+    for sel in selected_1:
+        if sel > 0 and sel < len(r1_edit.stops):
+            r1_edit.stops[sel - 1:sel + 1] = r1_edit.stops[sel - 1:sel + 1][::-1]
+        if sel > route1_num:
+            ind = sel - len(r1_edit.stops)
+            r1_edit.schools[ind - 1:ind + 1] = r1_edit.stops[ind - 1:ind + 1][::-1]
+    for sel in selected_2:
+        if sel > 0 and sel < len(r2_edit.stops):
+            r2_edit.stops[sel - 1:sel + 1] = r2_edit.stops[sel - 1:sel + 1][::-1]
+        if sel > route1_num:
+            ind = sel - len(r2_edit.stops)
+            r2_edit.schools[ind - 1:ind + 1] = r2_edit.stops[ind - 1:ind + 1][::-1]
+    listboxes_populate()
+            
+def listboxes_populate():
+    global working_route1, working_route2, route1_num, route2_num
+    global listbox1, listbox2, r1_edit, r2_edit
+    listbox1.delete(0, tkinter.END)
+    listbox2.delete(0, tkinter.END)
     
+    displaystrings_1 = []
+    displaystrings_2 = []
+    for stop in r1_edit.stops:
+        displaystrings_1.append("Stop with " + str(stop.occs) +
+                                " students for " + stop.school.school_name)
+    for school in r1_edit.schools:
+        displaystrings_1.append(school.school_name)
+    for stop in r2_edit.stops:
+        displaystrings_2.append("Stop with " + str(stop.occs) +
+                                " students for " + stop.school.school_name)
+    for school in r2_edit.schools:
+        displaystrings_2.append(school.school_name)
+    
+            
+    for to_show in displaystrings_1:
+        listbox1.insert(tkinter.END, to_show)
+    for to_show in displaystrings_2:
+        listbox2.insert(tkinter.END, to_show)
+    
+    
+def edit_routes():
+    global school_textboxes_plotroutes, inputs_plotroutes
+    global working_route1, working_route2, route1_num, route2_num
+    global listbox1, listbox2, r1_edit, r2_edit
+    routes, geocodes = setup_input(inputs_plotroutes)
+    #routes_file = open(inputs_plotroutes[0], "rb")
+    #routes = pickle.load(routes_file)
+    #routes_file.close()
+    #geocodes = []
+    #constants.GEOCODE_STRINGS = []
+    #geocodes_file = open(inputs_plotroutes[1], "r")
+    #for code in geocodes_file.readlines():
+    #    constants.GEOCODE_STRINGS.append(code)
+    #    latlong = code.split(";")
+    #    if "\n" in latlong[1]:
+    #        latlong[1] = latlong[1][:-2]
+    #        latlong[0] = float(latlong[0])
+    #        latlong[1] = float(latlong[1])
+    #        geocodes.append(latlong)
+    #geocodes_file.close()
+    
+    route1_num = int(school_textboxes_plotroutes[5].get("1.0", tkinter.END).strip())
+    route2_num = int(school_textboxes_plotroutes[6].get("1.0", tkinter.END).strip())
+    r1_edit = routes[route1_num]
+    r2_edit = routes[route2_num]
+    r1_edit.backup("before_edits")
+    r2_edit.backup("before_edits")
+    
+    root_editroutes = tkinter.Tk()
+    
+    r1label = tkinter.Label(root_editroutes, text = str(route1_num))
+    r1label.grid(row = 0, column = 0)
+    r2label = tkinter.Label(root_editroutes, text = str(route2_num))
+    r2label.grid(row = 0, column = 1)
+    
+    listbox1 = tkinter.Listbox(root_editroutes, selectmode = tkinter.EXTENDED)
+    listbox1.grid(row = 1, column = 0)
+    listbox2 = tkinter.Listbox(root_editroutes, selectmode = tkinter.EXTENDED)
+    listbox2.grid(row = 1, column = 1)
+    
+    listboxes_populate()
+    
+    promote_button = tkinter.Button(root_editroutes,
+                                    text = "Move all selections earlier",
+                                    command = promote_selected)
+    promote_button.grid(row = 2, column = 0)
+    
+    
+    return False
 
    
 def set_file_text(index, text):
@@ -255,7 +389,8 @@ def set_file(index):
 def run_gui_plotroutes():
     global time_elapsed_label, inputs_plotroutes, buttons_plotroutes, textboxes_plotroutes, name_format_var, school_textboxes_plotroutes
     
-    files_needed_plotroutes = ["Route plan object file", "Geocodes for map data"]    
+    files_needed_plotroutes = ["Route plan object file", "Geocodes for map data",
+                               "Map data", "Travel time matrix multiplier (default 1.5)"]    
     
     inputs_plotroutes = None
     try:
@@ -263,18 +398,18 @@ def run_gui_plotroutes():
         inputs_plotroutes = pickle.load(inputs_save)
         inputs_save.close()
     except:
-        inputs_plotroutes = ["" for i in range(2)]
+        inputs_plotroutes = ["" for i in range(4)]
     
     root_plotroutes = tkinter.Tk()
-    textboxes_plotroutes = [None for i in range(2)]
-    buttons_plotroutes = [None for i in range(2)]
-    school_textboxes_plotroutes = [None for i in range(5)]
+    textboxes_plotroutes = [None for i in range(4)]
+    buttons_plotroutes = [None for i in range(4)]
+    school_textboxes_plotroutes = [None for i in range(7)]
 
     default_font_plotroutes = nametofont("TkDefaultFont")
     fontsize_plotroutes = 11
     default_font_plotroutes.configure(size=fontsize_plotroutes)
     
-    for i in range(2):
+    for i in range(4):
         this_frame = tkinter.Frame(root_plotroutes)
         this_frame.pack(side = tkinter.TOP)
         
@@ -321,5 +456,13 @@ def run_gui_plotroutes():
     school_textboxes_plotroutes[4] = tkinter.Text(root_plotroutes, height = 1, font = ("Courier", fontsize_plotroutes))
     school_textboxes_plotroutes[4].pack(in_ = gmapsroute_frame, side = tkinter.LEFT)
     gmapsroute_frame.pack()
+    
+    editing_frame = tkinter.Frame(root_plotroutes)
+    tkinter.Button(root_plotroutes, text="Edit pair of routes by route number", command = edit_routes).pack(in_ = editing_frame, side = tkinter.LEFT)
+    school_textboxes_plotroutes[5] = tkinter.Text(root_plotroutes, height = 1, width = 30, font = ("Courier", fontsize_plotroutes))
+    school_textboxes_plotroutes[6] = tkinter.Text(root_plotroutes, height = 1, width = 30, font = ("Courier", fontsize_plotroutes))
+    school_textboxes_plotroutes[5].pack(in_ = editing_frame, side = tkinter.LEFT)
+    school_textboxes_plotroutes[6].pack(in_ = editing_frame, side = tkinter.LEFT)
+    editing_frame.pack()
     
     root_plotroutes.mainloop()
