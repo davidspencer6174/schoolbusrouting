@@ -188,7 +188,7 @@ def setup_students(students_filename, all_geocodes,
                     ind_school_dict[school_ind].latest_pickup = customtimes[3]
             all_schools.add(ind_school_dict[school_ind])
         this_student = Student(stop_ind, ind_school_dict[school_ind],
-                               age_type, fields, ind, sped)
+                               age_type, fields, ind, fields[0], sped)
         students.append(this_student)
         schools_students_map[school].add(this_student)
         needs = fields[4].split(";")
