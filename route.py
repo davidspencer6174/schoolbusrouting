@@ -69,7 +69,7 @@ class Route:
     #Inserts a stop visit at position pos in the route.
     #The default position is the end.
     #Only check is feasibility of school addition.
-    def add_stop(self, stop, pos = -1):
+    def add_stop(self, stop, pos = -1, force = False):
         if not self.add_school(stop.school):
             return False
         #Maintain the age type information
