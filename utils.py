@@ -7,20 +7,29 @@ def write_output(students_filename, output_filename, route_plan):
     print("Saving data...")
     
     to_save = open(output_filename, 'w')
-    student_records = open(students_filename, 'r')
     
     lines = []
-    header_line = student_records.readline().replace(",", "\t").strip()  #header
-    header_line += "\tStudent ID\tRoute number\tSchool name\tBus capacity\tRoute occupants\tStop occupants\tGoogle Maps link"
+    header_line = "Student ID\tLatitude\tLongitude\tGrade\tNeeds\tRG/SP\tCost Center\tRoute number\tSchool name\tBus capacity\tRoute occupants\tStop occupants\tGoogle Maps link"
     lines.append(header_line)
-    for student_record in student_records.readlines():
-        student_record = student_record.replace(",", "\t").strip()
-        lines.append(student_record)
+    
+    if students_filename != None:
+        student_records = open(students_filename, 'r')
+        header = student_records.readline()
+        for student_record in student_records.readlines():
+            student_record = student_record.replace(",", "\t").strip()
+            lines.append(student_record)
+    else:
+        for r in route_plan:
+            for stop in r.stops:
+                for stud in stop.students:
+                    student_record = "\t".join(stud.fields).strip()
+                    lines.append(student_record)
+        
+        
     for (route_num, route) in enumerate(route_plan):
         for stop in route.stops:
             for stud in stop.students:
                 ind = stud.file_index
-                lines[ind] += "\t" + str(stud.student_id_number)
                 lines[ind] += "\t" + str(route_num)
                 lines[ind] += "\t" + str(stud.school.school_name)
                 lines[ind] += "\t"
@@ -40,6 +49,7 @@ def write_output(students_filename, output_filename, route_plan):
         to_save.write(line + "\n")
     to_save.close()
     print("Done saving data.")
+    
     
 
 #Used to get the data into a full address format        

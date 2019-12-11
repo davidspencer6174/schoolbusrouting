@@ -160,15 +160,8 @@ def permutation_approach(sped, iterations = 100, minutes = None):
             best_num_routes = new_num_routes
             best_score = new_score
             best_routes = new_routes_returned
-            #saving = open(("output//testcombining.obj"), "wb")
-            #pickle.dump(best, saving)
-            #saving.close()
-            #saving = open(("output//testcombining.obj"), "wb")
-            #pickle.dump(best_perm, saving)
-            #saving.close()
             if test > 0:
                 successes.append(num_to_swap)
-                print(successes)
         if minutes != None:
             #Check whether we have already exceeded the maximum time
             if process_time() - start_time > 60*minutes:
@@ -178,18 +171,7 @@ def permutation_approach(sped, iterations = 100, minutes = None):
             if (process_time() - start_time)*(test+2)/(test+1) > 60*minutes:
                 break
         print(str(new_num_routes) + " " + str(new_mstt))
-    return best_routes    
-    #final_routes = main("mine", sped, permutation = best_perm, improve = True)
-    #saving = open("output//testcombining.obj", "wb")
-    #pickle.dump(final_routes, saving)
-    #saving.close()
-    #buses = setup_buses('data//dist_bus_capacities_sped.csv', sped)
-    #final_bused_routes = assign_buses(final_routes, buses)
-    #improvement_procedures(final_bused_routes)
-    #saving = open("output//testcombining.obj", "wb")
-    #pickle.dump(final_bused_routes, saving)
-    #saving.close()
-    #return final_bused_routes
+    return best_routes
 
 
 #Larger mstt_weights will prioritize travel time over
@@ -204,7 +186,6 @@ def vary_params(sped, minutes = None):
         constants.SCH_DIST_WEIGHT = random.random()*.5 + .7
         constants.STOP_DIST_WEIGHT = random.random()*.2
         constants.EVALUATION_CUTOFF = random.random()*500 - 300
-        #constants.MAX_SCHOOL_DIST = 850
         
         #Test these parameters
         routes_returned = main("mine", sped)
@@ -296,6 +277,7 @@ def full_run():
     print("Mean student travel time of magnet routes: " + str(mstt(magnet_routes)) + " minutes")
     print("Final number of special ed routes: " + str(len(sped_routes)))
     print("Mean student travel time of special ed routes: " + str(mstt(sped_routes)) + " minutes")
+    
     output_filename = datetime.now().strftime("output//results_%Y-%m-%d_%H%M%S.csv")
     write_output(constants.FILENAMES[0], output_filename, all_routes)
     

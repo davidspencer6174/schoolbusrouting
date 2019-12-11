@@ -1,6 +1,7 @@
 import constants
 from locations import School, Student
 from adjustText import adjust_text
+from datetime import datetime
 from diagnostics import google_maps_strings
 from fuzzywuzzy import fuzz
 import numpy as np
@@ -11,6 +12,7 @@ from matplotlib.lines import Line2D
 import tkinter
 from tkinter.filedialog import askopenfilename
 from tkinter.font import Font, nametofont
+from utils import write_output
 import webbrowser
 #from graphics import GraphWin, Point, Line, Circle, Text
 
@@ -73,8 +75,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot_detailed = None):
             points.append((x_pix, y_pix))
         texts.append(plt.text(points[0][0], points[0][1],
                               "Route " + str(ind), ha='center', va='center',
-                              fontsize = 10, color = 'red',
-                              url='http://matplotlib.org'))
+                              fontsize = 10, color = 'red'))
         plt.plot([p[0] for p in points], [p[1] for p in points], 'k',
                  linewidth = .5)
         if to_plot_detailed != None and tup in to_plot_detailed:
@@ -136,13 +137,19 @@ def plot_routes(routes, geocodes, xres, yres, to_plot_detailed = None):
     adjust_text(texts, precision = .1, text_from_points = False)
     plt.show()
     
+groutes = None
+geocodes = None
+    
 def setup_input(inputs_plotroutes):
+    global prev_traveltimes_filename, routes, geocodes
     routes_file = open(inputs_plotroutes[0], "rb")
     routes = pickle.load(routes_file)
     routes_file.close()
     geocodes = []
+    constants.GEOCODE_STRINGS = []
     geocodes_file = open(inputs_plotroutes[1], "r")
     for code in geocodes_file.readlines():
+        constants.GEOCODE_STRINGS.append(code)
         latlong = code.split(";")
         if "\n" in latlong[1]:
             latlong[1] = latlong[1][:-2]
@@ -159,31 +166,15 @@ def setup_input(inputs_plotroutes):
         constants.TRAVEL_TIMES *= float(inputs_plotroutes[3])
     except:
         constants.TRAVEL_TIMES *= 1.5
-    #Need to multiply by the travel time multiplier. Would rather not
-    #ask the user for the parameters file again as this may change
-    #frequently, so try to infer this from the routes
-    #Use a binary search to do this
-    #lower = 0
-    #upper = 2
-    #old_length = routes[0].length
-    #orig_traveltimes = constants.TRAVEL_TIMES
-    #while upper - lower > 1e-5:
-    #    mid = (upper + lower)/2
-    #    constants.TRAVEL_TIMES = orig_traveltimes*mid
-    #    routes[0].recompute_length()
-    #    if routes[0].length > old_length:
-    #        upper = mid
-    #    else:
-    #        lower = mid
-    #print("Inferred travel time multiplier: " + str((upper + lower)/2))
-    #constants.TRAVEL_TIMES *= (upper + lower)/2
-    
-    return routes, geocodes
     
     
 def plot_routes_gui():
-    global inputs_plotroutes, textboxes_plotroutes, school_textboxes_plotroutes, name_format_var
-    routes, geocodes = setup_input(inputs_plotroutes)
+    global inputs_plotroutes, textboxes_plotroutes, school_textboxes_plotroutes
+    global routes, geocodes, name_format_var
+    
+    if routes == None:
+        routes, geocodes = setup_input(inputs_plotroutes)
+        
     inputs_save = open("plotting_inputs_save", "wb")
     pickle.dump(inputs_plotroutes, inputs_save)
     inputs_save.close()
@@ -248,22 +239,7 @@ def plot_routes_gui():
         plot_routes(routes_to_plot, geocodes, 1.0, 0.98)
         
 def open_gmaps():
-    global school_textboxes_plotroutes
-    routes_file = open(inputs_plotroutes[0], "rb")
-    routes = pickle.load(routes_file)
-    routes_file.close()
-    geocodes = []
-    constants.GEOCODE_STRINGS = []
-    geocodes_file = open(inputs_plotroutes[1], "r")
-    for code in geocodes_file.readlines():
-        constants.GEOCODE_STRINGS.append(code)
-        latlong = code.split(";")
-        if "\n" in latlong[1]:
-            latlong[1] = latlong[1][:-2]
-            latlong[0] = float(latlong[0])
-            latlong[1] = float(latlong[1])
-            geocodes.append(latlong)
-    geocodes_file.close()
+    global school_textboxes_plotroutes, routes
     
     route_to_open_string = school_textboxes_plotroutes[4].get("1.0", tkinter.END).strip()
     route_to_open = int(route_to_open_string)
@@ -285,19 +261,137 @@ def promote_selected():
     global listbox1, listbox2, r1_edit, r2_edit
     selected_1 = listbox1.curselection()
     selected_2 = listbox2.curselection()
+    new_selected_1 = []
+    new_selected_2 = []
     for sel in selected_1:
         if sel > 0 and sel < len(r1_edit.stops):
             r1_edit.stops[sel - 1:sel + 1] = r1_edit.stops[sel - 1:sel + 1][::-1]
-        if sel > route1_num:
+            new_selected_1.append(sel - 1)
+        elif sel > len(r1_edit.stops):
             ind = sel - len(r1_edit.stops)
             r1_edit.schools[ind - 1:ind + 1] = r1_edit.stops[ind - 1:ind + 1][::-1]
+            new_selected_1.append(sel - 1)
+        else:
+            new_selected_1.append(sel)
     for sel in selected_2:
         if sel > 0 and sel < len(r2_edit.stops):
             r2_edit.stops[sel - 1:sel + 1] = r2_edit.stops[sel - 1:sel + 1][::-1]
-        if sel > route1_num:
+            new_selected_2.append(sel - 1)
+        elif sel > len(r2_edit.stops):
             ind = sel - len(r2_edit.stops)
             r2_edit.schools[ind - 1:ind + 1] = r2_edit.stops[ind - 1:ind + 1][::-1]
+            new_selected_2.append(sel - 1)
+        else:
+            new_selected_2.append(sel)
     listboxes_populate()
+    listbox1.selection_clear(0)
+    listbox2.selection_clear(0)
+    for sel in new_selected_1:
+        listbox1.select_set(sel, sel)
+    for sel in new_selected_2:
+        listbox2.select_set(sel, sel)
+        
+def demote_selected():
+    global working_route1, working_route2, route1_num, route2_num
+    global listbox1, listbox2, r1_edit, r2_edit
+    selected_1 = list(listbox1.curselection())
+    selected_1.sort()
+    selected_2 = list(listbox2.curselection())
+    selected_2.sort()
+    new_selected_1 = []
+    new_selected_2 = []
+    for sel in selected_1:
+        if sel < len(r1_edit.stops) - 1:
+            r1_edit.stops[sel:sel + 2] = r1_edit.stops[sel:sel + 2][::-1]
+            new_selected_1.append(sel + 1)
+        elif sel >= len(r1_edit.stops) and sel < len(r1_edit.stops) + len(r1_edit.schools) - 1:
+            ind = sel - len(r1_edit.stops)
+            r1_edit.schools[ind:ind + 2] = r1_edit.stops[ind:ind + 2][::-1]
+            new_selected_1.append(sel + 1)
+        else:
+            new_selected_1.append(sel)
+    for sel in selected_2:
+        if sel < len(r2_edit.stops) - 1:
+            r2_edit.stops[sel:sel + 2] = r2_edit.stops[sel:sel + 2][::-1]
+            new_selected_2.append(sel + 1)
+        elif sel >= len(r2_edit.stops) and sel < len(r2_edit.stops) + len(r2_edit.schools) - 1:
+            ind = sel - len(r2_edit.stops)
+            r2_edit.schools[ind:ind + 2] = r2_edit.stops[ind:ind + 2][::-1]
+            new_selected_2.append(sel + 1)
+        else:
+            new_selected_2.append(sel)
+    listboxes_populate()
+    listbox1.selection_clear(0)
+    listbox2.selection_clear(0)
+    for sel in new_selected_1:
+        listbox1.select_set(sel, sel)
+    for sel in new_selected_2:
+        listbox2.select_set(sel, sel)
+        
+def left_to_right():
+    global working_route1, working_route2, route1_num, route2_num
+    global listbox1, listbox2, r1_edit, r2_edit
+    selected = list(listbox1.curselection())
+    selected.sort()
+    selected = selected[::-1]
+    to_move = []
+    for sel in selected:
+        if sel < len(r1_edit.stops):
+            to_move.append(r1_edit.stops[sel])
+            r1_edit.remove_stop(r1_edit.stops[sel])
+    for moving in to_move:
+        r2_edit.add_stop(moving)
+    listboxes_populate()
+    listbox1.selection_clear(0)
+    listbox2.selection_clear(0)
+    listbox2.select_set(len(r2_edit.stops) - len(to_move), len(r2_edit.stops) - 1)
+    
+    
+def right_to_left():
+    global working_route1, working_route2, route1_num, route2_num
+    global listbox1, listbox2, r1_edit, r2_edit
+    selected = list(listbox2.curselection())
+    selected.sort()
+    selected = selected[::-1]
+    to_move = []
+    for sel in selected:
+        if sel < len(r2_edit.stops):
+            to_move.append(r2_edit.stops[sel])
+            r2_edit.remove_stop(r2_edit.stops[sel])
+    for moving in to_move:
+        r1_edit.add_stop(moving)
+    listboxes_populate()
+    listbox1.selection_clear(0)
+    listbox2.selection_clear(0)
+    listbox1.select_set(len(r1_edit.stops) - len(to_move), len(r1_edit.stops) - 1)
+
+    
+def revert_changes():
+    global routes
+    
+    if routes == None:
+        routes, geocodes = setup_input(inputs_plotroutes)
+        
+    for r in routes:
+        try:
+            r.restore("before_edits")
+        except:
+            continue
+
+def save_changes():
+    global routes, geocodes
+    
+    if routes == None:
+        routes, geocodes = setup_input(inputs_plotroutes)
+        
+    output_filename = datetime.now().strftime("output//results_%Y-%m-%d_%H%M%S.csv")
+    write_output(None, output_filename, routes)
+    
+    object_output_filename = datetime.now().strftime("output//obj_files_%Y-%m-%d_%H%M%S.obj")
+    saving_objects = open(object_output_filename, "wb")
+    pickle.dump(routes, saving_objects)
+    saving_objects.close()
+
             
 def listboxes_populate():
     global working_route1, working_route2, route1_num, route2_num
@@ -328,23 +422,10 @@ def listboxes_populate():
 def edit_routes():
     global school_textboxes_plotroutes, inputs_plotroutes
     global working_route1, working_route2, route1_num, route2_num
-    global listbox1, listbox2, r1_edit, r2_edit
-    routes, geocodes = setup_input(inputs_plotroutes)
-    #routes_file = open(inputs_plotroutes[0], "rb")
-    #routes = pickle.load(routes_file)
-    #routes_file.close()
-    #geocodes = []
-    #constants.GEOCODE_STRINGS = []
-    #geocodes_file = open(inputs_plotroutes[1], "r")
-    #for code in geocodes_file.readlines():
-    #    constants.GEOCODE_STRINGS.append(code)
-    #    latlong = code.split(";")
-    #    if "\n" in latlong[1]:
-    #        latlong[1] = latlong[1][:-2]
-    #        latlong[0] = float(latlong[0])
-    #        latlong[1] = float(latlong[1])
-    #        geocodes.append(latlong)
-    #geocodes_file.close()
+    global listbox1, listbox2, r1_edit, r2_edit, routes, geocodes
+    
+    if routes == None:
+        routes, geocodes = setup_input(inputs_plotroutes)
     
     route1_num = int(school_textboxes_plotroutes[5].get("1.0", tkinter.END).strip())
     route2_num = int(school_textboxes_plotroutes[6].get("1.0", tkinter.END).strip())
@@ -360,9 +441,11 @@ def edit_routes():
     r2label = tkinter.Label(root_editroutes, text = str(route2_num))
     r2label.grid(row = 0, column = 1)
     
-    listbox1 = tkinter.Listbox(root_editroutes, selectmode = tkinter.EXTENDED)
+    listbox1 = tkinter.Listbox(root_editroutes, selectmode = tkinter.EXTENDED,
+                               width = 50)
     listbox1.grid(row = 1, column = 0)
-    listbox2 = tkinter.Listbox(root_editroutes, selectmode = tkinter.EXTENDED)
+    listbox2 = tkinter.Listbox(root_editroutes, selectmode = tkinter.EXTENDED,
+                               width = 50)
     listbox2.grid(row = 1, column = 1)
     
     listboxes_populate()
@@ -372,14 +455,30 @@ def edit_routes():
                                     command = promote_selected)
     promote_button.grid(row = 2, column = 0)
     
+    demote_button = tkinter.Button(root_editroutes,
+                                    text = "Move all selections later",
+                                    command = demote_selected)
+    demote_button.grid(row = 2, column = 1)
+    
+    left_to_right_button = tkinter.Button(root_editroutes,
+                                          text = "Move selections from " + str(route1_num) + " to " + str(route2_num),
+                                          command = left_to_right)
+    left_to_right_button.grid(row = 3, column = 0)
+    
+    right_to_left_button = tkinter.Button(root_editroutes,
+                                          text = "Move selections from " + str(route2_num) + " to " + str(route1_num),
+                                          command = right_to_left)
+    right_to_left_button.grid(row = 3, column = 1)
+    
     
     return False
 
    
 def set_file_text(index, text):
-    global textboxes_plotroutes
+    global textboxes_plotroutes, inputs_plotroutes
     textboxes_plotroutes[index].delete(1.0, tkinter.END)
     textboxes_plotroutes[index].insert(tkinter.END, text)
+    setup_input(inputs_plotroutes)
 
 def set_file(index):
     global inputs_plotroutes
@@ -414,6 +513,8 @@ def run_gui_plotroutes():
         this_frame.pack(side = tkinter.TOP)
         
         buttons_plotroutes[i] = tkinter.Button(root_plotroutes, text=files_needed_plotroutes[i], command = lambda c=i: set_file(c))
+        if i == 3:
+            buttons_plotroutes[i] = tkinter.Label(root_plotroutes, text=files_needed_plotroutes[i])
         textboxes_plotroutes[i] = tkinter.Text(root_plotroutes, height = 1)
         
         set_file_text(i, inputs_plotroutes[i])
@@ -464,5 +565,17 @@ def run_gui_plotroutes():
     school_textboxes_plotroutes[5].pack(in_ = editing_frame, side = tkinter.LEFT)
     school_textboxes_plotroutes[6].pack(in_ = editing_frame, side = tkinter.LEFT)
     editing_frame.pack()
+    
+    editing_management_frame = tkinter.Frame(root_plotroutes)
+    revert_button = tkinter.Button(root_plotroutes,
+                                   text = "Restore Original Routes",
+                                   command = revert_changes)
+    revert_button.pack(in_ = editing_management_frame, side = tkinter.LEFT)
+    
+    save_button = tkinter.Button(root_plotroutes,
+                                 text = "Save Changes (will create new files)",
+                                 command = save_changes)
+    save_button.pack(in_ = editing_management_frame, side = tkinter.LEFT)
+    editing_management_frame.pack()
     
     root_plotroutes.mainloop()
