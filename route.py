@@ -252,9 +252,9 @@ class Route:
         for school1 in school_perm:
             for school2 in school_perm:
                 if (trav_time(school1, school2) > constants.MAX_SCHOOL_DIST and
-                    not (school1.school_name, school2.school_name) in constants.ALLOWED_SCHOOL_PAIRS):
+                    not (school1.school_identifier, school2.school_identifier) in constants.ALLOWED_SCHOOL_PAIRS):
                     return (False, 0)
-                if (school1.school_name, school2.school_name) in constants.FORBIDDEN_SCHOOL_PAIRS:
+                if (school1.school_identifier, school2.school_identifier) in constants.FORBIDDEN_SCHOOL_PAIRS:
                     return (False, 0)
         #First, check for the morning routes
         time = 0

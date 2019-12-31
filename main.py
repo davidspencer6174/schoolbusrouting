@@ -65,7 +65,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
         assert route.feasibility_check(verbose = True)
     
     if improve:
-        improvement_procedures(routes, [False, True, True])
+        improvement_procedures(routes, [not sped, True, True])
         
     for route in routes:
         assert route.feasibility_check(verbose = True)
@@ -80,7 +80,7 @@ def main(method, sped, partial_route_plan = None, permutation = None,
         assert route.feasibility_check(verbose = True)
         
     if improve:
-        improvement_procedures(routes, [False, True, True])
+        improvement_procedures(routes, [not sped, True, True])
         
     for route in routes:
         assert route.feasibility_check(verbose = True)

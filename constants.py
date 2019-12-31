@@ -117,7 +117,7 @@ Needs: Only processed for SP students. List of needs separated by semicolons. W 
 RG/SP: Determines whether the student is special ed or not
 Cost Center: Cost center identifier to associate with the school information""")
 
-SPEC_TEXT.append("""Comma separated value file with six required columns and four optional columns, which are labeled in a header row.
+SPEC_TEXT.append("""Comma separated value file with seven required columns and four optional columns, which are labeled in a header row.
 
 Cost Center: Cost center identifier as in the student information encoding
 School Name: Name of the school (for printout purposes)
@@ -125,6 +125,7 @@ Start: Start time in format x:xxAM or xx:xxAM
 End: End time in format x:xxPM or xx:xxPM
 Latitude: School latitude
 Longitude: School longitude
+Ridership Percentage: Percent chance that a student who attends this school will ride the bus on a given day (0 to 100); default is 100 if the column is blank
 Optional columns: If four more columns are provided, these are used as custom time windows for pickup and dropoff at that school. In order, these are the earliest time at which students can be dropped off, the latest, the earliest time at which they can be picked up, and the latest. By default, these windows are [start_time-30, start_time-10] and [end_time+10, end_time+20].""")
 
 SPEC_TEXT.append("""Comma separated value file with five columns, which have brief descriptions in a header row.
