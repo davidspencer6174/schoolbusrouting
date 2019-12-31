@@ -1,5 +1,5 @@
 import constants
-from locations import Student
+from locations import Student, School
 
 #Perform the mixed-load improvement procedure on a list of routes.
 #This function does require it to be a list rather than a
@@ -7,45 +7,35 @@ from locations import Student
 def mixed_loads(route_list):
     #Iterate over all routes and check whether they
     #can be removed.
-    buses_saved = []
-    print("Old number of routes: " + str(len(route_list)))
     i = 0
+    for route in route_list:
+            route.backup("mixed_loads")
     while i < len(route_list):
-        if (len(route_list) - i) % 50 == 0:
-            if constants.VERBOSE:
-                print((len(route_list) - i))
+        modified_routes = set()
         route_to_delete = route_list[i]
-        #Make backups to revert if the deletion fails
-        for route in route_list:
-            route.backup()
-        locations = route_to_delete.locations
-        #succeeded will be set to false if we find
-        #a student who cannot be moved.
+        modified_routes.add(route_to_delete)
+        stops = route_to_delete.stops
         succeeded = True
-        for location in locations:
-            #If this is a student, find a route to add to
-            if isinstance(location, Student):
-                moved = False
-                for route_to_add_to in route_list:
-                    if (route_to_add_to != route_to_delete and
-                        route_to_add_to.add_student(location)):
-                        moved = True
-                        break
-                if not moved:
-                    succeeded = False  #We were unable to move this student
+        for stop in stops:
+            added = False
+            for route_to_add_to in route_list:
+                if route_to_add_to == route_to_delete:
+                    continue
+                if (route_to_add_to.e_no_h and stop.h > 0 and stop.e == 0 or
+                    route_to_add_to.h_no_e and stop.e > 0 and stop.h == 0):
+                    continue
+                if route_to_add_to.insert_mincost(stop):
+                    added = True
+                    modified_routes.add(route_to_add_to)
                     break
-        if not succeeded:  #Couldn't move all students; revert changes
-            for route in route_list:
-                route.restore()
-        else:
-            if constants.VERBOSE:
-                print("Successfully deleted a route")
-            #Track capacities of saved buses
-            buses_saved.append(route_to_delete.bus_capacity)
+            if not added:
+                succeeded = False
+                break
+        if succeeded:
             del route_list[i]
-            i -= 1
-        i += 1
-        #if i > 200:  #for the purposes of obtaining quicker profiling results
-        #    break
-    print("New number of routes: " + str(len(route_list)))
-    return buses_saved
+            for route in modified_routes:
+                route.backup("mixed_loads")
+        else:
+            for route in modified_routes:
+                route.restore("mixed_loads")
+            i += 1

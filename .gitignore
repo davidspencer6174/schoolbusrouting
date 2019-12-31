@@ -1,3 +1,9 @@
 *.csv
 *.npy
 *.obj
+*.txt
+*.eps
+*.html
+
+
+*.png
