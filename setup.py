@@ -80,9 +80,10 @@ def setup_students(students_filename, all_geocodes,
             school_string = school_string.strip().upper()
             for school in schools_names_map:
                 match_school_string = schools_names_map[school].strip().upper()
-                this_score = (fuzz.ratio(school_string, match_school_string) +
-                              fuzz.partial_ratio(school_string, match_school_string) +
-                              fuzz.token_sort_ratio(school_string, match_school_string))
+                this_score = 0
+                for word in school_string.split():
+                    this_score += (5*fuzz.partial_ratio(word, match_school_string) +
+                                  fuzz.token_sort_ratio(word, match_school_string))
                 if this_score > best_fuzzy_score:
                     best_fuzzy_score = this_score
                     best_name = schools_names_map[school]
@@ -136,10 +137,10 @@ def setup_students(students_filename, all_geocodes,
     for student_record in student_records.readlines():
         ind += 1
         fields = student_record.strip().split(",")
-        school = fields[6].strip()
+        school_identifier = fields[6].strip()
         stop_ind = fetch_ind(fields[1].strip() + ";" + fields[2].strip(),
                              codes_inds_map)
-        school_ind = fetch_ind(schools_codes_map[school],
+        school_ind = fetch_ind(schools_codes_map[school_identifier],
                                codes_inds_map)
         grade = fields[3].strip()
         stud_sped = (fields[5].strip().upper() == "SP" or fields[5].strip() == "SE".upper())
@@ -151,7 +152,7 @@ def setup_students(students_filename, all_geocodes,
             if routing_type == 2 and int(school.strip()) not in school_strings:
                 continue
             if (routing_type == 3 and
-                schools_names_map[school].strip().upper() not in school_strings):
+                schools_names_map[school_identifier].strip().upper() not in school_strings):
                 continue
         age_type = 'Other'
         try:
@@ -166,18 +167,19 @@ def setup_students(students_filename, all_geocodes,
             starttime = 8*60*60  #default to 8AM start
             endtime = 13*60*60  #default to 3PM finish
             #None of the 19xxxxx schools have times, so use the defaults
-            if school in schools_starttimes_map:
-                starttime = schools_starttimes_map[school]
-                endtime = schools_endtimes_map[school]
-            name = schools_names_map[school]
-            prob = schools_probs_map[school]
-            ind_school_dict[school_ind] = School(school_ind,
+            if school_identifier in schools_starttimes_map:
+                starttime = schools_starttimes_map[school_identifier]
+                endtime = schools_endtimes_map[school_identifier]
+            name = schools_names_map[school_identifier]
+            prob = schools_probs_map[school_identifier]
+            ind_school_dict[school_ind] = School(school_identifier,
+                                                 school_ind,
                                                  starttime,
                                                  endtime,
                                                  name,
                                                  ridership_probability = prob)
-            if school in schools_customtimes_map:
-                customtimes = schools_customtimes_map[school]
+            if school_identifier in schools_customtimes_map:
+                customtimes = schools_customtimes_map[school_identifier]
                 if customtimes[0] != -1:
                     ind_school_dict[school_ind].earliest_dropoff = customtimes[0]               
                 if customtimes[1] != -1:

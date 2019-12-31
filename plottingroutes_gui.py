@@ -90,49 +90,24 @@ def plot_routes(routes, geocodes, xres, yres, to_plot_detailed = None):
         plt.plot([p[0] for p in points], [p[1] for p in points], 'k',
                  linewidth = .5)
         if to_plot_detailed != None and tup in to_plot_detailed:
-            num_students = 0
-            num_schools = 0
-            sped_students = set()
             r = tup[0]
+            message = ""
             for ind_inner, stop in enumerate(r.stops):
                 if ind_inner > 0 and stop.tt_ind != r.stops[ind_inner - 1].tt_ind:
-                    message = str(num_students) + " stud, "
-                    if num_students == 1:
-                        message = "1 stud, "
-                    if num_schools == 1:
-                        message += "1 sch"
-                    else:
-                        message += str(num_schools) + " sch"
-                    if len(sped_students) > 0:
-                        for student in sped_students:
-                            message += ","
-                            for need in student.needs:
-                                message += need
                     texts.append(plt.text(points[ind_inner - 1][0], points[ind_inner - 1][1],
-                                 message, ha='center', va='center',
-                                 fontsize = 10))
-                    num_students = 0
-                    num_schools = 0
-                    sped_students = set()
-                num_schools += 1
-                num_students += stop.occs
-                sped_students = sped_students.union(stop.special_ed_students)
-            message = str(num_students) + " stud, "
-            if num_students == 1:
-                message = "1 stud, "
-            if num_schools == 1:
-                message += "1 sch"
-            else:
-                message += str(num_schools) + " sch"
-            if len(sped_students) > 0:
-                for student in sped_students:
-                    message += ","
+                                         message, ha='center', va='center',
+                                         fontsize = 10))
+                    message = ""
+                if message != "":
+                    message += "\n"
+                message += str(stop.occs) + " for " + stop.school.school_name
+                for student in stop.special_ed_students:
+                    message += "\n"
                     for need in student.needs:
                         message += need
-            texts.append(plt.text(points[len(r.stops) - 1][0],
-                                  points[len(r.stops) - 1][1],
+            texts.append(plt.text(points[len(r.stops) - 1][0], points[len(r.stops) - 1][1],
                                   message, ha='center', va='center',
-                                  fontsize = 10))
+                                  fontsize=10))
     need_show_legend = False
     if to_plot_detailed != None:
         for tup in to_plot_detailed:
@@ -150,6 +125,7 @@ def plot_routes(routes, geocodes, xres, yres, to_plot_detailed = None):
     
 groutes = None
 geocodes = None
+routes = None
     
 def setup_input(inputs_plotroutes):
     global prev_traveltimes_filename, routes, geocodes
@@ -187,6 +163,9 @@ def plot_routes_gui():
     pickle.dump(inputs_plotroutes, inputs_save)
     inputs_save.close()
     
+    if routes == None:
+        setup_input(inputs_plotroutes)
+    
     routes_to_plot = []
     plotting_type = name_format_var.get()
     print(plotting_type)
@@ -211,7 +190,7 @@ def plot_routes_gui():
             for school in all_schools:
                 match_school_string = school.school_name.strip().upper()
                 this_score = (fuzz.ratio(to_plot_string, match_school_string) +
-                              fuzz.partial_ratio(to_plot_string, match_school_string) +
+                              4*fuzz.partial_ratio(to_plot_string, match_school_string) +
                               fuzz.token_sort_ratio(to_plot_string, match_school_string))
                 if this_score > best_fuzzy_score:
                     best_fuzzy_score = this_score
@@ -247,7 +226,10 @@ def plot_routes_gui():
         plot_routes(routes_to_plot, geocodes, 1.0, 0.98)
         
 def open_gmaps():
-    global school_textboxes_plotroutes, routes
+    global school_textboxes_plotroutes, inputs_plotroutes, routes
+    
+    if routes == None:
+        setup_input(inputs_plotroutes)
     
     route_to_open_string = school_textboxes_plotroutes[4].get("1.0", tkinter.END).strip()
     route_to_open = int(route_to_open_string)
@@ -383,7 +365,7 @@ def revert_changes():
     global routes
     
     if routes == None:
-        routes, geocodes = setup_input(inputs_plotroutes)
+        setup_input(inputs_plotroutes)
         
     for r in routes:
         try:
@@ -395,7 +377,7 @@ def save_changes():
     global routes, geocodes
     
     if routes == None:
-        routes, geocodes = setup_input(inputs_plotroutes)
+        setup_input(inputs_plotroutes)
         
     output_filename = datetime.now().strftime("output//results_%Y-%m-%d_%H%M%S.csv")
     write_output(None, output_filename, routes)
@@ -438,14 +420,16 @@ def edit_routes():
     global listbox1, listbox2, r1_edit, r2_edit, routes, geocodes
     
     if routes == None:
-        routes, geocodes = setup_input(inputs_plotroutes)
+        setup_input(inputs_plotroutes)
     
     route1_num = int(school_textboxes_plotroutes[5].get("1.0", tkinter.END).strip())
     route2_num = int(school_textboxes_plotroutes[6].get("1.0", tkinter.END).strip())
     r1_edit = routes[route1_num]
     r2_edit = routes[route2_num]
-    r1_edit.backup("before_edits")
-    r2_edit.backup("before_edits")
+    if "before_edits" not in r1_edit.backups:
+        r1_edit.backup("before_edits")
+    if "before_edits" not in r2_edit.backups:
+        r2_edit.backup("before_edits")
     
     root_editroutes = tkinter.Tk()
     root_editroutes.title("Bus Route Editing")
